@@ -1,0 +1,12 @@
+.home {
+  font-family: system-ui, sans-serif;
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.status {
+  font-weight: 600;
+
+  &.ok { color: #1a7f37; }
+  &.error { color: #cf222e; }
+}

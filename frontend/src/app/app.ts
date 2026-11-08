@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { HealthService } from './core/health.service';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,18 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('frontend');
+  private readonly health = inject(HealthService);
+
+  protected readonly apiStatus = signal<'cargando' | 'conectada' | 'sin conexión'>('cargando');
+  protected readonly apiDetail = signal('');
+
+  constructor() {
+    this.health.check().subscribe({
+      next: (r) => {
+        this.apiStatus.set('conectada');
+        this.apiDetail.set(`${r.service} · ${r.timestamp}`);
+      },
+      error: () => this.apiStatus.set('sin conexión')
+    });
+  }
 }
