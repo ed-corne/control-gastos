@@ -30,3 +30,8 @@ convierten a las entidades de `ControlGastos.Domain`.
 
 - Tablas y columnas en `snake_case`, tablas en plural.
 - Los scripts se numeran (`001_`, `002_`, …) y no se modifican una vez aplicados: se agrega uno nuevo.
+
+## Cambios posteriores
+
+- `007_cuentas_nombre_unico.sql`: el nombre de cuenta es único (sin distinguir mayúsculas).
+- `008_categorias_comentario.sql`: columna `comentario` en categorías.

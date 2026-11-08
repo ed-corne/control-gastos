@@ -6,6 +6,7 @@ export interface Presupuesto {
   categoriaNombre: string;
   categoriaColor: string | null;
   categoriaIcono: string | null;
+  categoriaComentario: string | null;
   anio: number;
   mes: number;
   asignado: number;

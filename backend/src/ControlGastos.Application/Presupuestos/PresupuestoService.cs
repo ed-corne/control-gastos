@@ -120,7 +120,7 @@ public class PresupuestoService(
         return new PresupuestoDto(
             p.Id, p.CategoriaId,
             p.CategoriaId is null ? "Presupuesto global" : categoria?.Nombre ?? "(categoría eliminada)",
-            categoria?.Color, categoria?.Icono,
+            categoria?.Color, categoria?.Icono, categoria?.Comentario,
             p.Anio, p.Mes, p.Monto, gastado, p.Monto - gastado, porcentaje,
             Presupuesto.CalcularEstado(porcentaje));
     }

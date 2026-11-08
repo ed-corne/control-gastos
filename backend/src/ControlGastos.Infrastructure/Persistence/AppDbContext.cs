@@ -44,6 +44,9 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(7)
                 .HasDefaultValueSql("'#6b7280'::character varying")
                 .HasColumnName("color");
+            entity.Property(e => e.Comentario)
+                .HasMaxLength(300)
+                .HasColumnName("comentario");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("now()")
                 .HasColumnName("fecha_creacion");

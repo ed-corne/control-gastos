@@ -3,13 +3,14 @@ import { Component, computed, effect, inject, signal, untracked } from '@angular
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { IconComponent, ICONOS_CUENTA_CLAVES } from '../../core/icon.component';
+import { ModalComponent } from '../../shared/modal.component';
 import { Cuenta, ResumenCuentas, TIPOS_CUENTA } from './cuenta.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { CuentasService } from './cuentas.service';
 
 @Component({
   selector: 'app-cuentas-page',
-  imports: [ReactiveFormsModule, DineroPipe, IconComponent],
+  imports: [ReactiveFormsModule, DineroPipe, IconComponent, ModalComponent],
   templateUrl: './cuentas-page.html',
 })
 export class CuentasPage {
@@ -55,12 +56,14 @@ export class CuentasPage {
   }
 
   protected nueva(): void {
+    this.error.set('');
     this.editandoId.set(null);
     this.form.reset({ nombre: '', tipo: 'Debito', saldoInicial: 0, color: '#4f46e5', icono: 'wallet' });
     this.formularioAbierto.set(true);
   }
 
   protected editar(c: Cuenta): void {
+    this.error.set('');
     this.editandoId.set(c.id);
     this.form.reset({
       nombre: c.nombre,
@@ -81,6 +84,7 @@ export class CuentasPage {
       this.form.markAllAsTouched();
       return;
     }
+    this.error.set('');
     const datos = this.form.getRawValue();
     const id = this.editandoId();
     const peticion = id ? this.api.editar(id, datos) : this.api.crear(datos);
@@ -90,7 +94,7 @@ export class CuentasPage {
         this.formularioAbierto.set(false);
         this.cargar();
       },
-      error: () => this.error.set('No se pudo guardar la cuenta.'),
+      error: (e) => this.error.set(this.mensaje(e, 'No se pudo guardar la cuenta.')),
     });
   }
 
@@ -106,13 +110,12 @@ export class CuentasPage {
     if (!confirm(`¿Eliminar la cuenta "${c.nombre}"? Esta acción no se puede deshacer.`)) return;
     this.api.eliminar(c.id).subscribe({
       next: () => this.cargar(),
-      error: (e) =>
-        this.error.set(
-          e instanceof HttpErrorResponse && e.status === 409 && e.error?.detail
-            ? e.error.detail
-            : 'No se pudo eliminar la cuenta.',
-        ),
+      error: (e) => this.error.set(this.mensaje(e, 'No se pudo eliminar la cuenta.')),
     });
+  }
+
+  private mensaje(e: unknown, porDefecto: string): string {
+    return e instanceof HttpErrorResponse && e.status === 409 && e.error?.detail ? e.error.detail : porDefecto;
   }
 
   private cargar(): void {

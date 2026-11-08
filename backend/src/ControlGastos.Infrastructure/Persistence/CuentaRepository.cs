@@ -45,6 +45,12 @@ public class CuentaRepository(AppDbContext db) : ICuentaRepository
     public async Task EliminarAsync(Guid id, CancellationToken ct) =>
         await db.Cuentas.Where(c => c.Id == id).ExecuteDeleteAsync(ct);
 
+    public Task<bool> ExisteNombreAsync(string nombre, Guid? excluirId, CancellationToken ct)
+    {
+        var minuscula = nombre.ToLower();
+        return db.Cuentas.AnyAsync(c => c.Nombre.ToLower() == minuscula && c.Id != excluirId, ct);
+    }
+
     public Task<bool> TieneMovimientosAsync(Guid id, CancellationToken ct) =>
         db.Movimientos.AnyAsync(m => m.CuentaId == id || m.CuentaDestinoId == id, ct);
 

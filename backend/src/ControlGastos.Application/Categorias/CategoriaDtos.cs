@@ -16,6 +16,9 @@ public sealed record GuardarCategoriaRequest
 
     [Required, StringLength(50)]
     public string Icono { get; init; } = "other";
+
+    [StringLength(300)]
+    public string? Comentario { get; init; }
 }
 
 public sealed record CategoriaDto(
@@ -24,4 +27,5 @@ public sealed record CategoriaDto(
     TipoCategoria Tipo,
     string Color,
     string Icono,
+    string? Comentario,
     bool Archivada);

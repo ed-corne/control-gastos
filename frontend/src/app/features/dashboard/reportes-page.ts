@@ -51,6 +51,13 @@ interface Punto {
   templateUrl: './reportes-page.html',
 })
 export class ReportesPage {
+  protected readonly pestana = signal<'barras' | 'categoria' | 'comparativo'>('barras');
+  protected readonly pestanas = [
+    { id: 'barras', etiqueta: 'Ingresos y gastos' },
+    { id: 'categoria', etiqueta: 'Por categoría' },
+    { id: 'comparativo', etiqueta: 'Mes contra mes' },
+  ] as const;
+
   private readonly api = inject(DashboardService);
   private readonly categoriasApi = inject(CategoriasService);
   private readonly movimientos = inject(MovimientosEstado);

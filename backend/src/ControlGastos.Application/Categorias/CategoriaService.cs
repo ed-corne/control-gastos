@@ -66,8 +66,9 @@ public class CategoriaService(ICategoriaRepository repositorio)
         categoria.Tipo = r.Tipo;
         categoria.Color = r.Color;
         categoria.Icono = r.Icono.Trim();
+        categoria.Comentario = string.IsNullOrWhiteSpace(r.Comentario) ? null : r.Comentario.Trim();
     }
 
     private static CategoriaDto ToDto(Categoria c) =>
-        new(c.Id, c.Nombre, c.Tipo, c.Color, c.Icono, c.Archivada);
+        new(c.Id, c.Nombre, c.Tipo, c.Color, c.Icono, c.Comentario, c.Archivada);
 }

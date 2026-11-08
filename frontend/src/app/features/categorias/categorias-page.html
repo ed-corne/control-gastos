@@ -15,13 +15,16 @@
     }
   </div>
 
-  @if (error()) {
+  @if (error() && !formularioAbierto()) {
     <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   @if (formularioAbierto()) {
-    <form class="card mb-5 grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
-      <h2 class="section-title mb-0">{{ titulo() }}</h2>
+    <app-modal [titulo]="titulo()" (cerrar)="cancelar()">
+    <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
+      @if (error()) {
+        <p class="alert-error" role="alert">{{ error() }}</p>
+      }
 
       <label class="field">
         <span class="field-label">Nombre</span>
@@ -31,34 +34,33 @@
         }
       </label>
 
+      <label class="field">
+        <span class="field-label">Comentario (opcional)</span>
+        <textarea class="input" rows="2" maxlength="300" formControlName="comentario"
+                  placeholder="Qué cosas entran en esta categoría. Ej. súper, tienda, mercado"></textarea>
+      </label>
+
       <label class="field w-fit">
         <span class="field-label">Color</span>
         <input type="color" formControlName="color" class="h-10 w-20 cursor-pointer rounded-lg border border-line bg-bg p-1" />
       </label>
 
-      <fieldset class="field">
-        <legend class="field-label mb-1.5">Ícono</legend>
-        <div class="flex flex-wrap gap-2">
-          @for (i of iconos; track i) {
-            <label class="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border-2 bg-surface-2 text-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
-                   [class.border-primary]="form.controls.icono.value === i"
-                   [class.border-transparent]="form.controls.icono.value !== i">
-              <input class="sr-only" type="radio" formControlName="icono" [value]="i" [attr.aria-label]="i" />
-              <app-icon [name]="i" />
-            </label>
-          }
-        </div>
-      </fieldset>
+      <div class="field">
+        <span class="field-label">Ícono</span>
+        <app-icon-picker [valor]="form.controls.icono.value" (valorChange)="form.controls.icono.setValue($event)" />
+      </div>
 
       <div class="flex justify-end gap-2">
         <button type="button" class="btn" (click)="cancelar()">Cancelar</button>
         <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
+    </app-modal>
   }
 
-  <label class="mb-4 inline-flex items-center gap-2 text-sm text-ink">
-    <input type="checkbox" class="size-4 accent-[var(--primary)]" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
+  <label class="switch mb-4">
+    <input type="checkbox" role="switch" class="peer sr-only" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
+    <span class="switch-track"></span>
     Mostrar archivadas
   </label>
 
@@ -74,6 +76,9 @@
         </span>
         <div class="min-w-24 flex-1">
           <p class="font-medium text-ink">{{ c.nombre }}</p>
+          @if (c.comentario) {
+            <p class="text-xs text-muted">{{ c.comentario }}</p>
+          }
           @if (c.archivada) {
             <p class="text-xs text-muted">Archivada</p>
           }

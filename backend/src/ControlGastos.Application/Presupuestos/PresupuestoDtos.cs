@@ -48,6 +48,7 @@ public sealed record PresupuestoDto(
     string CategoriaNombre,
     string? CategoriaColor,
     string? CategoriaIcono,
+    string? CategoriaComentario,
     int Anio,
     int Mes,
     decimal Asignado,

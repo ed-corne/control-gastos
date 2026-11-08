@@ -6,6 +6,7 @@ export interface Categoria {
   tipo: TipoCategoria;
   color: string;
   icono: string;
+  comentario: string | null;
   archivada: boolean;
 }
 
@@ -14,4 +15,5 @@ export interface GuardarCategoria {
   tipo: TipoCategoria;
   color: string;
   icono: string;
+  comentario: string | null;
 }

@@ -20,6 +20,8 @@ public class CuentaService(ICuentaRepository repositorio)
 
     public async Task<CuentaDto> CrearAsync(GuardarCuentaRequest request, CancellationToken ct)
     {
+        await ValidarNombreUnicoAsync(request.Nombre, excluirId: null, ct);
+
         var cuenta = new Cuenta();
         Aplicar(cuenta, request);
         await repositorio.AgregarAsync(cuenta, ct);
@@ -30,6 +32,8 @@ public class CuentaService(ICuentaRepository repositorio)
     {
         var cuenta = await repositorio.ObtenerAsync(id, ct);
         if (cuenta is null) return null;
+
+        await ValidarNombreUnicoAsync(request.Nombre, excluirId: id, ct);
 
         Aplicar(cuenta, request);
         await repositorio.ActualizarAsync(cuenta, ct);
@@ -71,6 +75,12 @@ public class CuentaService(ICuentaRepository repositorio)
         var deuda = cuentas.Where(c => c.Tipo == TipoCuenta.Credito).Sum(c => CalcularSaldoActual(c, neto));
 
         return new ResumenCuentasDto(activos - deuda, activos, deuda, cuentas.Count);
+    }
+
+    private async Task ValidarNombreUnicoAsync(string nombre, Guid? excluirId, CancellationToken ct)
+    {
+        if (await repositorio.ExisteNombreAsync(nombre.Trim(), excluirId, ct))
+            throw new ReglaNegocioException($"Ya existe una cuenta llamada “{nombre.Trim()}”.");
     }
 
     private static readonly IReadOnlyDictionary<Guid, decimal> SinMovimientos = new Dictionary<Guid, decimal>();

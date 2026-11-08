@@ -9,6 +9,7 @@ public interface ICuentaRepository
     Task AgregarAsync(Cuenta cuenta, CancellationToken ct);
     Task ActualizarAsync(Cuenta cuenta, CancellationToken ct);
     Task EliminarAsync(Guid id, CancellationToken ct);
+    Task<bool> ExisteNombreAsync(string nombre, Guid? excluirId, CancellationToken ct);
     Task<bool> TieneMovimientosAsync(Guid id, CancellationToken ct);
 
     /// <summary>

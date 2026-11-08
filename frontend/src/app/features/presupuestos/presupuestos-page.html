@@ -21,7 +21,7 @@
     </button>
   </div>
 
-  @if (error()) {
+  @if (error() && !formularioAbierto()) {
     <p class="alert-error mb-4">{{ error() }}</p>
   }
   @if (aviso()) {
@@ -29,8 +29,11 @@
   }
 
   @if (formularioAbierto()) {
-    <form class="card mb-5 grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
-      <h2 class="section-title mb-0">{{ editandoId() ? 'Editar monto' : 'Nuevo presupuesto' }}</h2>
+    <app-modal [titulo]="editandoId() ? 'Editar monto' : 'Nuevo presupuesto'" (cerrar)="cancelar()">
+    <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
+      @if (error()) {
+        <p class="alert-error" role="alert">{{ error() }}</p>
+      }
 
       @if (!editandoId()) {
         <label class="field">
@@ -59,6 +62,7 @@
         <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
+    </app-modal>
   }
 
   @if (presupuestos().length === 0) {
@@ -73,7 +77,12 @@
                 [style.color]="p.categoriaColor">
             <app-icon [name]="p.categoriaIcono ?? 'target'" />
           </span>
-          <h2 class="flex-1 font-semibold text-ink">{{ p.categoriaNombre }}</h2>
+          <div class="min-w-0 flex-1">
+            <h2 class="font-semibold text-ink">{{ p.categoriaNombre }}</h2>
+            @if (p.categoriaComentario) {
+              <p class="text-xs text-muted">{{ p.categoriaComentario }}</p>
+            }
+          </div>
           <span class="num flex items-center gap-1 text-lg font-bold"
                 [class.text-success]="p.estado === 'Verde'"
                 [class.text-warning]="p.estado === 'Amarillo'"

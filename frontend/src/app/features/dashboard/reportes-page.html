@@ -3,11 +3,19 @@
     <h1 class="page-title">Reportes</h1>
   </header>
 
+  <div class="tabs mb-5 max-w-full overflow-x-auto" role="tablist" aria-label="Reportes">
+    @for (t of pestanas; track t.id) {
+      <button type="button" role="tab" class="tab whitespace-nowrap" [class.tab-active]="pestana() === t.id"
+              [attr.aria-selected]="pestana() === t.id" (click)="pestana.set(t.id)">{{ t.etiqueta }}</button>
+    }
+  </div>
+
   @if (error()) {
     <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   <!-- RF-REP-01 -->
+  @if (pestana() === 'barras') {
   <div class="card mb-5">
     <div class="mb-3 flex flex-wrap items-center gap-3">
       <h2 class="section-title mb-0 min-w-48 flex-1">Ingresos contra gastos · últimos 12 meses</h2>
@@ -57,7 +65,10 @@
     }
   </div>
 
+  }
+
   <!-- RF-REP-02 -->
+  @if (pestana() === 'categoria') {
   <div class="card mb-5">
     <div class="mb-3 flex flex-wrap items-center gap-3">
       <h2 class="section-title mb-0 min-w-48 flex-1">Evolución de una categoría</h2>
@@ -109,7 +120,10 @@
     }
   </div>
 
+  }
+
   <!-- RF-REP-03 -->
+  @if (pestana() === 'comparativo') {
   <div class="card">
     <div class="mb-3 flex flex-wrap items-center gap-3">
       <h2 class="section-title mb-0 min-w-48 flex-1">Gasto del mes contra el mes anterior</h2>
@@ -165,4 +179,5 @@
       }
     }
   </div>
+  }
 </section>

@@ -23,13 +23,16 @@
     </div>
   }
 
-  @if (error()) {
+  @if (error() && !formularioAbierto()) {
     <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   @if (formularioAbierto()) {
-    <form class="card mb-5 grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
-      <h2 class="section-title mb-0">{{ titulo() }}</h2>
+    <app-modal [titulo]="titulo()" (cerrar)="cancelar()">
+    <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
+      @if (error()) {
+        <p class="alert-error" role="alert">{{ error() }}</p>
+      }
 
       <label class="field">
         <span class="field-label">Nombre</span>
@@ -79,10 +82,12 @@
         <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
+    </app-modal>
   }
 
-  <label class="mb-4 inline-flex items-center gap-2 text-sm text-ink">
-    <input type="checkbox" class="size-4 accent-[var(--primary)]" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
+  <label class="switch mb-4">
+    <input type="checkbox" role="switch" class="peer sr-only" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
+    <span class="switch-track"></span>
     Mostrar archivadas
   </label>
 

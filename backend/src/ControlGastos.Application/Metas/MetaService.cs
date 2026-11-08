@@ -106,7 +106,7 @@ public class MetaService(IMetaRepository repositorio)
         var falta = Math.Max(0, m.MontoObjetivo - ahorrado);
         var porcentaje = decimal.Round(ahorrado / m.MontoObjetivo * 100, 1);
 
-        decimal? mensual = null;
+        decimal? semanal = null;
         var vencida = false;
 
         if (!m.Cumplida && m.FechaLimite is { } limite)
@@ -114,13 +114,14 @@ public class MetaService(IMetaRepository repositorio)
             var hoy = DateOnly.FromDateTime(DateTime.Now);
             vencida = limite < hoy;
 
-            // Meses que quedan, contando el mes actual; mínimo 1 para no dividir entre cero.
-            var meses = Math.Max(1, (limite.Year - hoy.Year) * 12 + limite.Month - hoy.Month);
-            mensual = decimal.Round(falta / meses, 2);
+            // Semanas que quedan (se redondea hacia arriba); mínimo 1 para no dividir entre cero.
+            var dias = limite.DayNumber - hoy.DayNumber;
+            var semanas = Math.Max(1, (int)Math.Ceiling(dias / 7.0));
+            semanal = decimal.Round(falta / semanas, 2);
         }
 
         return new MetaDto(
             m.Id, m.Nombre, m.MontoObjetivo, m.FechaLimite, m.Icono, m.Color,
-            ahorrado, falta, porcentaje, m.Cumplida, m.FechaCumplida, mensual, vencida);
+            ahorrado, falta, porcentaje, m.Cumplida, m.FechaCumplida, semanal, vencida);
     }
 }

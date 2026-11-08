@@ -1,20 +1,21 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IconComponent, ICONOS_CATEGORIA_CLAVES } from '../../core/icon.component';
+import { IconComponent } from '../../core/icon.component';
+import { IconPickerComponent } from '../../shared/icon-picker.component';
+import { ModalComponent } from '../../shared/modal.component';
 import { Categoria, TipoCategoria } from './categoria.model';
 import { CategoriasService } from './categorias.service';
 
 @Component({
   selector: 'app-categorias-page',
-  imports: [ReactiveFormsModule, IconComponent],
+  imports: [ReactiveFormsModule, IconComponent, IconPickerComponent, ModalComponent],
   templateUrl: './categorias-page.html',
 })
 export class CategoriasPage {
   private readonly api = inject(CategoriasService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
-  protected readonly iconos = ICONOS_CATEGORIA_CLAVES;
   protected readonly tipos: TipoCategoria[] = ['Gasto', 'Ingreso'];
 
   protected readonly tipoActivo = signal<TipoCategoria>('Gasto');
@@ -32,6 +33,7 @@ export class CategoriasPage {
     nombre: ['', [Validators.required, Validators.maxLength(100)]],
     color: ['#6b7280', [Validators.required, Validators.pattern(/^#[0-9a-fA-F]{6}$/)]],
     icono: ['other', Validators.required],
+    comentario: ['', Validators.maxLength(300)],
   });
 
   constructor() {
@@ -51,13 +53,15 @@ export class CategoriasPage {
 
   protected nueva(): void {
     this.editandoId.set(null);
-    this.form.reset({ nombre: '', color: '#6b7280', icono: 'other' });
+    this.error.set('');
+    this.form.reset({ nombre: '', color: '#6b7280', icono: 'other', comentario: '' });
     this.formularioAbierto.set(true);
   }
 
   protected editar(c: Categoria): void {
     this.editandoId.set(c.id);
-    this.form.reset({ nombre: c.nombre, color: c.color, icono: c.icono });
+    this.error.set('');
+    this.form.reset({ nombre: c.nombre, color: c.color, icono: c.icono, comentario: c.comentario ?? '' });
     this.formularioAbierto.set(true);
   }
 
@@ -70,6 +74,7 @@ export class CategoriasPage {
       this.form.markAllAsTouched();
       return;
     }
+    this.error.set('');
     const datos = { ...this.form.getRawValue(), tipo: this.tipoActivo() };
     const id = this.editandoId();
     const peticion = id ? this.api.editar(id, datos) : this.api.crear(datos);

@@ -19,6 +19,8 @@ public partial class Categoria
 
     public DateTime FechaCreacion { get; set; }
 
+    public string? Comentario { get; set; }
+
     public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
 
     public virtual ICollection<Presupuesto> Presupuestos { get; set; } = new List<Presupuesto>();

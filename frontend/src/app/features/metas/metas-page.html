@@ -13,13 +13,16 @@
             [attr.aria-selected]="verCumplidas()" (click)="alternarHistorialMetas(true)">Cumplidas</button>
   </div>
 
-  @if (error()) {
+  @if (error() && !formularioAbierto() && !operandoId()) {
     <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   @if (formularioAbierto()) {
-    <form class="card mb-5 grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
-      <h2 class="section-title mb-0">{{ titulo() }}</h2>
+    <app-modal [titulo]="titulo()" (cerrar)="cancelar()">
+    <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
+      @if (error()) {
+        <p class="alert-error" role="alert">{{ error() }}</p>
+      }
 
       <label class="field">
         <span class="field-label">Nombre</span>
@@ -68,6 +71,7 @@
         <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
+    </app-modal>
   }
 
   @if (metas().length === 0) {
@@ -109,26 +113,11 @@
             }
             <span>
               {{ m.vencida ? 'Venció el' : 'Fecha límite:' }} {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
-              @if (m.ahorroMensualSugerido !== null) {
-                Ahorra <b class="text-ink num">{{ m.ahorroMensualSugerido | dinero }}</b> al mes para llegar a tiempo.
+              @if (m.ahorroSemanalSugerido !== null) {
+                Ahorra <b class="text-ink num">{{ m.ahorroSemanalSugerido | dinero }}</b> por semana para llegar a tiempo.
               }
             </span>
           </p>
-        }
-
-        @if (operandoId() === m.id) {
-          <form class="grid gap-3 rounded-xl bg-surface-2 p-3" [formGroup]="formOperacion" (ngSubmit)="registrarOperacion()">
-            <strong class="text-sm text-ink">{{ tipoOperacion() === 'Aportacion' ? 'Aportar a la meta' : 'Retirar de la meta' }}</strong>
-            <div class="grid gap-3 sm:grid-cols-2">
-              <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto" placeholder="Monto" aria-label="Monto" />
-              <input class="input" type="date" formControlName="fecha" [max]="hoy" aria-label="Fecha" />
-            </div>
-            <input class="input" type="text" formControlName="nota" maxlength="200" placeholder="Nota (opcional)" aria-label="Nota" />
-            <div class="flex justify-end gap-2">
-              <button type="button" class="btn btn-sm" (click)="cerrarOperacion()">Cancelar</button>
-              <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
-            </div>
-          </form>
         }
 
         <div class="flex flex-wrap justify-end gap-1.5">
@@ -162,4 +151,35 @@
       </li>
     }
   </ul>
+
+  @if (operandoId()) {
+    <app-modal [titulo]="(tipoOperacion() === 'Aportacion' ? 'Aportar a ' : 'Retirar de ') + nombreOperando()" (cerrar)="cerrarOperacion()">
+      <form class="grid gap-4" [formGroup]="formOperacion" (ngSubmit)="registrarOperacion()">
+        @if (error()) {
+          <p class="alert-error" role="alert">{{ error() }}</p>
+        }
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="field">
+            <span class="field-label">Monto</span>
+            <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto" />
+            @if (formOperacion.controls.monto.touched && formOperacion.controls.monto.invalid) {
+              <span class="text-xs text-danger">Indica un monto mayor a 0.</span>
+            }
+          </label>
+          <label class="field">
+            <span class="field-label">Fecha</span>
+            <input class="input" type="date" formControlName="fecha" [max]="hoy" />
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">Nota (opcional)</span>
+          <input class="input" type="text" formControlName="nota" maxlength="200" />
+        </label>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="btn" (click)="cerrarOperacion()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </app-modal>
+  }
 </section>

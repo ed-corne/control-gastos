@@ -5,12 +5,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { hoyIso } from '../movimientos/movimiento.model';
 import { IconComponent, ICONOS_META_CLAVES } from '../../core/icon.component';
+import { ModalComponent } from '../../shared/modal.component';
 import { Meta, OperacionMeta, TipoOperacionMeta } from './meta.model';
 import { MetasService } from './metas.service';
 
 @Component({
   selector: 'app-metas-page',
-  imports: [ReactiveFormsModule, DineroPipe, DatePipe, IconComponent],
+  imports: [ReactiveFormsModule, DineroPipe, DatePipe, IconComponent, ModalComponent],
   templateUrl: './metas-page.html',
 })
 export class MetasPage {
@@ -33,6 +34,8 @@ export class MetasPage {
   // Historial expandido de una meta
   protected readonly historialId = signal<string | null>(null);
   protected readonly historial = signal<OperacionMeta[]>([]);
+
+  protected readonly nombreOperando = computed(() => this.metas().find((m) => m.id === this.operandoId())?.nombre ?? '');
 
   protected readonly titulo = computed(() => (this.editandoId() ? 'Editar meta' : 'Nueva meta'));
 
@@ -63,12 +66,14 @@ export class MetasPage {
   }
 
   protected nueva(): void {
+    this.error.set('');
     this.editandoId.set(null);
     this.form.reset({ nombre: '', montoObjetivo: null, fechaLimite: '', color: '#4f46e5', icono: 'target' });
     this.formularioAbierto.set(true);
   }
 
   protected editar(m: Meta): void {
+    this.error.set('');
     this.editandoId.set(m.id);
     this.form.reset({
       nombre: m.nombre,
@@ -89,6 +94,7 @@ export class MetasPage {
       this.form.markAllAsTouched();
       return;
     }
+    this.error.set('');
     const v = this.form.getRawValue();
     const datos = {
       nombre: v.nombre,
@@ -109,6 +115,7 @@ export class MetasPage {
   }
 
   protected abrirOperacion(m: Meta, tipo: TipoOperacionMeta): void {
+    this.error.set('');
     this.operandoId.set(m.id);
     this.tipoOperacion.set(tipo);
     this.formOperacion.reset({ monto: null, fecha: hoyIso(), nota: '' });

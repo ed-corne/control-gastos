@@ -12,7 +12,7 @@ export interface Meta {
   porcentaje: number;
   cumplida: boolean;
   fechaCumplida: string | null;
-  ahorroMensualSugerido: number | null;
+  ahorroSemanalSugerido: number | null;
   vencida: boolean;
 }
 

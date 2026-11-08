@@ -60,6 +60,7 @@ public class CategoriaRepository(AppDbContext db) : ICategoriaRepository
         destino.Tipo = origen.Tipo.ToString();
         destino.Color = origen.Color;
         destino.Icono = origen.Icono;
+        destino.Comentario = origen.Comentario;
         destino.Archivada = origen.Archivada;
     }
 
@@ -70,6 +71,7 @@ public class CategoriaRepository(AppDbContext db) : ICategoriaRepository
         Tipo = Enum.Parse<TipoCategoria>(f.Tipo),
         Color = f.Color,
         Icono = f.Icono,
+        Comentario = f.Comentario,
         Archivada = f.Archivada,
         FechaCreacion = f.FechaCreacion,
     };

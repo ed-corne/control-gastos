@@ -67,8 +67,8 @@ public sealed record MetaDto(
     decimal Porcentaje,
     bool Cumplida,
     DateTime? FechaCumplida,
-    /// <summary>RF-MET-04: cuánto hay que ahorrar al mes para llegar a tiempo (null sin fecha límite o ya cumplida).</summary>
-    decimal? AhorroMensualSugerido,
+    /// <summary>RF-MET-04: cuánto hay que ahorrar por semana para llegar a tiempo (null sin fecha límite o ya cumplida).</summary>
+    decimal? AhorroSemanalSugerido,
     bool Vencida);
 
 public sealed record OperacionMetaDto(

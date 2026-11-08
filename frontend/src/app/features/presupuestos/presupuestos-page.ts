@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal, untracked } from '@angular
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { IconComponent } from '../../core/icon.component';
+import { ModalComponent } from '../../shared/modal.component';
 import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
@@ -11,7 +12,7 @@ import { PresupuestosService } from './presupuestos.service';
 
 @Component({
   selector: 'app-presupuestos-page',
-  imports: [ReactiveFormsModule, DineroPipe, IconComponent],
+  imports: [ReactiveFormsModule, DineroPipe, IconComponent, ModalComponent],
   templateUrl: './presupuestos-page.html',
 })
 export class PresupuestosPage {
@@ -71,12 +72,14 @@ export class PresupuestosPage {
   }
 
   protected nuevo(): void {
+    this.error.set('');
     this.editandoId.set(null);
     this.form.reset({ categoriaId: this.hayGlobal() ? (this.disponibles()[0]?.id ?? '') : '', monto: null });
     this.formularioAbierto.set(true);
   }
 
   protected editar(p: Presupuesto): void {
+    this.error.set('');
     this.editandoId.set(p.id);
     this.form.reset({ categoriaId: p.categoriaId ?? '', monto: p.asignado });
     this.formularioAbierto.set(true);
@@ -91,6 +94,7 @@ export class PresupuestosPage {
       this.form.markAllAsTouched();
       return;
     }
+    this.error.set('');
     const v = this.form.getRawValue();
     const monto = Number(v.monto);
     const id = this.editandoId();
