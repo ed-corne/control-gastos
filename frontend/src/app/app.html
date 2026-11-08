@@ -10,6 +10,30 @@
     <a routerLink="/categorias" routerLinkActive="activo">Categorías</a>
     <a routerLink="/ajustes" routerLinkActive="activo">Ajustes</a>
   </nav>
+  <div class="campana">
+    <button type="button" class="campana-boton" (click)="alternarPanel()"
+            [attr.aria-label]="'Avisos: ' + notificaciones.cantidad()" [attr.aria-expanded]="panelAbierto()">
+      🔔
+      @if (notificaciones.cantidad() > 0) {
+        <span class="contador">{{ notificaciones.cantidad() }}</span>
+      }
+    </button>
+
+    @if (panelAbierto()) {
+      <div class="panel-avisos" role="region" aria-label="Avisos">
+        @if (notificaciones.avisos().length === 0) {
+          <p class="sin-avisos">No tienes avisos pendientes.</p>
+        }
+        @for (a of notificaciones.avisos(); track a.id) {
+          <a class="aviso" [routerLink]="a.enlace" [attr.data-tipo]="a.tipo" (click)="cerrarPanel()">
+            <span class="icono">{{ a.tipo === 'PresupuestoExcedido' ? '⛔' : a.tipo === 'PresupuestoAlerta' ? '⚠️' : '📝' }}</span>
+            {{ a.mensaje }}
+          </a>
+        }
+      </div>
+    }
+  </div>
+
   <span class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">
     API: {{ apiStatus() }}
   </span>
