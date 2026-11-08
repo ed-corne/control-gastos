@@ -16,6 +16,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Cuenta> Cuentas { get; set; }
 
+    public virtual DbSet<Meta> Metas { get; set; }
+
+    public virtual DbSet<MetaOperacione> MetaOperaciones { get; set; }
+
     public virtual DbSet<Movimiento> Movimientos { get; set; }
 
     public virtual DbSet<Presupuesto> Presupuestos { get; set; }
@@ -85,6 +89,70 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Tipo)
                 .HasMaxLength(20)
                 .HasColumnName("tipo");
+        });
+
+        modelBuilder.Entity<Meta>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_metas");
+
+            entity.ToTable("metas");
+
+            entity.HasIndex(e => e.FechaCumplida, "ix_metas_cumplida");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.Color)
+                .HasMaxLength(7)
+                .HasDefaultValueSql("'#4f46e5'::character varying")
+                .HasColumnName("color");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.FechaCumplida).HasColumnName("fecha_cumplida");
+            entity.Property(e => e.FechaLimite).HasColumnName("fecha_limite");
+            entity.Property(e => e.Icono)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'target'::character varying")
+                .HasColumnName("icono");
+            entity.Property(e => e.MontoObjetivo)
+                .HasPrecision(18, 2)
+                .HasColumnName("monto_objetivo");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<MetaOperacione>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_meta_operaciones");
+
+            entity.ToTable("meta_operaciones");
+
+            entity.HasIndex(e => new { e.MetaId, e.Fecha }, "ix_meta_operaciones_meta").IsDescending(false, true);
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.Fecha).HasColumnName("fecha");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.MetaId).HasColumnName("meta_id");
+            entity.Property(e => e.Monto)
+                .HasPrecision(18, 2)
+                .HasColumnName("monto");
+            entity.Property(e => e.Nota)
+                .HasMaxLength(200)
+                .HasColumnName("nota");
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(15)
+                .HasColumnName("tipo");
+
+            entity.HasOne(d => d.Meta).WithMany(p => p.MetaOperaciones)
+                .HasForeignKey(d => d.MetaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_meta_operaciones_meta");
         });
 
         modelBuilder.Entity<Movimiento>(entity =>
