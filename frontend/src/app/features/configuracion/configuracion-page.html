@@ -1,67 +1,90 @@
-<section class="ajustes">
-  <h2>Configuración</h2>
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Ajustes</h1>
+  </header>
 
-  <form class="formulario" [formGroup]="form" (ngSubmit)="guardar()">
-    <label>
-      Tu nombre
-      <input type="text" formControlName="nombre" maxlength="100" />
+  <!-- Apariencia: modo claro u oscuro -->
+  <div class="card mb-5 grid gap-3">
+    <h2 class="section-title mb-0">Apariencia</h2>
+    <div class="grid grid-cols-2 gap-2 sm:max-w-sm" role="group" aria-label="Tema">
+      <button type="button" class="btn !min-h-12 justify-start" (click)="elegirTema('claro')"
+              [attr.aria-pressed]="tema.tema() === 'claro'"
+              [class.!border-primary]="tema.tema() === 'claro'" [class.!bg-primary-soft]="tema.tema() === 'claro'">
+        <app-icon name="sol" /> Claro
+      </button>
+      <button type="button" class="btn !min-h-12 justify-start" (click)="elegirTema('oscuro')"
+              [attr.aria-pressed]="tema.tema() === 'oscuro'"
+              [class.!border-primary]="tema.tema() === 'oscuro'" [class.!bg-primary-soft]="tema.tema() === 'oscuro'">
+        <app-icon name="luna" /> Oscuro
+      </button>
+    </div>
+  </div>
+
+  <form class="card grid gap-5" [formGroup]="form" (ngSubmit)="guardar()">
+    <h2 class="section-title mb-0">Preferencias</h2>
+
+    <label class="field">
+      <span class="field-label">Tu nombre</span>
+      <input class="input" type="text" formControlName="nombre" maxlength="100" />
     </label>
 
-    <label>
-      Moneda principal
-      <select formControlName="moneda">
-        @for (m of monedas; track m) {
-          <option [value]="m">{{ m }}</option>
-        }
-      </select>
-    </label>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="field">
+        <span class="field-label">Moneda principal</span>
+        <select class="input" formControlName="moneda">
+          @for (m of monedas; track m) {
+            <option [value]="m">{{ m }}</option>
+          }
+        </select>
+      </label>
 
-    <label>
-      Zona horaria
-      <select formControlName="zonaHoraria">
-        @for (z of zonas; track z) {
-          <option [value]="z">{{ z }}</option>
-        }
-      </select>
-    </label>
+      <label class="field">
+        <span class="field-label">Zona horaria</span>
+        <select class="input" formControlName="zonaHoraria">
+          @for (z of zonas; track z) {
+            <option [value]="z">{{ z }}</option>
+          }
+        </select>
+      </label>
+    </div>
 
-    <label>
-      Día de inicio del mes financiero
-      <select formControlName="diaInicioMes">
+    <label class="field">
+      <span class="field-label">Día de inicio del mes financiero</span>
+      <select class="input sm:max-w-40" formControlName="diaInicioMes">
         @for (d of dias; track d) {
           <option [ngValue]="d">{{ d }}</option>
         }
       </select>
-      <small>
+      <span class="field-hint">
         Por ejemplo, tu día de pago. Los presupuestos y el resumen del “mes actual” empiezan ese día.
         Con 1 equivale al mes calendario.
-      </small>
+      </span>
     </label>
 
-    <fieldset>
-      <legend>Recordatorio diario</legend>
-      <label class="check">
-        <input type="checkbox" formControlName="recordatorioActivo" />
+    <fieldset class="grid gap-3 rounded-xl border border-line p-4">
+      <legend class="px-1 text-sm font-medium text-ink">Recordatorio diario</legend>
+      <label class="flex items-center gap-2.5 text-sm text-ink">
+        <input type="checkbox" class="size-4 accent-[var(--primary)]" formControlName="recordatorioActivo" />
         Recordarme registrar mis gastos
       </label>
       @if (form.controls.recordatorioActivo.value) {
-        <label>
-          A partir de las
-          <input type="time" formControlName="recordatorioHora" />
+        <label class="field">
+          <span class="field-label">A partir de las</span>
+          <input class="input sm:max-w-40" type="time" formControlName="recordatorioHora" />
         </label>
-        <small>El aviso aparece en la campana si todavía no registraste movimientos hoy.</small>
+        <span class="field-hint">El aviso aparece en la campana si todavía no registraste movimientos hoy.</span>
       }
     </fieldset>
 
     @if (error()) {
-      <p class="error">{{ error() }}</p>
+      <p class="alert-error" role="alert">{{ error() }}</p>
     }
     @if (guardado()) {
-      <p class="exito">Configuración guardada.</p>
+      <p class="alert-success" role="status">Configuración guardada.</p>
     }
 
-    <div class="acciones">
-      <button type="submit" class="primario">Guardar</button>
+    <div class="flex justify-end">
+      <button type="submit" class="btn btn-primary">Guardar</button>
     </div>
   </form>
 </section>

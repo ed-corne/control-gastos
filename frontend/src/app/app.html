@@ -1,45 +1,144 @@
-<header class="barra">
-  <strong>Control de Gastos@if (config.config().nombre) { · {{ config.config().nombre }}}</strong>
-  <nav>
-    <a routerLink="/resumen" routerLinkActive="activo">Resumen</a>
-    <a routerLink="/movimientos" routerLinkActive="activo">Movimientos</a>
-    <a routerLink="/presupuestos" routerLinkActive="activo">Presupuestos</a>
-    <a routerLink="/metas" routerLinkActive="activo">Metas</a>
-    <a routerLink="/cuentas" routerLinkActive="activo">Cuentas</a>
-    <a routerLink="/reportes" routerLinkActive="activo">Reportes</a>
-    <a routerLink="/categorias" routerLinkActive="activo">Categorías</a>
-    <a routerLink="/ajustes" routerLinkActive="activo">Ajustes</a>
-  </nav>
-  <div class="campana">
-    <button type="button" class="campana-boton" (click)="alternarPanel()"
-            [attr.aria-label]="'Avisos: ' + notificaciones.cantidad()" [attr.aria-expanded]="panelAbierto()">
-      🔔
-      @if (notificaciones.cantidad() > 0) {
-        <span class="contador">{{ notificaciones.cantidad() }}</span>
-      }
-    </button>
-
-    @if (panelAbierto()) {
-      <div class="panel-avisos" role="region" aria-label="Avisos">
-        @if (notificaciones.avisos().length === 0) {
-          <p class="sin-avisos">No tienes avisos pendientes.</p>
-        }
-        @for (a of notificaciones.avisos(); track a.id) {
-          <a class="aviso" [routerLink]="a.enlace" [attr.data-tipo]="a.tipo" (click)="cerrarPanel()">
-            <span class="icono">{{ a.tipo === 'PresupuestoExcedido' ? '⛔' : a.tipo === 'PresupuestoAlerta' ? '⚠️' : '📝' }}</span>
-            {{ a.mensaje }}
-          </a>
-        }
-      </div>
+<!-- Menú de navegación: se reutiliza en la barra lateral (escritorio) y en el cajón (móvil) -->
+<ng-template #navegacion>
+  <nav class="flex flex-col gap-1" aria-label="Principal">
+    @for (item of principal; track item.ruta) {
+      <a [routerLink]="item.ruta" routerLinkActive="bg-primary text-on-primary hover:bg-primary"
+         class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-ink transition-colors hover:bg-surface-2">
+        <app-icon [name]="item.icono" [size]="20" />
+        {{ item.etiqueta }}
+      </a>
     }
+    <p class="mt-4 mb-1 px-3 text-xs font-semibold tracking-wide text-muted uppercase">Administrar</p>
+    @for (item of secundario; track item.ruta) {
+      <a [routerLink]="item.ruta" routerLinkActive="bg-primary text-on-primary hover:bg-primary"
+         class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-ink transition-colors hover:bg-surface-2">
+        <app-icon [name]="item.icono" [size]="20" />
+        {{ item.etiqueta }}
+      </a>
+    }
+  </nav>
+</ng-template>
+
+<div class="min-h-dvh">
+  <!-- Barra lateral (escritorio) -->
+  <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-surface p-4 lg:flex">
+    <a routerLink="/resumen" class="mb-6 flex items-center gap-3 px-2 py-1">
+      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-on-primary">
+        <app-icon name="wallet" [size]="22" />
+      </span>
+      <span class="leading-tight">
+        <span class="block text-base font-semibold text-ink">Control de Gastos</span>
+        @if (config.config().nombre) {
+          <span class="block text-xs text-muted">Hola, {{ config.config().nombre }}</span>
+        }
+      </span>
+    </a>
+
+    <div class="flex-1 overflow-y-auto">
+      <ng-container [ngTemplateOutlet]="navegacion" />
+    </div>
+
+    <div class="mt-4 flex items-center justify-between border-t border-line pt-4">
+      <span class="flex items-center gap-2 text-xs text-muted" role="status">
+        <span class="size-2 rounded-full"
+              [class.bg-success]="apiStatus() === 'conectada'"
+              [class.bg-danger]="apiStatus() === 'sin conexión'"
+              [class.bg-muted]="apiStatus() === 'cargando'"></span>
+        API {{ apiStatus() }}
+      </span>
+    </div>
+  </aside>
+
+  <div class="lg:pl-64">
+    <!-- Barra superior -->
+    <header class="sticky top-0 z-20 flex h-14 items-center gap-1 border-b border-line bg-surface/90 px-3 backdrop-blur sm:px-5">
+      <button type="button" class="btn-icon lg:hidden" (click)="abrirMenu()" aria-label="Abrir menú">
+        <app-icon name="menu" />
+      </button>
+      <span class="ml-1 text-base font-semibold text-ink lg:hidden">Control de Gastos</span>
+
+      <div class="ml-auto flex items-center gap-1">
+        <button type="button" class="btn-icon" (click)="tema.alternar()"
+                [attr.aria-label]="tema.tema() === 'oscuro' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                [attr.title]="tema.tema() === 'oscuro' ? 'Modo claro' : 'Modo oscuro'">
+          <app-icon [name]="tema.tema() === 'oscuro' ? 'sol' : 'luna'" />
+        </button>
+
+        <div class="relative">
+          <button type="button" class="btn-icon relative" (click)="alternarPanel()"
+                  [attr.aria-label]="'Avisos: ' + notificaciones.cantidad()" [attr.aria-expanded]="panelAbierto()">
+            <app-icon name="campana" />
+            @if (notificaciones.cantidad() > 0) {
+              <span class="absolute top-1 right-1 flex min-w-4.5 items-center justify-center rounded-full bg-danger px-1 text-[10px] leading-4.5 font-bold text-bg">
+                {{ notificaciones.cantidad() }}
+              </span>
+            }
+          </button>
+
+          @if (panelAbierto()) {
+            <div class="fixed inset-x-3 top-16 z-40 overflow-hidden rounded-2xl border border-line bg-surface shadow-xl sm:absolute sm:inset-x-auto sm:top-12 sm:right-0 sm:w-96"
+                 role="region" aria-label="Avisos">
+              @if (notificaciones.avisos().length === 0) {
+                <p class="p-4 text-sm text-muted">No tienes avisos pendientes.</p>
+              }
+              @for (a of notificaciones.avisos(); track a.id) {
+                <a [routerLink]="a.enlace" (click)="cerrarPanel()"
+                   class="flex items-start gap-3 border-b border-line px-4 py-3 text-sm text-ink last:border-b-0 hover:bg-surface-2"
+                   [class.bg-danger-soft]="a.tipo === 'PresupuestoExcedido'">
+                  <span class="mt-0.5"
+                        [class.text-danger]="a.tipo === 'PresupuestoExcedido'"
+                        [class.text-warning]="a.tipo === 'PresupuestoAlerta'"
+                        [class.text-accent]="a.tipo === 'Recordatorio'">
+                    <app-icon [name]="a.tipo === 'PresupuestoExcedido' ? 'bloqueo' : a.tipo === 'PresupuestoAlerta' ? 'alerta' : 'info'" [size]="18" />
+                  </span>
+                  <span>{{ a.mensaje }}</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <router-outlet />
+    </main>
   </div>
 
-  <span class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">
-    API: {{ apiStatus() }}
-  </span>
-</header>
-<router-outlet />
+  <!-- Cajón de navegación (móvil) -->
+  @if (menuAbierto()) {
+    <div class="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menú">
+      <button type="button" class="absolute inset-0 bg-black/50" (click)="cerrarMenu()" aria-label="Cerrar menú"></button>
+      <div class="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-surface p-4 shadow-xl">
+        <div class="mb-4 flex items-center justify-between">
+          <span class="flex items-center gap-2 text-base font-semibold text-ink">
+            <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary text-on-primary">
+              <app-icon name="wallet" [size]="20" />
+            </span>
+            Control de Gastos
+          </span>
+          <button type="button" class="btn-icon" (click)="cerrarMenu()" aria-label="Cerrar menú">
+            <app-icon name="cerrar" />
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto">
+          <ng-container [ngTemplateOutlet]="navegacion" />
+        </div>
+        <p class="mt-4 flex items-center gap-2 border-t border-line pt-3 text-xs text-muted" role="status">
+          <span class="size-2 rounded-full"
+                [class.bg-success]="apiStatus() === 'conectada'"
+                [class.bg-danger]="apiStatus() === 'sin conexión'"
+                [class.bg-muted]="apiStatus() === 'cargando'"></span>
+          API {{ apiStatus() }}
+        </p>
+      </div>
+    </div>
+  }
+</div>
 
 <!-- RF-MOV-02: botón flotante disponible en cualquier pantalla -->
-<button type="button" class="fab" aria-label="Registrar movimiento" (click)="estado.nuevo()">+</button>
+<button type="button" (click)="estado.nuevo()" aria-label="Registrar movimiento"
+        class="fixed right-4 bottom-4 z-30 inline-flex size-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-lg transition-colors hover:bg-primary-hover sm:right-6 sm:bottom-6">
+  <app-icon name="agregar" [size]="28" />
+</button>
 <app-movimiento-form />

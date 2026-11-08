@@ -2,7 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { Categoria, ICONOS_CATEGORIA } from '../categorias/categoria.model';
+import { IconComponent } from '../../core/icon.component';
+import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { Cuenta } from '../cuentas/cuenta.model';
 import { CuentasService } from '../cuentas/cuentas.service';
@@ -12,9 +13,8 @@ import { MovimientosService } from './movimientos.service';
 
 @Component({
   selector: 'app-movimiento-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, IconComponent],
   templateUrl: './movimiento-form.html',
-  styleUrl: './movimiento-form.scss',
 })
 export class MovimientoForm {
   protected readonly estado = inject(MovimientosEstado);
@@ -64,10 +64,6 @@ export class MovimientoForm {
     effect(() => {
       if (this.estado.formularioAbierto()) untracked(() => this.iniciar());
     });
-  }
-
-  protected emoji(clave: string | null): string {
-    return ICONOS_CATEGORIA.find((i) => i.clave === clave)?.emoji ?? '📦';
   }
 
   protected cambiarTipo(t: TipoMovimiento): void {

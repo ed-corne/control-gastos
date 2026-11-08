@@ -1,79 +1,84 @@
-<section class="dashboard">
-  <header class="cabecera">
-    <h2>Resumen</h2>
-    <div class="periodos" role="group" aria-label="Periodo">
-      <button type="button" [class.activo]="periodo() === 'actual'" (click)="cambiarPeriodo('actual')">Mes actual</button>
-      <button type="button" [class.activo]="periodo() === 'anterior'" (click)="cambiarPeriodo('anterior')">Mes anterior</button>
-      <button type="button" [class.activo]="periodo() === 'rango'" (click)="cambiarPeriodo('rango')">Rango</button>
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Resumen</h1>
+    <div class="tabs" role="tablist" aria-label="Periodo">
+      <button type="button" role="tab" class="tab" [class.tab-active]="periodo() === 'actual'"
+              [attr.aria-selected]="periodo() === 'actual'" (click)="cambiarPeriodo('actual')">Mes actual</button>
+      <button type="button" role="tab" class="tab" [class.tab-active]="periodo() === 'anterior'"
+              [attr.aria-selected]="periodo() === 'anterior'" (click)="cambiarPeriodo('anterior')">Mes anterior</button>
+      <button type="button" role="tab" class="tab" [class.tab-active]="periodo() === 'rango'"
+              [attr.aria-selected]="periodo() === 'rango'" (click)="cambiarPeriodo('rango')">Rango</button>
     </div>
   </header>
 
   @if (periodo() === 'rango') {
-    <div class="rango">
-      <label>Desde <input type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" /></label>
-      <label>Hasta <input type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" /></label>
-      <button type="button" class="primario" (click)="aplicarRango()">Aplicar</button>
+    <div class="mb-5 flex flex-wrap items-end gap-3">
+      <label class="field"><span class="field-label">Desde</span>
+        <input class="input" type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" /></label>
+      <label class="field"><span class="field-label">Hasta</span>
+        <input class="input" type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" /></label>
+      <button type="button" class="btn btn-primary" (click)="aplicarRango()">Aplicar</button>
     </div>
   }
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   @if (datos(); as d) {
-    <p class="periodo-texto">{{ d.desde | date: 'dd/MM/yyyy' }} – {{ d.hasta | date: 'dd/MM/yyyy' }}</p>
+    <p class="mb-4 text-sm text-muted">{{ d.desde | date: 'dd/MM/yyyy' }} – {{ d.hasta | date: 'dd/MM/yyyy' }}</p>
 
     <!-- RF-DSH-01 -->
-    <div class="tarjetas">
-      <div class="tarjeta">
-        <span>Saldo total</span>
-        <strong>{{ d.saldoTotal | dinero }}</strong>
+    <div class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div class="card col-span-2 bg-primary !text-on-primary lg:col-span-1">
+        <p class="text-xs opacity-80">Saldo total</p>
+        <p class="num mt-1 text-2xl font-semibold">{{ d.saldoTotal | dinero }}</p>
       </div>
-      <div class="tarjeta">
-        <span>Ingresos</span>
-        <strong class="ingreso">{{ d.ingresos | dinero }}</strong>
+      <div class="card">
+        <p class="flex items-center gap-1.5 text-xs text-muted"><app-icon name="sube" [size]="14" /> Ingresos</p>
+        <p class="num mt-1 text-xl font-semibold text-success">{{ d.ingresos | dinero }}</p>
       </div>
-      <div class="tarjeta">
-        <span>Gastos</span>
-        <strong class="gasto">{{ d.gastos | dinero }}</strong>
+      <div class="card">
+        <p class="flex items-center gap-1.5 text-xs text-muted"><app-icon name="baja" [size]="14" /> Gastos</p>
+        <p class="num mt-1 text-xl font-semibold text-danger">{{ d.gastos | dinero }}</p>
       </div>
-      <div class="tarjeta">
-        <span>Balance</span>
-        <strong [class.gasto]="d.balance < 0" [class.ingreso]="d.balance > 0">
+      <div class="card col-span-2 lg:col-span-1">
+        <p class="text-xs text-muted">Balance</p>
+        <p class="num mt-1 text-xl font-semibold"
+           [class.text-danger]="d.balance < 0" [class.text-success]="d.balance > 0" [class.text-ink]="d.balance === 0">
           {{ d.balance | dinero }}
-        </strong>
+        </p>
       </div>
     </div>
 
     <!-- RF-DSH-02 -->
-    <div class="panel">
-      <h3>Gastos por categoría</h3>
+    <div class="card mb-5">
+      <h2 class="section-title">Gastos por categoría</h2>
       @if (segmentos().length === 0) {
-        <p class="vacio">No hay gastos en este periodo.</p>
+        <p class="empty !py-4">No hay gastos en este periodo.</p>
       } @else {
-        <div class="dona-contenedor">
-          <svg viewBox="0 0 200 200" class="dona" role="img"
+        <div class="flex flex-col items-center gap-6 md:flex-row">
+          <svg viewBox="0 0 200 200" class="w-56 max-w-full shrink-0" role="img"
                [attr.aria-label]="'Gastos por categoría, total ' + d.gastos">
             <g transform="rotate(-90 100 100)">
               @for (s of segmentos(); track s.nombre) {
                 <circle cx="100" cy="100" [attr.r]="radio" fill="none" stroke-width="26"
-                        [attr.stroke]="s.color" [attr.stroke-dasharray]="s.dash"
-                        [attr.stroke-dashoffset]="s.offset">
+                        [attr.stroke]="s.color" [attr.stroke-dasharray]="s.dash" [attr.stroke-dashoffset]="s.offset">
                   <title>{{ s.nombre }}: {{ s.total | dinero }} ({{ s.porcentaje }}%)</title>
                 </circle>
               }
             </g>
-            <text x="100" y="96" text-anchor="middle" class="dona-etiqueta">Gastos</text>
-            <text x="100" y="118" text-anchor="middle" class="dona-total">{{ d.gastos | dinero: 0 }}</text>
+            <text x="100" y="96" text-anchor="middle" class="fill-muted" font-size="11">Gastos</text>
+            <text x="100" y="118" text-anchor="middle" class="fill-ink" font-size="16" font-weight="700">{{ d.gastos | dinero: 0 }}</text>
           </svg>
 
-          <ul class="leyenda">
+          <ul class="grid w-full flex-1 gap-2.5">
             @for (s of segmentos(); track s.nombre) {
-              <li>
-                <span class="punto" [style.background]="s.color"></span>
-                <span class="nombre">{{ s.nombre }}</span>
-                <span class="monto">{{ s.total | dinero }}</span>
-                <span class="pct">{{ s.porcentaje }}%</span>
+              <li class="flex items-center gap-3 text-sm">
+                <span class="size-3 shrink-0 rounded-full" [style.background-color]="s.color"></span>
+                <span class="flex-1 text-ink">{{ s.nombre }}</span>
+                <span class="num text-ink">{{ s.total | dinero }}</span>
+                <span class="num w-12 text-right text-muted">{{ s.porcentaje }}%</span>
               </li>
             }
           </ul>
@@ -82,21 +87,24 @@
     </div>
 
     <!-- RF-DSH-03 -->
-    <div class="dos-columnas">
-      <div class="panel">
-        <h3>Últimos movimientos</h3>
+    <div class="grid gap-5 lg:grid-cols-2">
+      <div class="card">
+        <h2 class="section-title">Últimos movimientos</h2>
         @if (d.ultimosMovimientos.length === 0) {
-          <p class="vacio">Todavía no hay movimientos.</p>
+          <p class="empty !py-4">Todavía no hay movimientos.</p>
         }
-        <ul class="movs">
+        <ul class="grid gap-3">
           @for (m of d.ultimosMovimientos; track m.id) {
-            <li>
-              <span class="emoji">{{ emoji(m) }}</span>
-              <span class="dato">
-                <strong>{{ titulo(m) }}</strong>
-                <small>{{ m.fecha | date: 'dd/MM' }} · {{ m.cuentaNombre }}</small>
+            <li class="flex items-center gap-3">
+              <span class="icon-chip !size-9" [style.background-color]="m.categoriaColor ? m.categoriaColor + '26' : null"
+                    [style.color]="m.categoriaColor">
+                <app-icon [name]="icono(m)" [size]="18" />
               </span>
-              <b [class.gasto]="m.tipo === 'Gasto'" [class.ingreso]="m.tipo === 'Ingreso'">
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-medium text-ink">{{ titulo(m) }}</span>
+                <span class="block text-xs text-muted">{{ m.fecha | date: 'dd/MM' }} · {{ m.cuentaNombre }}</span>
+              </span>
+              <b class="num text-sm" [class.text-danger]="m.tipo === 'Gasto'" [class.text-success]="m.tipo === 'Ingreso'">
                 {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | dinero }}
               </b>
             </li>
@@ -104,22 +112,27 @@
         </ul>
       </div>
 
-      <div class="panel">
-        <h3>Presupuestos en riesgo</h3>
+      <div class="card">
+        <h2 class="section-title">Presupuestos en riesgo</h2>
         @if (d.presupuestosEnRiesgo.length === 0) {
-          <p class="vacio">Ningún presupuesto pasa del 75 %.</p>
+          <p class="empty !py-4">Ningún presupuesto pasa del 75 %.</p>
         }
-        <ul class="riesgo">
+        <ul class="grid gap-4">
           @for (p of d.presupuestosEnRiesgo; track p.id) {
-            <li>
-              <div class="fila">
-                <strong>{{ p.categoriaNombre }}</strong>
-                <span class="pct" [attr.data-estado]="p.estado">
-                  {{ p.estado === 'Rojo' ? '⚠ ' : '' }}{{ p.porcentaje }}%
+            <li class="grid gap-1.5">
+              <div class="flex items-center justify-between text-sm">
+                <strong class="text-ink">{{ p.categoriaNombre }}</strong>
+                <span class="num flex items-center gap-1 font-bold"
+                      [class.text-warning]="p.estado === 'Amarillo'" [class.text-danger]="p.estado === 'Rojo'">
+                  @if (p.estado === 'Rojo') { <app-icon name="alerta" [size]="14" /> }
+                  {{ p.porcentaje }}%
                 </span>
               </div>
-              <div class="barra"><div class="relleno" [attr.data-estado]="p.estado" [style.width.%]="anchoPresupuesto(p.porcentaje)"></div></div>
-              <small>{{ p.gastado | dinero }} de {{ p.asignado | dinero }}</small>
+              <div class="progress !h-2">
+                <div class="h-full rounded-full" [class.bg-warning]="p.estado === 'Amarillo'" [class.bg-danger]="p.estado === 'Rojo'"
+                     [style.width.%]="anchoPresupuesto(p.porcentaje)"></div>
+              </div>
+              <small class="num text-xs text-muted">{{ p.gastado | dinero }} de {{ p.asignado | dinero }}</small>
             </li>
           }
         </ul>

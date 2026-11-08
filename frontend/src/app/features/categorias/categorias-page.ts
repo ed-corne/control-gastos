@@ -1,20 +1,20 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Categoria, ICONOS_CATEGORIA, TipoCategoria } from './categoria.model';
+import { IconComponent, ICONOS_CATEGORIA_CLAVES } from '../../core/icon.component';
+import { Categoria, TipoCategoria } from './categoria.model';
 import { CategoriasService } from './categorias.service';
 
 @Component({
   selector: 'app-categorias-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, IconComponent],
   templateUrl: './categorias-page.html',
-  styleUrl: './categorias-page.scss',
 })
 export class CategoriasPage {
   private readonly api = inject(CategoriasService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
-  protected readonly iconos = ICONOS_CATEGORIA;
+  protected readonly iconos = ICONOS_CATEGORIA_CLAVES;
   protected readonly tipos: TipoCategoria[] = ['Gasto', 'Ingreso'];
 
   protected readonly tipoActivo = signal<TipoCategoria>('Gasto');
@@ -36,10 +36,6 @@ export class CategoriasPage {
 
   constructor() {
     this.cargar();
-  }
-
-  protected emoji(clave: string): string {
-    return this.iconos.find((i) => i.clave === clave)?.emoji ?? '📦';
   }
 
   protected cambiarTipo(tipo: TipoCategoria): void {

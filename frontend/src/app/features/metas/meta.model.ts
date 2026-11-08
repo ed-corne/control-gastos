@@ -1,14 +1,3 @@
-export const ICONOS_META: { clave: string; emoji: string }[] = [
-  { clave: 'target', emoji: '🎯' },
-  { clave: 'travel', emoji: '✈️' },
-  { clave: 'home', emoji: '🏠' },
-  { clave: 'car', emoji: '🚗' },
-  { clave: 'education', emoji: '🎓' },
-  { clave: 'wedding', emoji: '💍' },
-  { clave: 'emergency', emoji: '🛟' },
-  { clave: 'gift', emoji: '🎁' },
-];
-
 export type TipoOperacionMeta = 'Aportacion' | 'Retiro';
 
 export interface Meta {

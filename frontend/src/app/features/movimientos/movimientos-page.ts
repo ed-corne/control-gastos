@@ -3,7 +3,8 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { forkJoin } from 'rxjs';
-import { Categoria, ICONOS_CATEGORIA } from '../categorias/categoria.model';
+import { IconComponent } from '../../core/icon.component';
+import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { Cuenta } from '../cuentas/cuenta.model';
 import { CuentasService } from '../cuentas/cuentas.service';
@@ -19,9 +20,8 @@ interface GrupoDia {
 
 @Component({
   selector: 'app-movimientos-page',
-  imports: [ReactiveFormsModule, DineroPipe, RouterLink],
+  imports: [ReactiveFormsModule, DineroPipe, RouterLink, IconComponent],
   templateUrl: './movimientos-page.html',
-  styleUrl: './movimientos-page.scss',
 })
 export class MovimientosPage {
   protected readonly estado = inject(MovimientosEstado);
@@ -80,9 +80,8 @@ export class MovimientosPage {
     });
   }
 
-  protected emoji(m: Movimiento): string {
-    if (m.tipo === 'Transferencia') return '🔁';
-    return ICONOS_CATEGORIA.find((i) => i.clave === m.categoriaIcono)?.emoji ?? '📦';
+  protected icono(m: Movimiento): string {
+    return m.tipo === 'Transferencia' ? 'transferencia' : (m.categoriaIcono ?? 'other');
   }
 
   protected titulo(m: Movimiento): string {

@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
-import { ICONOS_CATEGORIA } from '../categorias/categoria.model';
+import { IconComponent } from '../../core/icon.component';
 import { Movimiento } from '../movimientos/movimiento.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { Dashboard } from './dashboard.model';
@@ -24,9 +24,8 @@ const CIRCUNFERENCIA = 2 * Math.PI * RADIO;
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [DineroPipe, DatePipe, FormsModule],
+  imports: [DineroPipe, DatePipe, FormsModule, IconComponent],
   templateUrl: './dashboard-page.html',
-  styleUrl: './dashboard-page.scss',
 })
 export class DashboardPage {
   private readonly api = inject(DashboardService);
@@ -76,9 +75,8 @@ export class DashboardPage {
     if (this.desde() && this.hasta()) this.cargar();
   }
 
-  protected emoji(m: Movimiento): string {
-    if (m.tipo === 'Transferencia') return '🔁';
-    return ICONOS_CATEGORIA.find((i) => i.clave === m.categoriaIcono)?.emoji ?? '📦';
+  protected icono(m: Movimiento): string {
+    return m.tipo === 'Transferencia' ? 'transferencia' : (m.categoriaIcono ?? 'other');
   }
 
   protected titulo(m: Movimiento): string {

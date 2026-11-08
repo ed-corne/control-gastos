@@ -8,15 +8,6 @@ export const TIPOS_CUENTA: { valor: TipoCuenta; etiqueta: string }[] = [
   { valor: 'Inversion', etiqueta: 'Inversión' },
 ];
 
-export const ICONOS_CUENTA: { clave: string; emoji: string }[] = [
-  { clave: 'wallet', emoji: '👛' },
-  { clave: 'cash', emoji: '💵' },
-  { clave: 'bank', emoji: '🏦' },
-  { clave: 'card', emoji: '💳' },
-  { clave: 'savings', emoji: '🐖' },
-  { clave: 'chart', emoji: '📈' },
-];
-
 export interface Cuenta {
   id: string;
   nombre: string;

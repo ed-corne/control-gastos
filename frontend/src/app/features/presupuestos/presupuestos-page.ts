@@ -2,7 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
-import { Categoria, ICONOS_CATEGORIA } from '../categorias/categoria.model';
+import { IconComponent } from '../../core/icon.component';
+import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { Presupuesto } from './presupuesto.model';
@@ -10,9 +11,8 @@ import { PresupuestosService } from './presupuestos.service';
 
 @Component({
   selector: 'app-presupuestos-page',
-  imports: [ReactiveFormsModule, DineroPipe],
+  imports: [ReactiveFormsModule, DineroPipe, IconComponent],
   templateUrl: './presupuestos-page.html',
-  styleUrl: './presupuestos-page.scss',
 })
 export class PresupuestosPage {
   private readonly api = inject(PresupuestosService);
@@ -56,10 +56,6 @@ export class PresupuestosPage {
       this.movimientos.cambios();
       untracked(() => this.cargar());
     });
-  }
-
-  protected emoji(clave: string | null): string {
-    return clave === null ? '🎯' : (ICONOS_CATEGORIA.find((i) => i.clave === clave)?.emoji ?? '📦');
   }
 
   protected ancho(p: Presupuesto): number {

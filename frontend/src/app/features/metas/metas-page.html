@@ -1,141 +1,161 @@
-<section class="metas">
-  <header class="cabecera">
-    <h2>Metas de ahorro</h2>
-    <button type="button" class="primario" (click)="nueva()">+ Nueva meta</button>
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Metas de ahorro</h1>
+    <button type="button" class="btn btn-primary" (click)="nueva()">
+      <app-icon name="agregar" [size]="18" /> Nueva meta
+    </button>
   </header>
 
-  <div class="pestanas">
-    <button type="button" [class.activa]="!verCumplidas()" (click)="alternarHistorialMetas(false)">Activas</button>
-    <button type="button" [class.activa]="verCumplidas()" (click)="alternarHistorialMetas(true)">Cumplidas</button>
+  <div class="tabs mb-5" role="tablist">
+    <button type="button" role="tab" class="tab" [class.tab-active]="!verCumplidas()"
+            [attr.aria-selected]="!verCumplidas()" (click)="alternarHistorialMetas(false)">Activas</button>
+    <button type="button" role="tab" class="tab" [class.tab-active]="verCumplidas()"
+            [attr.aria-selected]="verCumplidas()" (click)="alternarHistorialMetas(true)">Cumplidas</button>
   </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   @if (formularioAbierto()) {
-    <form class="formulario" [formGroup]="form" (ngSubmit)="guardar()">
-      <h3>{{ titulo() }}</h3>
+    <form class="card mb-5 grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
+      <h2 class="section-title mb-0">{{ titulo() }}</h2>
 
-      <label>
-        Nombre
-        <input type="text" formControlName="nombre" maxlength="100" />
+      <label class="field">
+        <span class="field-label">Nombre</span>
+        <input class="input" type="text" formControlName="nombre" maxlength="100" />
         @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-          <small class="error">El nombre es obligatorio.</small>
+          <span class="text-xs text-danger">El nombre es obligatorio.</span>
         }
       </label>
 
-      <label>
-        Monto objetivo
-        <input type="number" step="0.01" min="0.01" formControlName="montoObjetivo" />
-        @if (form.controls.montoObjetivo.touched && form.controls.montoObjetivo.invalid) {
-          <small class="error">Indica un monto mayor a 0.</small>
-        }
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="field">
+          <span class="field-label">Monto objetivo</span>
+          <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="montoObjetivo" />
+          @if (form.controls.montoObjetivo.touched && form.controls.montoObjetivo.invalid) {
+            <span class="text-xs text-danger">Indica un monto mayor a 0.</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="field-label">Fecha límite (opcional)</span>
+          <input class="input" type="date" formControlName="fechaLimite" [min]="hoy" />
+        </label>
+      </div>
+
+      <label class="field w-fit">
+        <span class="field-label">Color</span>
+        <input type="color" formControlName="color" class="h-10 w-20 cursor-pointer rounded-lg border border-line bg-bg p-1" />
       </label>
 
-      <label>
-        Fecha límite (opcional)
-        <input type="date" formControlName="fechaLimite" [min]="hoy" />
-      </label>
-
-      <label>
-        Color
-        <input type="color" formControlName="color" />
-      </label>
-
-      <fieldset>
-        <legend>Ícono</legend>
-        <div class="iconos">
-          @for (i of iconos; track i.clave) {
-            <label class="icono" [class.activo]="form.controls.icono.value === i.clave">
-              <input type="radio" formControlName="icono" [value]="i.clave" />
-              {{ i.emoji }}
+      <fieldset class="field">
+        <legend class="field-label mb-1.5">Ícono</legend>
+        <div class="flex flex-wrap gap-2">
+          @for (i of iconos; track i) {
+            <label class="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border-2 bg-surface-2 text-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
+                   [class.border-primary]="form.controls.icono.value === i"
+                   [class.border-transparent]="form.controls.icono.value !== i">
+              <input class="sr-only" type="radio" formControlName="icono" [value]="i" [attr.aria-label]="i" />
+              <app-icon [name]="i" />
             </label>
           }
         </div>
       </fieldset>
 
-      <div class="acciones">
-        <button type="button" (click)="cancelar()">Cancelar</button>
-        <button type="submit" class="primario">Guardar</button>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
   }
 
   @if (metas().length === 0) {
-    <p class="vacio">
+    <p class="empty">
       {{ verCumplidas() ? 'Todavía no has cumplido ninguna meta.' : 'No tienes metas activas. Crea la primera con “Nueva meta”.' }}
     </p>
   }
 
-  <ul class="lista">
+  <ul class="grid gap-4 lg:grid-cols-2">
     @for (m of metas(); track m.id) {
-      <li class="tarjeta" [style.border-left-color]="m.color">
-        <div class="titulo">
-          <span class="emoji">{{ emoji(m.icono) }}</span>
-          <strong>{{ m.nombre }}</strong>
-          <span class="pct">{{ m.porcentaje }}%</span>
+      <li class="card grid content-start gap-3 border-l-4" [style.border-left-color]="m.color">
+        <div class="flex items-center gap-3">
+          <span class="icon-chip" [style.background-color]="m.color + '26'" [style.color]="m.color">
+            <app-icon [name]="m.icono" />
+          </span>
+          <h2 class="flex-1 font-semibold text-ink">{{ m.nombre }}</h2>
+          <span class="num text-lg font-bold text-ink">{{ m.porcentaje }}%</span>
         </div>
 
-        <div class="barra" role="progressbar" [attr.aria-valuenow]="m.porcentaje" aria-valuemin="0" aria-valuemax="100">
-          <div class="relleno" [style.width.%]="ancho(m)" [style.background]="m.color"></div>
+        <div class="progress" role="progressbar" [attr.aria-valuenow]="m.porcentaje" aria-valuemin="0" aria-valuemax="100"
+             [attr.aria-label]="'Avance de ' + m.nombre">
+          <div class="h-full rounded-full" [style.width.%]="ancho(m)" [style.background-color]="m.color"></div>
         </div>
 
-        <div class="cifras">
-          <span>Ahorrado <b>{{ m.ahorrado | dinero }}</b></span>
-          <span>Falta <b>{{ m.falta | dinero }}</b></span>
-          <span>Meta <b>{{ m.montoObjetivo | dinero }}</b></span>
-        </div>
+        <dl class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
+          <div>Ahorrado <dd class="inline font-semibold text-ink num">{{ m.ahorrado | dinero }}</dd></div>
+          <div>Falta <dd class="inline font-semibold text-ink num">{{ m.falta | dinero }}</dd></div>
+          <div>Meta <dd class="inline font-semibold text-ink num">{{ m.montoObjetivo | dinero }}</dd></div>
+        </dl>
 
         @if (m.cumplida) {
-          <p class="exito">✅ Cumplida el {{ m.fechaCumplida | date: 'dd/MM/yyyy' }}</p>
+          <p class="flex items-center gap-2 text-sm font-medium text-success">
+            <app-icon name="exito" [size]="18" /> Cumplida el {{ m.fechaCumplida | date: 'dd/MM/yyyy' }}
+          </p>
         } @else if (m.fechaLimite) {
-          <p class="plazo" [class.vencida]="m.vencida">
+          <p class="flex items-start gap-2 text-sm" [class.text-danger]="m.vencida" [class.text-muted]="!m.vencida">
             @if (m.vencida) {
-              ⚠️ Venció el {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
-            } @else {
-              Fecha límite: {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
+              <app-icon name="alerta" [size]="16" />
             }
-            @if (m.ahorroMensualSugerido !== null) {
-              Ahorra <b>{{ m.ahorroMensualSugerido | dinero }}</b> al mes para llegar a tiempo.
-            }
+            <span>
+              {{ m.vencida ? 'Venció el' : 'Fecha límite:' }} {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
+              @if (m.ahorroMensualSugerido !== null) {
+                Ahorra <b class="text-ink num">{{ m.ahorroMensualSugerido | dinero }}</b> al mes para llegar a tiempo.
+              }
+            </span>
           </p>
         }
 
         @if (operandoId() === m.id) {
-          <form class="operacion" [formGroup]="formOperacion" (ngSubmit)="registrarOperacion()">
-            <strong>{{ tipoOperacion() === 'Aportacion' ? 'Aportar a la meta' : 'Retirar de la meta' }}</strong>
-            <input type="number" step="0.01" min="0.01" formControlName="monto" placeholder="Monto" />
-            <input type="date" formControlName="fecha" [max]="hoy" />
-            <input type="text" formControlName="nota" maxlength="200" placeholder="Nota (opcional)" />
-            <div class="acciones">
-              <button type="button" (click)="cerrarOperacion()">Cancelar</button>
-              <button type="submit" class="primario">Guardar</button>
+          <form class="grid gap-3 rounded-xl bg-surface-2 p-3" [formGroup]="formOperacion" (ngSubmit)="registrarOperacion()">
+            <strong class="text-sm text-ink">{{ tipoOperacion() === 'Aportacion' ? 'Aportar a la meta' : 'Retirar de la meta' }}</strong>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto" placeholder="Monto" aria-label="Monto" />
+              <input class="input" type="date" formControlName="fecha" [max]="hoy" aria-label="Fecha" />
+            </div>
+            <input class="input" type="text" formControlName="nota" maxlength="200" placeholder="Nota (opcional)" aria-label="Nota" />
+            <div class="flex justify-end gap-2">
+              <button type="button" class="btn btn-sm" (click)="cerrarOperacion()">Cancelar</button>
+              <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
             </div>
           </form>
         }
 
-        <div class="botones">
-          <button type="button" (click)="abrirOperacion(m, 'Aportacion')">Aportar</button>
-          <button type="button" (click)="abrirOperacion(m, 'Retiro')">Retirar</button>
-          <button type="button" (click)="alternarHistorial(m)">
+        <div class="flex flex-wrap justify-end gap-1.5">
+          <button type="button" class="btn btn-sm" (click)="abrirOperacion(m, 'Aportacion')">
+            <app-icon name="agregar" [size]="14" /> Aportar
+          </button>
+          <button type="button" class="btn btn-sm" (click)="abrirOperacion(m, 'Retiro')">Retirar</button>
+          <button type="button" class="btn btn-sm" (click)="alternarHistorial(m)">
             {{ historialId() === m.id ? 'Ocultar historial' : 'Historial' }}
           </button>
-          <button type="button" (click)="editar(m)">Editar</button>
+          <button type="button" class="btn btn-sm" (click)="editar(m)" aria-label="Editar meta">
+            <app-icon name="editar" [size]="14" />
+          </button>
         </div>
 
         @if (historialId() === m.id) {
-          <ul class="historial">
+          <ul class="grid gap-1.5 rounded-xl bg-surface-2 p-3 text-sm">
             @for (o of historial(); track o.id) {
-              <li>
-                <span>{{ o.fecha | date: 'dd/MM/yyyy' }}</span>
-                <span class="nota">{{ o.nota || (o.tipo === 'Aportacion' ? 'Aportación' : 'Retiro') }}</span>
-                <b [class.retiro]="o.tipo === 'Retiro'">
+              <li class="flex gap-3">
+                <span class="text-muted">{{ o.fecha | date: 'dd/MM/yyyy' }}</span>
+                <span class="flex-1 text-ink">{{ o.nota || (o.tipo === 'Aportacion' ? 'Aportación' : 'Retiro') }}</span>
+                <b class="num" [class.text-success]="o.tipo === 'Aportacion'" [class.text-danger]="o.tipo === 'Retiro'">
                   {{ o.tipo === 'Aportacion' ? '+' : '−' }}{{ o.monto | dinero }}
                 </b>
               </li>
             } @empty {
-              <li class="vacio">Sin operaciones todavía.</li>
+              <li class="text-muted">Sin operaciones todavía.</li>
             }
           </ul>
         }

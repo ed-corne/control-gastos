@@ -1,160 +1,167 @@
-<section class="reportes">
-  <h2>Reportes</h2>
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Reportes</h1>
+  </header>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   <!-- RF-REP-01 -->
-  <div class="panel">
-    <header class="panel-cab">
-      <h3>Ingresos contra gastos · últimos 12 meses</h3>
-      <button type="button" (click)="verTablaBarras.set(!verTablaBarras())">
+  <div class="card mb-5">
+    <div class="mb-3 flex flex-wrap items-center gap-3">
+      <h2 class="section-title mb-0 min-w-48 flex-1">Ingresos contra gastos · últimos 12 meses</h2>
+      <button type="button" class="btn btn-sm" (click)="verTablaBarras.set(!verTablaBarras())">
         {{ verTablaBarras() ? 'Ver gráfico' : 'Ver tabla' }}
       </button>
-    </header>
+    </div>
 
-    <ul class="leyenda">
-      <li><span class="muestra" [style.background]="colorIngresos"></span> Ingresos</li>
-      <li><span class="muestra" [style.background]="colorGastos"></span> Gastos</li>
+    <ul class="mb-2 flex gap-4 text-sm text-muted">
+      <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm" [style.background-color]="colorIngresos"></span> Ingresos</li>
+      <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm" [style.background-color]="colorGastos"></span> Gastos</li>
     </ul>
 
     @if (verTablaBarras()) {
-      <table class="tabla">
-        <thead><tr><th>Mes</th><th>Ingresos</th><th>Gastos</th></tr></thead>
-        <tbody>
-          @for (m of meses(); track m.mes + '-' + m.anio) {
-            <tr>
-              <td>{{ etiquetaMesTabla(m.anio, m.mes) }}</td>
-              <td>{{ m.ingresos | dinero }}</td>
-              <td>{{ m.gastos | dinero }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Mes</th><th class="!text-right">Ingresos</th><th class="!text-right">Gastos</th></tr></thead>
+          <tbody>
+            @for (m of meses(); track m.mes + '-' + m.anio) {
+              <tr>
+                <td class="first-letter:uppercase">{{ etiquetaMesTabla(m.anio, m.mes) }}</td>
+                <td class="num text-right">{{ m.ingresos | dinero }}</td>
+                <td class="num text-right">{{ m.gastos | dinero }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     } @else {
-      <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="grafico" role="img"
+      <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="h-auto w-full" role="img"
            aria-label="Barras de ingresos y gastos de los últimos 12 meses">
         @for (t of ticksBarras(); track t.y) {
-          <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="rejilla" />
-          <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="eje">{{ t.etiqueta }}</text>
+          <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="stroke-line" stroke-width="1" />
+          <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="fill-muted" font-size="11">{{ t.etiqueta }}</text>
         }
         @for (b of barras(); track b.x) {
           @if (b.alto > 0) {
-            <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.ancho" [attr.height]="b.alto" rx="3" [attr.fill]="b.color">
+            <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.ancho" [attr.height]="b.alto" rx="3" [style.fill]="b.color">
               <title>{{ b.titulo }}</title>
             </rect>
           }
         }
         @for (m of marcasX(); track m.x) {
-          <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="eje">{{ m.etiqueta }}</text>
+          <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="fill-muted" font-size="11">{{ m.etiqueta }}</text>
         }
       </svg>
     }
   </div>
 
   <!-- RF-REP-02 -->
-  <div class="panel">
-    <header class="panel-cab">
-      <h3>Evolución de una categoría</h3>
-      <select [value]="categoriaId()" (change)="elegirCategoria($any($event.target).value)" aria-label="Categoría">
+  <div class="card mb-5">
+    <div class="mb-3 flex flex-wrap items-center gap-3">
+      <h2 class="section-title mb-0 min-w-48 flex-1">Evolución de una categoría</h2>
+      <select class="input !w-auto max-w-full" [value]="categoriaId()" (change)="elegirCategoria($any($event.target).value)" aria-label="Categoría">
         @for (c of categorias(); track c.id) {
           <option [value]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
         }
       </select>
-      <button type="button" (click)="verTablaLinea.set(!verTablaLinea())">
+      <button type="button" class="btn btn-sm" (click)="verTablaLinea.set(!verTablaLinea())">
         {{ verTablaLinea() ? 'Ver gráfico' : 'Ver tabla' }}
       </button>
-    </header>
+    </div>
 
     @if (serie(); as s) {
       @if (verTablaLinea()) {
-        <table class="tabla">
-          <thead><tr><th>Mes</th><th>{{ s.nombre }}</th></tr></thead>
-          <tbody>
-            @for (p of s.serie; track p.mes + '-' + p.anio) {
-              <tr>
-                <td>{{ etiquetaMesTabla(p.anio, p.mes) }}</td>
-                <td>{{ p.total | dinero }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Mes</th><th class="!text-right">{{ s.nombre }}</th></tr></thead>
+            <tbody>
+              @for (p of s.serie; track p.mes + '-' + p.anio) {
+                <tr>
+                  <td class="first-letter:uppercase">{{ etiquetaMesTabla(p.anio, p.mes) }}</td>
+                  <td class="num text-right">{{ p.total | dinero }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       } @else {
-        <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="grafico" role="img"
+        <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="h-auto w-full" role="img"
              [attr.aria-label]="'Evolución mensual de ' + s.nombre">
           @for (t of ticksLinea(); track t.y) {
-            <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="rejilla" />
-            <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="eje">{{ t.etiqueta }}</text>
+            <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="stroke-line" stroke-width="1" />
+            <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="fill-muted" font-size="11">{{ t.etiqueta }}</text>
           }
           <path [attr.d]="trazo()" fill="none" [attr.stroke]="s.color" stroke-width="2" stroke-linejoin="round" />
           @for (p of puntos(); track p.x) {
-            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4.5" [attr.fill]="s.color" class="punto">
+            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4.5" [attr.fill]="s.color" stroke-width="2" style="stroke: var(--surface)">
               <title>{{ p.titulo }}</title>
             </circle>
           }
           @for (m of marcasLinea(); track m.x) {
-            <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="eje">{{ m.etiqueta }}</text>
+            <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="fill-muted" font-size="11">{{ m.etiqueta }}</text>
           }
         </svg>
       }
     } @else {
-      <p class="vacio">No hay categorías para graficar.</p>
+      <p class="empty !py-4">No hay categorías para graficar.</p>
     }
   </div>
 
   <!-- RF-REP-03 -->
-  <div class="panel">
-    <header class="panel-cab">
-      <h3>Gasto del mes contra el mes anterior</h3>
-      <div class="selector-mes">
-        <button type="button" (click)="mesAnterior()" aria-label="Mes anterior">‹</button>
-        <strong>{{ etiquetaMes() }}</strong>
-        <button type="button" (click)="mesSiguiente()" aria-label="Mes siguiente">›</button>
+  <div class="card">
+    <div class="mb-3 flex flex-wrap items-center gap-3">
+      <h2 class="section-title mb-0 min-w-48 flex-1">Gasto del mes contra el mes anterior</h2>
+      <div class="inline-flex items-center rounded-xl border border-line bg-surface">
+        <button type="button" class="btn-icon" (click)="mesAnterior()" aria-label="Mes anterior"><app-icon name="atras" /></button>
+        <strong class="min-w-36 text-center text-sm text-ink first-letter:uppercase">{{ etiquetaMes() }}</strong>
+        <button type="button" class="btn-icon" (click)="mesSiguiente()" aria-label="Mes siguiente"><app-icon name="adelante" /></button>
       </div>
-    </header>
+    </div>
 
     @if (comparativo(); as c) {
       @if (c.categorias.length === 0) {
-        <p class="vacio">No hay gastos en este mes ni en el anterior.</p>
+        <p class="empty !py-4">No hay gastos en este mes ni en el anterior.</p>
       } @else {
-        <table class="tabla">
-          <thead>
-            <tr><th>Categoría</th><th>Este mes</th><th>Mes anterior</th><th>Diferencia</th><th>Cambio</th></tr>
-          </thead>
-          <tbody>
-            @for (f of c.categorias; track f.categoriaId) {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
               <tr>
-                <td><span class="punto-cat" [style.background]="f.color"></span> {{ f.nombre }}</td>
-                <td>{{ f.actual | dinero }}</td>
-                <td>{{ f.anterior | dinero }}</td>
-                <td>{{ f.diferencia | dinero }}</td>
-                <td [class]="claseVariacion(f.variacionPorcentaje)">
-                  @if (f.variacionPorcentaje === null) {
-                    Nuevo
-                  } @else {
-                    {{ flecha(f.variacionPorcentaje) }} {{ abs(f.variacionPorcentaje) }}%
-                  }
+                <th>Categoría</th><th class="!text-right">Este mes</th><th class="!text-right">Mes anterior</th>
+                <th class="!text-right">Diferencia</th><th class="!text-right">Cambio</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of c.categorias; track f.categoriaId) {
+                <tr>
+                  <td><span class="mr-2 inline-block size-2.5 rounded-full" [style.background-color]="f.color"></span>{{ f.nombre }}</td>
+                  <td class="num text-right">{{ f.actual | dinero }}</td>
+                  <td class="num text-right">{{ f.anterior | dinero }}</td>
+                  <td class="num text-right">{{ f.diferencia | dinero }}</td>
+                  <td class="num text-right font-semibold"
+                      [class.text-danger]="claseVariacion(f.variacionPorcentaje) === 'sube'"
+                      [class.text-success]="claseVariacion(f.variacionPorcentaje) === 'baja'">
+                    @if (f.variacionPorcentaje === null) { Nuevo } @else { {{ flecha(f.variacionPorcentaje) }} {{ abs(f.variacionPorcentaje) }}% }
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="font-semibold">
+                <td class="border-t border-line px-3 py-2">Total</td>
+                <td class="num border-t border-line px-3 py-2 text-right">{{ c.totalActual | dinero }}</td>
+                <td class="num border-t border-line px-3 py-2 text-right">{{ c.totalAnterior | dinero }}</td>
+                <td class="num border-t border-line px-3 py-2 text-right">{{ c.totalActual - c.totalAnterior | dinero }}</td>
+                <td class="num border-t border-line px-3 py-2 text-right"
+                    [class.text-danger]="claseVariacion(c.variacionPorcentaje) === 'sube'"
+                    [class.text-success]="claseVariacion(c.variacionPorcentaje) === 'baja'">
+                  @if (c.variacionPorcentaje === null) { — } @else { {{ flecha(c.variacionPorcentaje) }} {{ abs(c.variacionPorcentaje) }}% }
                 </td>
               </tr>
-            }
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>Total</td>
-              <td>{{ c.totalActual | dinero }}</td>
-              <td>{{ c.totalAnterior | dinero }}</td>
-              <td>{{ c.totalActual - c.totalAnterior | dinero }}</td>
-              <td [class]="claseVariacion(c.variacionPorcentaje)">
-                @if (c.variacionPorcentaje === null) {
-                  —
-                } @else {
-                  {{ flecha(c.variacionPorcentaje) }} {{ abs(c.variacionPorcentaje) }}%
-                }
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+            </tfoot>
+          </table>
+        </div>
       }
     }
   </div>

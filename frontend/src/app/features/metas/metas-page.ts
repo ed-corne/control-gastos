@@ -4,20 +4,20 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { hoyIso } from '../movimientos/movimiento.model';
-import { ICONOS_META, Meta, OperacionMeta, TipoOperacionMeta } from './meta.model';
+import { IconComponent, ICONOS_META_CLAVES } from '../../core/icon.component';
+import { Meta, OperacionMeta, TipoOperacionMeta } from './meta.model';
 import { MetasService } from './metas.service';
 
 @Component({
   selector: 'app-metas-page',
-  imports: [ReactiveFormsModule, DineroPipe, DatePipe],
+  imports: [ReactiveFormsModule, DineroPipe, DatePipe, IconComponent],
   templateUrl: './metas-page.html',
-  styleUrl: './metas-page.scss',
 })
 export class MetasPage {
   private readonly api = inject(MetasService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
-  protected readonly iconos = ICONOS_META;
+  protected readonly iconos = ICONOS_META_CLAVES;
   protected readonly hoy = hoyIso();
 
   protected readonly verCumplidas = signal(false);
@@ -52,10 +52,6 @@ export class MetasPage {
 
   constructor() {
     this.cargar();
-  }
-
-  protected emoji(clave: string): string {
-    return this.iconos.find((i) => i.clave === clave)?.emoji ?? '🎯';
   }
 
   protected alternarHistorialMetas(cumplidas: boolean): void {

@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { ConfiguracionStore } from '../../core/configuracion.store';
+import { IconComponent } from '../../core/icon.component';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { ComparativoMensual, IngresosGastosMes, SerieCategoria } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
@@ -15,9 +16,9 @@ const MARGEN = { izq: 56, der: 12, arriba: 12, abajo: 28 };
 const ANCHO = W - MARGEN.izq - MARGEN.der;
 const ALTO = H - MARGEN.arriba - MARGEN.abajo;
 
-// Paleta de datos validada: slot 1 azul (ingresos) y slot 2 naranja (gastos).
-export const COLOR_INGRESOS = '#2a78d6';
-export const COLOR_GASTOS = '#eb6834';
+// Colores de datos validados (slot 1 azul, slot 2 naranja); cambian solos en modo oscuro (ver styles.css).
+export const COLOR_INGRESOS = 'var(--series-1)';
+export const COLOR_GASTOS = 'var(--series-2)';
 
 interface Barra {
   x: number;
@@ -46,9 +47,8 @@ interface Punto {
 
 @Component({
   selector: 'app-reportes-page',
-  imports: [DineroPipe],
+  imports: [DineroPipe, IconComponent],
   templateUrl: './reportes-page.html',
-  styleUrl: './reportes-page.scss',
 })
 export class ReportesPage {
   private readonly api = inject(DashboardService);

@@ -1,37 +1,48 @@
-<section class="importar">
-  <h2>Importar movimientos</h2>
-  <p class="ayuda">
-    Sube un archivo <b>CSV</b> (por ejemplo, tu hoja de cálculo anterior guardada como CSV). La primera fila debe ser el encabezado.
-    Antes de guardar podrás revisar el resultado.
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Importar movimientos</h1>
+  </header>
+
+  <p class="mb-5 text-sm text-muted">
+    Sube un archivo <b class="text-ink">CSV</b> (por ejemplo, tu hoja de cálculo anterior guardada como CSV). La primera fila debe ser el
+    encabezado. Antes de guardar podrás revisar el resultado.
   </p>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert-error mb-4" role="alert">{{ error() }}</p>
   }
 
   @if (!nombreArchivo()) {
-    <label class="subir">
-      <input type="file" accept=".csv,text/csv,text/plain" (change)="elegirArchivo($event)" />
+    <label class="card flex cursor-pointer flex-col items-center gap-2 border-2 border-dashed py-10 text-center hover:bg-surface-2">
+      <span class="icon-chip"><app-icon name="importar" /></span>
+      <span class="font-medium text-ink">Elegir archivo CSV</span>
+      <span class="text-xs text-muted">Máximo {{ maxFilas }} filas por archivo</span>
+      <input class="sr-only" type="file" accept=".csv,text/csv,text/plain" (change)="elegirArchivo($event)" />
     </label>
   } @else {
-    <p class="archivo">
-      📄 <b>{{ nombreArchivo() }}</b> · {{ datos().length }} filas
-      <button type="button" (click)="reiniciar()">Cambiar archivo</button>
-    </p>
+    <div class="card mb-5 flex flex-wrap items-center gap-3">
+      <span class="icon-chip"><app-icon name="archivo" /></span>
+      <p class="min-w-0 flex-1 text-sm">
+        <b class="block truncate text-ink">{{ nombreArchivo() }}</b>
+        <span class="text-muted">{{ datos().length }} filas</span>
+      </p>
+      <button type="button" class="btn btn-sm" (click)="reiniciar()">Cambiar archivo</button>
+    </div>
 
     @if (yaImportado()) {
       @if (resultado(); as r) {
-        <div class="exito">
-          <strong>Importación terminada</strong>
-          <p>Se importaron {{ r.importadas }} movimientos. {{ r.duplicadas }} duplicados y {{ r.conError }} filas con error no se importaron.</p>
-          <button type="button" class="primario" (click)="reiniciar()">Importar otro archivo</button>
+        <div class="card grid gap-3 border-success/40 bg-primary-soft">
+          <p class="flex items-center gap-2 font-semibold text-success"><app-icon name="exito" /> Importación terminada</p>
+          <p class="text-sm text-ink">
+            Se importaron {{ r.importadas }} movimientos. {{ r.duplicadas }} duplicados y {{ r.conError }} filas con error no se importaron.
+          </p>
+          <div><button type="button" class="btn btn-primary" (click)="reiniciar()">Importar otro archivo</button></div>
         </div>
       }
     } @else {
-      <!-- Vista previa -->
-      <h3>Vista previa</h3>
-      <div class="tabla-scroll">
-        <table class="tabla">
+      <h2 class="section-title">Vista previa</h2>
+      <div class="table-wrap mb-6">
+        <table class="table">
           <thead>
             <tr>
               @for (h of encabezados(); track $index) {
@@ -51,13 +62,12 @@
         </table>
       </div>
 
-      <!-- Relacionar columnas con campos -->
-      <h3>Relaciona las columnas</h3>
-      <div class="mapeo">
+      <h2 class="section-title">Relaciona las columnas</h2>
+      <div class="mb-6 grid gap-3 sm:grid-cols-2">
         @for (campo of campos; track campo.clave) {
-          <label>
-            {{ campo.etiqueta }}@if (campo.obligatorio) { <span class="req">*</span> }
-            <select [value]="mapeo()[campo.clave]" (change)="cambiarMapeo(campo.clave, $any($event.target).value)">
+          <label class="field">
+            <span class="field-label">{{ campo.etiqueta }}@if (campo.obligatorio) { <span class="text-danger"> *</span> }</span>
+            <select class="input" [value]="mapeo()[campo.clave]" (change)="cambiarMapeo(campo.clave, $any($event.target).value)">
               <option value="-1">{{ campo.obligatorio ? 'Selecciona una columna…' : '(no importar)' }}</option>
               @for (h of encabezados(); track $index) {
                 <option [value]="$index">{{ h || 'Columna ' + ($index + 1) }}</option>
@@ -67,20 +77,20 @@
         }
       </div>
 
-      <h3>Opciones</h3>
-      <div class="opciones">
-        <label>
-          Formato de las fechas del archivo
-          <select [ngModel]="formatoFecha()" (ngModelChange)="formatoFecha.set($event)">
+      <h2 class="section-title">Opciones</h2>
+      <div class="mb-6 grid gap-3 sm:grid-cols-2">
+        <label class="field">
+          <span class="field-label">Formato de las fechas del archivo</span>
+          <select class="input" [ngModel]="formatoFecha()" (ngModelChange)="formatoFecha.set($event)">
             <option value="dd/MM/yyyy">día/mes/año (31/12/2026)</option>
             <option value="MM/dd/yyyy">mes/día/año (12/31/2026)</option>
             <option value="yyyy-MM-dd">año-mes-día (2026-12-31)</option>
           </select>
         </label>
 
-        <label>
-          Cuenta cuando la fila no trae una válida
-          <select [ngModel]="cuentaPredeterminadaId()" (ngModelChange)="cuentaPredeterminadaId.set($event)">
+        <label class="field">
+          <span class="field-label">Cuenta cuando la fila no trae una válida</span>
+          <select class="input" [ngModel]="cuentaPredeterminadaId()" (ngModelChange)="cuentaPredeterminadaId.set($event)">
             <option value="">(ninguna: esas filas darán error)</option>
             @for (c of cuentas(); track c.id) {
               <option [value]="c.id">{{ c.nombre }}</option>
@@ -89,45 +99,47 @@
         </label>
 
         @if (mapeo().tipo < 0) {
-          <label class="check">
-            <input type="checkbox" [ngModel]="positivosSonGastos()" (ngModelChange)="positivosSonGastos.set($event)" />
+          <label class="flex items-center gap-2.5 text-sm text-ink sm:col-span-2">
+            <input type="checkbox" class="size-4 accent-[var(--primary)]" [ngModel]="positivosSonGastos()" (ngModelChange)="positivosSonGastos.set($event)" />
             Los montos positivos son gastos (los negativos serán ingresos)
           </label>
         }
 
-        <label class="check">
-          <input type="checkbox" [ngModel]="omitirDuplicados()" (ngModelChange)="omitirDuplicados.set($event)" />
+        <label class="flex items-center gap-2.5 text-sm text-ink sm:col-span-2">
+          <input type="checkbox" class="size-4 accent-[var(--primary)]" [ngModel]="omitirDuplicados()" (ngModelChange)="omitirDuplicados.set($event)" />
           Omitir posibles duplicados (misma fecha, monto y cuenta)
         </label>
       </div>
 
-      <div class="acciones">
-        <button type="button" (click)="revisar()" [disabled]="!listo() || trabajando()">Revisar</button>
-        <button type="button" class="primario" (click)="importar()" [disabled]="!listo() || trabajando() || !resultado()">
-          Importar
-        </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn" (click)="revisar()" [disabled]="!listo() || trabajando()">Revisar</button>
+        <button type="button" class="btn btn-primary" (click)="importar()" [disabled]="!listo() || trabajando() || !resultado()">Importar</button>
+        @if (!resultado()) {
+          <span class="text-xs text-muted">Pulsa “Revisar” para ver qué se importaría antes de guardar.</span>
+        }
       </div>
-      @if (!resultado()) {
-        <small class="ayuda">Pulsa “Revisar” para ver qué se importaría antes de guardar.</small>
-      }
 
-      <!-- Resultado de la revisión -->
       @if (resultado(); as r) {
-        <div class="resumen">
-          <div><b>{{ r.validas }}</b> listas</div>
-          <div><b>{{ r.duplicadas }}</b> posibles duplicados</div>
-          <div class="con-error"><b>{{ r.conError }}</b> con error</div>
-          <div>{{ r.total }} en total</div>
+        <div class="card mt-5 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink">
+          <span><b class="num">{{ r.validas }}</b> listas</span>
+          <span><b class="num">{{ r.duplicadas }}</b> posibles duplicados</span>
+          <span><b class="num text-danger">{{ r.conError }}</b> con error</span>
+          <span class="text-muted">{{ r.total }} en total</span>
         </div>
 
         @if (filasConProblema().length > 0) {
-          <h3>Filas que requieren atención</h3>
-          <ul class="problemas">
+          <h2 class="section-title mt-6">Filas que requieren atención</h2>
+          <ul class="grid gap-1.5 text-sm">
             @for (f of filasConProblema(); track f.numero) {
-              <li [attr.data-estado]="f.estado">
-                <span class="num">Fila {{ f.numero }}</span>
-                <span class="estado">{{ f.estado === 'Error' ? '⛔ Error' : f.estado === 'Duplicada' ? '⚠️ Duplicada' : 'ℹ️ Aviso' }}</span>
-                <span>{{ f.mensaje }}</span>
+              <li class="flex flex-wrap items-start gap-x-3 gap-y-0.5 rounded-xl px-3 py-2"
+                  [class.bg-danger-soft]="f.estado === 'Error'" [class.bg-surface-2]="f.estado !== 'Error'">
+                <span class="w-16 shrink-0 font-semibold text-ink">Fila {{ f.numero }}</span>
+                <span class="flex w-28 shrink-0 items-center gap-1.5"
+                      [class.text-danger]="f.estado === 'Error'" [class.text-warning]="f.estado === 'Duplicada'" [class.text-accent]="f.estado === 'Valida'">
+                  <app-icon [name]="f.estado === 'Error' ? 'bloqueo' : f.estado === 'Duplicada' ? 'alerta' : 'info'" [size]="16" />
+                  {{ f.estado === 'Error' ? 'Error' : f.estado === 'Duplicada' ? 'Duplicada' : 'Aviso' }}
+                </span>
+                <span class="min-w-0 flex-1 text-ink">{{ f.mensaje }}</span>
               </li>
             }
           </ul>

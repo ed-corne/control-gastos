@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { IconComponent } from '../../core/icon.component';
 import { Cuenta } from '../cuentas/cuenta.model';
 import { CuentasService } from '../cuentas/cuentas.service';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
@@ -22,9 +23,8 @@ const CAMPOS: { clave: Campo; etiqueta: string; obligatorio: boolean; pistas: st
 
 @Component({
   selector: 'app-importar-page',
-  imports: [FormsModule],
+  imports: [FormsModule, IconComponent],
   templateUrl: './importar-page.html',
-  styleUrl: './importar-page.scss',
 })
 export class ImportarPage {
   private readonly api = inject(ImportacionService);

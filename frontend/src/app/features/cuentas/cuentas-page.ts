@@ -2,15 +2,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
-import { Cuenta, ICONOS_CUENTA, ResumenCuentas, TIPOS_CUENTA } from './cuenta.model';
+import { IconComponent, ICONOS_CUENTA_CLAVES } from '../../core/icon.component';
+import { Cuenta, ResumenCuentas, TIPOS_CUENTA } from './cuenta.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { CuentasService } from './cuentas.service';
 
 @Component({
   selector: 'app-cuentas-page',
-  imports: [ReactiveFormsModule, DineroPipe],
+  imports: [ReactiveFormsModule, DineroPipe, IconComponent],
   templateUrl: './cuentas-page.html',
-  styleUrl: './cuentas-page.scss',
 })
 export class CuentasPage {
   private readonly api = inject(CuentasService);
@@ -18,7 +18,7 @@ export class CuentasPage {
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly tipos = TIPOS_CUENTA;
-  protected readonly iconos = ICONOS_CUENTA;
+  protected readonly iconos = ICONOS_CUENTA_CLAVES;
 
   protected readonly cuentas = signal<Cuenta[]>([]);
   protected readonly resumen = signal<ResumenCuentas | null>(null);
@@ -43,10 +43,6 @@ export class CuentasPage {
       this.movimientos.cambios();
       untracked(() => this.cargar());
     });
-  }
-
-  protected emoji(clave: string): string {
-    return this.iconos.find((i) => i.clave === clave)?.emoji ?? '👛';
   }
 
   protected etiquetaTipo(tipo: Cuenta['tipo']): string {

@@ -1,0 +1,233 @@
+@import 'tailwindcss';
+
+/* El modo oscuro se activa con data-theme="dark" en <html> (ver ThemeService). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ------------------------------------------------------------------
+   Paleta: verde oscuro (marca), crema (fondos) y azul (acentos).
+   Cada token tiene su valor para modo claro y para modo oscuro.
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --bg: #f6f0e1; /* crema */
+  --surface: #fffaf0; /* crema claro: tarjetas */
+  --surface-2: #ede4cf; /* crema marcado: hover, barras */
+  --line: #ddd2b8; /* bordes */
+  --ink: #17291f; /* texto principal: verde casi negro */
+  --muted: #566a5d; /* texto secundario */
+
+  --primary: #1d4a37; /* verde oscuro */
+  --primary-hover: #153828;
+  --on-primary: #f6f0e1;
+  --primary-soft: #dbe9dd; /* fondo suave verde */
+
+  --accent: #1f5fa6; /* azul */
+  --accent-soft: #d9e6f5;
+
+  --success: #15663a;
+  --danger: #b3261e;
+  --danger-soft: #f8e1de;
+  --warning: #7a4b00;
+  --warning-soft: #f6e8c6;
+
+  /* Colores de datos para gráficos (validados para daltonismo): ingresos y gastos */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0e1913; /* verde casi negro */
+  --surface: #15241c;
+  --surface-2: #1e3226;
+  --line: #2b4436;
+  --ink: #f1ead8; /* crema */
+  --muted: #9fb3a6;
+
+  --primary: #2f7a58; /* verde medio: botones sobre fondo oscuro */
+  --primary-hover: #3a8d68;
+  --on-primary: #f6f0e1;
+  --primary-soft: #1c3a2c;
+
+  --accent: #7db4f2;
+  --accent-soft: #17304d;
+
+  --success: #6fcf97;
+  --danger: #f2877e;
+  --danger-soft: #3a1d1b;
+  --warning: #e6b455;
+  --warning-soft: #3a2f14;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+}
+
+/* Los tokens se exponen como utilidades de Tailwind: bg-surface, text-ink, border-line, bg-primary... */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+  }
+
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  /* Evita que iOS haga zoom al enfocar un campo: 16px mínimo en móvil */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   Componentes reutilizables (mobile first)
+   ------------------------------------------------------------------ */
+@layer components {
+  .page {
+    @apply mx-auto w-full max-w-5xl px-4 pt-5 pb-28 sm:px-6 lg:px-8 lg:pt-8 lg:pb-12;
+  }
+
+  .page-header {
+    @apply mb-5 flex flex-wrap items-center justify-between gap-3;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight text-ink;
+  }
+
+  .section-title {
+    @apply mb-3 text-base font-semibold text-ink;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5;
+  }
+
+  .btn {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply border-transparent bg-primary text-on-primary hover:bg-primary-hover;
+  }
+
+  .btn-danger {
+    @apply border-transparent bg-danger-soft text-danger hover:brightness-95;
+  }
+
+  .btn-ghost {
+    @apply border-transparent bg-transparent hover:bg-surface-2;
+  }
+
+  .btn-sm {
+    @apply min-h-8 gap-1.5 px-2.5 py-1 text-xs;
+  }
+
+  .btn-icon {
+    @apply inline-flex size-10 items-center justify-center rounded-xl text-ink transition-colors hover:bg-surface-2;
+  }
+
+  .field {
+    @apply grid gap-1.5 text-sm;
+  }
+
+  .field > .field-label {
+    @apply font-medium text-ink;
+  }
+
+  .field-hint {
+    @apply text-xs text-muted;
+  }
+
+  .input {
+    @apply min-h-10 w-full rounded-xl border border-line bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none;
+  }
+
+  .alert-error {
+    @apply rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger;
+  }
+
+  .alert-success {
+    @apply rounded-xl bg-primary-soft px-3 py-2 text-sm text-success;
+  }
+
+  .empty {
+    @apply py-10 text-center text-sm text-muted;
+  }
+
+  .tabs {
+    @apply inline-flex rounded-xl border border-line bg-surface p-1;
+  }
+
+  .tab {
+    @apply rounded-lg px-3.5 py-1.5 text-sm font-medium text-muted transition-colors hover:text-ink;
+  }
+
+  .tab-active {
+    @apply bg-primary text-on-primary hover:text-on-primary;
+  }
+
+  .progress {
+    @apply h-2.5 overflow-hidden rounded-full bg-surface-2;
+  }
+
+  .icon-chip {
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary;
+  }
+
+  .table-wrap {
+    @apply overflow-x-auto rounded-xl border border-line;
+  }
+
+  .table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .table th {
+    @apply bg-surface-2 px-3 py-2 text-left font-semibold whitespace-nowrap text-muted;
+  }
+
+  .table td {
+    @apply border-t border-line px-3 py-2 whitespace-nowrap;
+  }
+
+  .num {
+    @apply tabular-nums;
+  }
+}

@@ -1,79 +1,99 @@
-<section class="movimientos">
-  <header class="cabecera">
-    <h2>Movimientos</h2>
-    <div class="herramientas">
-      <button type="button" (click)="alternarFiltros()">{{ filtrosVisibles() ? 'Ocultar filtros' : 'Filtros' }}</button>
-      <button type="button" (click)="exportar()" title="Descarga los movimientos con los filtros aplicados">Exportar CSV</button>
-      <a routerLink="/importar" class="boton">Importar</a>
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Movimientos</h1>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="btn" (click)="alternarFiltros()" [attr.aria-expanded]="filtrosVisibles()">
+        <app-icon name="filtro" [size]="16" /> {{ filtrosVisibles() ? 'Ocultar filtros' : 'Filtros' }}
+      </button>
+      <button type="button" class="btn" (click)="exportar()" title="Descarga los movimientos con los filtros aplicados">
+        <app-icon name="exportar" [size]="16" /> Exportar CSV
+      </button>
+      <a routerLink="/importar" class="btn"><app-icon name="importar" [size]="16" /> Importar</a>
     </div>
   </header>
 
   @if (filtrosVisibles()) {
-    <form class="filtros" [formGroup]="filtros" (ngSubmit)="aplicar()">
-      <label>Desde <input type="date" formControlName="desde" /></label>
-      <label>Hasta <input type="date" formControlName="hasta" /></label>
-      <label>
-        Tipo
-        <select formControlName="tipo">
+    <form class="card mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" [formGroup]="filtros" (ngSubmit)="aplicar()">
+      <label class="field"><span class="field-label">Desde</span><input class="input" type="date" formControlName="desde" /></label>
+      <label class="field"><span class="field-label">Hasta</span><input class="input" type="date" formControlName="hasta" /></label>
+      <label class="field">
+        <span class="field-label">Tipo</span>
+        <select class="input" formControlName="tipo">
           <option value="">Todos</option>
           <option value="Gasto">Gasto</option>
           <option value="Ingreso">Ingreso</option>
           <option value="Transferencia">Transferencia</option>
         </select>
       </label>
-      <label>
-        Cuenta
-        <select formControlName="cuentaId">
+      <label class="field">
+        <span class="field-label">Cuenta</span>
+        <select class="input" formControlName="cuentaId">
           <option value="">Todas</option>
           @for (c of cuentas(); track c.id) {
             <option [value]="c.id">{{ c.nombre }}</option>
           }
         </select>
       </label>
-      <label>
-        Categoría
-        <select formControlName="categoriaId">
+      <label class="field">
+        <span class="field-label">Categoría</span>
+        <select class="input" formControlName="categoriaId">
           <option value="">Todas</option>
           @for (c of categorias(); track c.id) {
             <option [value]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
           }
         </select>
       </label>
-      <label>Monto mín. <input type="number" step="0.01" formControlName="montoMin" /></label>
-      <label>Monto máx. <input type="number" step="0.01" formControlName="montoMax" /></label>
-      <label class="ancho">Buscar en descripción <input type="text" formControlName="texto" /></label>
-      <div class="acciones">
-        <button type="button" (click)="limpiar()">Limpiar</button>
-        <button type="submit" class="primario">Aplicar</button>
+      <label class="field"><span class="field-label">Monto mínimo</span><input class="input" type="number" inputmode="decimal" step="0.01" formControlName="montoMin" /></label>
+      <label class="field"><span class="field-label">Monto máximo</span><input class="input" type="number" inputmode="decimal" step="0.01" formControlName="montoMax" /></label>
+      <label class="field sm:col-span-2">
+        <span class="field-label">Buscar en la descripción</span>
+        <input class="input" type="search" formControlName="texto" placeholder="Ej. tacos" />
+      </label>
+      <div class="flex justify-end gap-2 sm:col-span-2 lg:col-span-3">
+        <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
+        <button type="submit" class="btn btn-primary">Aplicar</button>
       </div>
     </form>
   }
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() }}</p>
   }
 
   @if (!cargando() && items().length === 0) {
-    <p class="vacio">No hay movimientos. Usa el botón “+” para registrar el primero.</p>
+    <p class="empty">No hay movimientos. Usa el botón “+” para registrar el primero.</p>
   }
 
   @for (g of grupos(); track g.fecha) {
-    <h3 class="dia">{{ g.etiqueta }}</h3>
-    <ul class="lista">
+    <h2 class="mt-6 mb-2 text-sm font-semibold text-muted first-letter:uppercase first:mt-0">{{ g.etiqueta }}</h2>
+    <ul class="grid gap-2">
       @for (m of g.items; track m.id) {
-        <li class="fila">
-          <span class="emoji">{{ emoji(m) }}</span>
-          <div class="datos">
-            <strong>{{ titulo(m) }}</strong>
-            <small>{{ subtitulo(m) }}</small>
-          </div>
-          <span class="monto" [class.gasto]="m.tipo === 'Gasto'" [class.ingreso]="m.tipo === 'Ingreso'">
-            {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | dinero }}
+        <li class="card flex flex-wrap items-center gap-3 !p-3">
+          <span class="icon-chip"
+                [style.background-color]="m.categoriaColor ? m.categoriaColor + '26' : null"
+                [style.color]="m.categoriaColor">
+            <app-icon [name]="icono(m)" />
           </span>
-          <div class="botones">
-            <button type="button" (click)="estado.editar(m)">Editar</button>
-            <button type="button" (click)="estado.duplicar(m)">Duplicar</button>
-            <button type="button" (click)="eliminar(m)">Eliminar</button>
+          <div class="min-w-32 flex-1">
+            <p class="font-medium text-ink">{{ titulo(m) }}</p>
+            <p class="text-xs text-muted">{{ subtitulo(m) }}</p>
+          </div>
+          <p class="num text-base font-semibold"
+             [class.text-danger]="m.tipo === 'Gasto'"
+             [class.text-success]="m.tipo === 'Ingreso'"
+             [class.text-ink]="m.tipo === 'Transferencia'">
+            {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | dinero }}
+          </p>
+          <div class="flex w-full justify-end gap-1 sm:w-auto">
+            <button type="button" class="btn btn-sm" (click)="estado.editar(m)" aria-label="Editar movimiento">
+              <app-icon name="editar" [size]="14" />
+            </button>
+            <button type="button" class="btn btn-sm" (click)="estado.duplicar(m)" aria-label="Duplicar movimiento">
+              <app-icon name="duplicar" [size]="14" />
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(m)" aria-label="Eliminar movimiento">
+              <app-icon name="eliminar" [size]="14" />
+            </button>
           </div>
         </li>
       }
@@ -81,8 +101,8 @@
   }
 
   @if (hayMas()) {
-    <div class="mas">
-      <button type="button" (click)="cargarMas()" [disabled]="cargando()">Cargar más</button>
+    <div class="mt-6 text-center">
+      <button type="button" class="btn" (click)="cargarMas()" [disabled]="cargando()">Cargar más</button>
     </div>
   }
 </section>

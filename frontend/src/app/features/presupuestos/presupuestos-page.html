@@ -1,85 +1,112 @@
-<section class="presupuestos">
-  <header class="cabecera">
-    <h2>Presupuestos</h2>
-    <button type="button" class="primario" (click)="nuevo()">+ Nuevo</button>
+<section class="page">
+  <header class="page-header">
+    <h1 class="page-title">Presupuestos</h1>
+    <button type="button" class="btn btn-primary" (click)="nuevo()">
+      <app-icon name="agregar" [size]="18" /> Nuevo
+    </button>
   </header>
 
-  <div class="mes">
-    <button type="button" (click)="mesAnterior()" aria-label="Mes anterior">‹</button>
-    <strong>{{ etiquetaMes() }}</strong>
-    <button type="button" (click)="mesSiguiente()" aria-label="Mes siguiente">›</button>
-    <button type="button" class="copiar" (click)="copiarMesAnterior()">Copiar del mes anterior</button>
+  <div class="mb-5 flex flex-wrap items-center gap-2">
+    <div class="inline-flex items-center rounded-xl border border-line bg-surface">
+      <button type="button" class="btn-icon" (click)="mesAnterior()" aria-label="Mes anterior">
+        <app-icon name="atras" />
+      </button>
+      <strong class="min-w-36 text-center text-sm text-ink first-letter:uppercase">{{ etiquetaMes() }}</strong>
+      <button type="button" class="btn-icon" (click)="mesSiguiente()" aria-label="Mes siguiente">
+        <app-icon name="adelante" />
+      </button>
+    </div>
+    <button type="button" class="btn sm:ml-auto" (click)="copiarMesAnterior()">
+      <app-icon name="duplicar" [size]="16" /> Copiar del mes anterior
+    </button>
   </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() }}</p>
   }
   @if (aviso()) {
-    <p class="aviso">{{ aviso() }}</p>
+    <p class="alert-success mb-4">{{ aviso() }}</p>
   }
 
   @if (formularioAbierto()) {
-    <form class="formulario" [formGroup]="form" (ngSubmit)="guardar()">
-      <h3>{{ editandoId() ? 'Editar monto' : 'Nuevo presupuesto' }}</h3>
+    <form class="card mb-5 grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
+      <h2 class="section-title mb-0">{{ editandoId() ? 'Editar monto' : 'Nuevo presupuesto' }}</h2>
 
       @if (!editandoId()) {
-        <label>
-          Categoría
-          <select formControlName="categoriaId">
+        <label class="field">
+          <span class="field-label">Categoría</span>
+          <select class="input" formControlName="categoriaId">
             @if (!hayGlobal()) {
-              <option value="">🎯 Presupuesto global (todo el mes)</option>
+              <option value="">Presupuesto global (todo el mes)</option>
             }
             @for (c of disponibles(); track c.id) {
-              <option [value]="c.id">{{ emoji(c.icono) }} {{ c.nombre }}</option>
+              <option [value]="c.id">{{ c.nombre }}</option>
             }
           </select>
         </label>
       }
 
-      <label>
-        Monto mensual
-        <input type="number" step="0.01" min="0.01" formControlName="monto" />
+      <label class="field">
+        <span class="field-label">Monto mensual</span>
+        <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto" />
         @if (form.controls.monto.touched && form.controls.monto.invalid) {
-          <small class="error">Indica un monto mayor a 0.</small>
+          <span class="text-xs text-danger">Indica un monto mayor a 0.</span>
         }
       </label>
 
-      <div class="acciones">
-        <button type="button" (click)="cancelar()">Cancelar</button>
-        <button type="submit" class="primario">Guardar</button>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
   }
 
   @if (presupuestos().length === 0) {
-    <p class="vacio">No hay presupuestos para este mes. Crea uno o cópialo del mes anterior.</p>
+    <p class="empty">No hay presupuestos para este mes. Crea uno o cópialo del mes anterior.</p>
   }
 
-  <ul class="lista">
+  <ul class="grid gap-3 lg:grid-cols-2">
     @for (p of presupuestos(); track p.id) {
-      <li class="tarjeta">
-        <div class="titulo">
-          <span class="emoji">{{ emoji(p.categoriaIcono) }}</span>
-          <strong>{{ p.categoriaNombre }}</strong>
-          <span class="pct" [attr.data-estado]="p.estado">{{ p.porcentaje }}%</span>
-        </div>
-
-        <div class="barra" role="progressbar" [attr.aria-valuenow]="p.porcentaje" aria-valuemin="0" aria-valuemax="100">
-          <div class="relleno" [attr.data-estado]="p.estado" [style.width.%]="ancho(p)"></div>
-        </div>
-
-        <div class="cifras">
-          <span>Asignado <b>{{ p.asignado | dinero }}</b></span>
-          <span>Gastado <b>{{ p.gastado | dinero }}</b></span>
-          <span [class.excedido]="p.restante < 0">
-            {{ p.restante < 0 ? 'Excedido' : 'Queda' }}
-            <b>{{ (p.restante < 0 ? -p.restante : p.restante) | dinero }}</b>
+      <li class="card grid gap-3">
+        <div class="flex items-center gap-3">
+          <span class="icon-chip" [style.background-color]="p.categoriaColor ? p.categoriaColor + '26' : null"
+                [style.color]="p.categoriaColor">
+            <app-icon [name]="p.categoriaIcono ?? 'target'" />
+          </span>
+          <h2 class="flex-1 font-semibold text-ink">{{ p.categoriaNombre }}</h2>
+          <span class="num flex items-center gap-1 text-lg font-bold"
+                [class.text-success]="p.estado === 'Verde'"
+                [class.text-warning]="p.estado === 'Amarillo'"
+                [class.text-danger]="p.estado === 'Rojo'">
+            @if (p.estado === 'Rojo') { <app-icon name="alerta" [size]="16" /> }
+            {{ p.porcentaje }}%
           </span>
         </div>
 
-        <div class="botones">
-          <button type="button" (click)="editar(p)">Editar</button>
-          <button type="button" (click)="eliminar(p)">Eliminar</button>
+        <!-- RF-PRE-03: verde < 75 %, amarillo 75–100 %, rojo > 100 % -->
+        <div class="progress" role="progressbar" [attr.aria-valuenow]="p.porcentaje" aria-valuemin="0" aria-valuemax="100"
+             [attr.aria-label]="'Uso del presupuesto de ' + p.categoriaNombre">
+          <div class="h-full rounded-full"
+               [class.bg-success]="p.estado === 'Verde'"
+               [class.bg-warning]="p.estado === 'Amarillo'"
+               [class.bg-danger]="p.estado === 'Rojo'"
+               [style.width.%]="ancho(p)"></div>
+        </div>
+
+        <dl class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
+          <div>Asignado <dd class="inline font-semibold text-ink num">{{ p.asignado | dinero }}</dd></div>
+          <div>Gastado <dd class="inline font-semibold text-ink num">{{ p.gastado | dinero }}</dd></div>
+          <div [class.text-danger]="p.restante < 0">
+            {{ p.restante < 0 ? 'Excedido' : 'Queda' }}
+            <dd class="inline font-semibold num" [class.text-ink]="p.restante >= 0">{{ (p.restante < 0 ? -p.restante : p.restante) | dinero }}</dd>
+          </div>
+        </dl>
+
+        <div class="flex justify-end gap-1.5">
+          <button type="button" class="btn btn-sm" (click)="editar(p)"><app-icon name="editar" [size]="14" /> Editar</button>
+          <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(p)" aria-label="Eliminar presupuesto">
+            <app-icon name="eliminar" [size]="14" />
+          </button>
         </div>
       </li>
     }
