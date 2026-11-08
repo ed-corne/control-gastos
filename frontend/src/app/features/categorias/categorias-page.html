@@ -1,0 +1,83 @@
+<section class="categorias">
+  <header class="cabecera">
+    <h2>Categorías</h2>
+    <button type="button" class="primario" (click)="nueva()">+ Nueva</button>
+  </header>
+
+  <div class="pestanas">
+    @for (t of tipos; track t) {
+      <button type="button" [class.activa]="tipoActivo() === t" (click)="cambiarTipo(t)">
+        {{ t === 'Gasto' ? 'Gastos' : 'Ingresos' }}
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (formularioAbierto()) {
+    <form class="formulario" [formGroup]="form" (ngSubmit)="guardar()">
+      <h3>{{ titulo() }}</h3>
+
+      <label>
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="100" />
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small class="error">El nombre es obligatorio.</small>
+        }
+      </label>
+
+      <label>
+        Color
+        <input type="color" formControlName="color" />
+      </label>
+
+      <fieldset>
+        <legend>Ícono</legend>
+        <div class="iconos">
+          @for (i of iconos; track i.clave) {
+            <label class="icono" [class.activo]="form.controls.icono.value === i.clave">
+              <input type="radio" formControlName="icono" [value]="i.clave" />
+              {{ i.emoji }}
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <div class="acciones">
+        <button type="button" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="primario">Guardar</button>
+      </div>
+    </form>
+  }
+
+  <label class="filtro">
+    <input type="checkbox" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
+    Mostrar archivadas
+  </label>
+
+  @if (categorias().length === 0) {
+    <p class="vacio">No hay categorías de este tipo.</p>
+  }
+
+  <ul class="lista">
+    @for (c of categorias(); track c.id) {
+      <li class="tarjeta" [class.archivada]="c.archivada" [style.border-left-color]="c.color">
+        <span class="emoji">{{ emoji(c.icono) }}</span>
+        <div class="datos">
+          <strong>{{ c.nombre }}</strong>
+          @if (c.archivada) {
+            <small>Archivada</small>
+          }
+        </div>
+        <div class="botones">
+          <button type="button" (click)="editar(c)">Editar</button>
+          <button type="button" (click)="alternarArchivo(c)">
+            {{ c.archivada ? 'Restaurar' : 'Archivar' }}
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</section>

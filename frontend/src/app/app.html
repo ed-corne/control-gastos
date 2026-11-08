@@ -2,6 +2,7 @@
   <strong>Control de Gastos</strong>
   <nav>
     <a routerLink="/cuentas" routerLinkActive="activo">Cuentas</a>
+    <a routerLink="/categorias" routerLinkActive="activo">Categorías</a>
   </nav>
   <span class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">
     API: {{ apiStatus() }}

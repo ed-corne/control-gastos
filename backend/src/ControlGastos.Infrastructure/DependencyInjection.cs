@@ -1,3 +1,4 @@
+using ControlGastos.Application.Categorias;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ public static class DependencyInjection
             o.UseNpgsql(config.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<ICuentaRepository, CuentaRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         return services;
     }
 }

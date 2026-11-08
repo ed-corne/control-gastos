@@ -12,10 +12,43 @@ public partial class AppDbContext : DbContext
     {
     }
 
+    public virtual DbSet<Categoria> Categorias { get; set; }
+
     public virtual DbSet<Cuenta> Cuentas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Categoria>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_categorias");
+
+            entity.ToTable("categorias");
+
+            entity.HasIndex(e => e.Archivada, "ix_categorias_archivada");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.Archivada).HasColumnName("archivada");
+            entity.Property(e => e.Color)
+                .HasMaxLength(7)
+                .HasDefaultValueSql("'#6b7280'::character varying")
+                .HasColumnName("color");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.Icono)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'other'::character varying")
+                .HasColumnName("icono");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(10)
+                .HasColumnName("tipo");
+        });
+
         modelBuilder.Entity<Cuenta>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("pk_cuentas");
