@@ -1,3 +1,4 @@
+using ControlGastos.Application.Common;
 using ControlGastos.Domain.Cuentas;
 
 namespace ControlGastos.Application.Cuentas;
@@ -7,13 +8,14 @@ public class CuentaService(ICuentaRepository repositorio)
     public async Task<IReadOnlyList<CuentaDto>> ListarAsync(bool incluirArchivadas, CancellationToken ct)
     {
         var cuentas = await repositorio.ListarAsync(incluirArchivadas, ct);
-        return cuentas.Select(ToDto).ToList();
+        var neto = await repositorio.ObtenerMovimientoNetoAsync(ct);
+        return cuentas.Select(c => ToDto(c, neto)).ToList();
     }
 
     public async Task<CuentaDto?> ObtenerAsync(Guid id, CancellationToken ct)
     {
         var cuenta = await repositorio.ObtenerAsync(id, ct);
-        return cuenta is null ? null : ToDto(cuenta);
+        return cuenta is null ? null : ToDto(cuenta, await repositorio.ObtenerMovimientoNetoAsync(ct));
     }
 
     public async Task<CuentaDto> CrearAsync(GuardarCuentaRequest request, CancellationToken ct)
@@ -21,7 +23,7 @@ public class CuentaService(ICuentaRepository repositorio)
         var cuenta = new Cuenta();
         Aplicar(cuenta, request);
         await repositorio.AgregarAsync(cuenta, ct);
-        return ToDto(cuenta);
+        return ToDto(cuenta, SinMovimientos);
     }
 
     public async Task<CuentaDto?> EditarAsync(Guid id, GuardarCuentaRequest request, CancellationToken ct)
@@ -31,7 +33,7 @@ public class CuentaService(ICuentaRepository repositorio)
 
         Aplicar(cuenta, request);
         await repositorio.ActualizarAsync(cuenta, ct);
-        return ToDto(cuenta);
+        return ToDto(cuenta, await repositorio.ObtenerMovimientoNetoAsync(ct));
     }
 
     /// <summary>RF-CTA-02: archivar conserva el historial; no se elimina nada.</summary>
@@ -42,7 +44,19 @@ public class CuentaService(ICuentaRepository repositorio)
 
         cuenta.Archivada = archivada;
         await repositorio.ActualizarAsync(cuenta, ct);
-        return ToDto(cuenta);
+        return ToDto(cuenta, await repositorio.ObtenerMovimientoNetoAsync(ct));
+    }
+
+    /// <summary>RF-CTA-06: una cuenta con movimientos solo se puede archivar.</summary>
+    public async Task<bool> EliminarAsync(Guid id, CancellationToken ct)
+    {
+        if (await repositorio.ObtenerAsync(id, ct) is null) return false;
+
+        if (await repositorio.TieneMovimientosAsync(id, ct))
+            throw new ReglaNegocioException("No se puede eliminar una cuenta que tiene movimientos; solo archivarla.");
+
+        await repositorio.EliminarAsync(id, ct);
+        return true;
     }
 
     /// <summary>
@@ -51,12 +65,15 @@ public class CuentaService(ICuentaRepository repositorio)
     public async Task<ResumenCuentasDto> ObtenerResumenAsync(CancellationToken ct)
     {
         var cuentas = await repositorio.ListarAsync(incluirArchivadas: false, ct);
+        var neto = await repositorio.ObtenerMovimientoNetoAsync(ct);
 
-        var activos = cuentas.Where(c => c.Tipo != TipoCuenta.Credito).Sum(CalcularSaldoActual);
-        var deuda = cuentas.Where(c => c.Tipo == TipoCuenta.Credito).Sum(CalcularSaldoActual);
+        var activos = cuentas.Where(c => c.Tipo != TipoCuenta.Credito).Sum(c => CalcularSaldoActual(c, neto));
+        var deuda = cuentas.Where(c => c.Tipo == TipoCuenta.Credito).Sum(c => CalcularSaldoActual(c, neto));
 
         return new ResumenCuentasDto(activos - deuda, activos, deuda, cuentas.Count);
     }
+
+    private static readonly IReadOnlyDictionary<Guid, decimal> SinMovimientos = new Dictionary<Guid, decimal>();
 
     private static void Aplicar(Cuenta cuenta, GuardarCuentaRequest r)
     {
@@ -67,9 +84,17 @@ public class CuentaService(ICuentaRepository repositorio)
         cuenta.Icono = r.Icono.Trim();
     }
 
-    // RF-CTA-03: cuando exista el módulo de movimientos se sumarán ingresos, gastos y transferencias.
-    private static decimal CalcularSaldoActual(Cuenta c) => c.SaldoInicial;
+    /// <summary>
+    /// RF-CTA-03: saldo inicial + ingresos − gastos ± transferencias.
+    /// En una tarjeta de crédito el saldo es la deuda, así que el efecto se invierte:
+    /// un gasto la aumenta y un pago (transferencia recibida) la reduce.
+    /// </summary>
+    private static decimal CalcularSaldoActual(Cuenta c, IReadOnlyDictionary<Guid, decimal> neto)
+    {
+        var efecto = neto.GetValueOrDefault(c.Id);
+        return c.Tipo == TipoCuenta.Credito ? c.SaldoInicial - efecto : c.SaldoInicial + efecto;
+    }
 
-    private static CuentaDto ToDto(Cuenta c) =>
-        new(c.Id, c.Nombre, c.Tipo, c.SaldoInicial, CalcularSaldoActual(c), c.Color, c.Icono, c.Archivada);
+    private static CuentaDto ToDto(Cuenta c, IReadOnlyDictionary<Guid, decimal> neto) =>
+        new(c.Id, c.Nombre, c.Tipo, c.SaldoInicial, CalcularSaldoActual(c, neto), c.Color, c.Icono, c.Archivada);
 }

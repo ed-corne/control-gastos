@@ -20,4 +20,8 @@ public partial class Cuenta
     public bool Archivada { get; set; }
 
     public DateTime FechaCreacion { get; set; }
+
+    public virtual ICollection<Movimiento> MovimientoCuenta { get; set; } = new List<Movimiento>();
+
+    public virtual ICollection<Movimiento> MovimientoCuentaDestinos { get; set; } = new List<Movimiento>();
 }

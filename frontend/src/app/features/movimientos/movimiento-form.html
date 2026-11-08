@@ -1,0 +1,89 @@
+@if (estado.formularioAbierto()) {
+  <div class="fondo" (click)="cerrar()" (keydown.escape)="cerrar()" role="presentation">
+    <form class="hoja" [formGroup]="form" (ngSubmit)="guardar()" (click)="$event.stopPropagation()">
+      <header>
+        <h3>{{ titulo() }}</h3>
+        <button type="button" class="cerrar" (click)="cerrar()" aria-label="Cerrar">✕</button>
+      </header>
+
+      <div class="tipos">
+        @for (t of tipos; track t) {
+          <button type="button" [class.activo]="tipo() === t" [attr.data-tipo]="t" (click)="cambiarTipo(t)">
+            {{ t }}
+          </button>
+        }
+      </div>
+
+      <label class="monto">
+        Monto
+        <input type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto"
+               placeholder="0.00" autofocus />
+      </label>
+
+      @if (tipo() !== 'Transferencia') {
+        <div class="campo">
+          <span>Categoría</span>
+          @if (frecuentes().length) {
+            <div class="chips">
+              @for (c of frecuentes(); track c.id) {
+                <button type="button" class="chip" [class.activo]="form.controls.categoriaId.value === c.id"
+                        (click)="elegirCategoria(c.id)">
+                  {{ emoji(c.icono) }} {{ c.nombre }}
+                </button>
+              }
+            </div>
+          }
+          <select formControlName="categoriaId">
+            <option value="">Selecciona…</option>
+            @for (c of categorias(); track c.id) {
+              <option [value]="c.id">{{ emoji(c.icono) }} {{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <label>
+        {{ tipo() === 'Transferencia' ? 'Cuenta de origen' : 'Cuenta' }}
+        <select formControlName="cuentaId">
+          <option value="">Selecciona…</option>
+          @for (c of cuentas(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+      </label>
+
+      @if (tipo() === 'Transferencia') {
+        <label>
+          Cuenta destino
+          <select formControlName="cuentaDestinoId">
+            <option value="">Selecciona…</option>
+            @for (c of cuentas(); track c.id) {
+              @if (c.id !== form.controls.cuentaId.value) {
+                <option [value]="c.id">{{ c.nombre }}</option>
+              }
+            }
+          </select>
+        </label>
+      }
+
+      <label>
+        Fecha
+        <input type="date" formControlName="fecha" [max]="hoy" />
+      </label>
+
+      <label>
+        Descripción (opcional)
+        <input type="text" formControlName="descripcion" maxlength="500" />
+      </label>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+
+      <div class="acciones">
+        <button type="button" (click)="cerrar()">Cancelar</button>
+        <button type="submit" class="primario" [disabled]="guardando()">Guardar</button>
+      </div>
+    </form>
+  </div>
+}

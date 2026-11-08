@@ -37,6 +37,10 @@ public class CuentasController(CuentaService servicio) : ControllerBase
         return cuenta is null ? NotFound() : Ok(cuenta);
     }
 
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Eliminar(Guid id, CancellationToken ct) =>
+        await servicio.EliminarAsync(id, ct) ? NoContent() : NotFound();
+
     [HttpPatch("{id:guid}/archivar")]
     public async Task<ActionResult<CuentaDto>> Archivar(Guid id, CancellationToken ct)
     {

@@ -42,6 +42,31 @@ public class CuentaRepository(AppDbContext db) : ICuentaRepository
         await db.SaveChangesAsync(ct);
     }
 
+    public async Task EliminarAsync(Guid id, CancellationToken ct) =>
+        await db.Cuentas.Where(c => c.Id == id).ExecuteDeleteAsync(ct);
+
+    public Task<bool> TieneMovimientosAsync(Guid id, CancellationToken ct) =>
+        db.Movimientos.AnyAsync(m => m.CuentaId == id || m.CuentaDestinoId == id, ct);
+
+    public async Task<IReadOnlyDictionary<Guid, decimal>> ObtenerMovimientoNetoAsync(CancellationToken ct)
+    {
+        var origen = await db.Movimientos.AsNoTracking()
+            .GroupBy(m => m.CuentaId)
+            .Select(g => new { Id = g.Key, Total = g.Sum(m => m.Tipo == "Ingreso" ? m.Monto : -m.Monto) })
+            .ToListAsync(ct);
+
+        var destino = await db.Movimientos.AsNoTracking()
+            .Where(m => m.CuentaDestinoId != null)
+            .GroupBy(m => m.CuentaDestinoId!.Value)
+            .Select(g => new { Id = g.Key, Total = g.Sum(m => m.Monto) })
+            .ToListAsync(ct);
+
+        var neto = new Dictionary<Guid, decimal>();
+        foreach (var o in origen) neto[o.Id] = neto.GetValueOrDefault(o.Id) + o.Total;
+        foreach (var d in destino) neto[d.Id] = neto.GetValueOrDefault(d.Id) + d.Total;
+        return neto;
+    }
+
     private static void Copiar(Cuenta origen, CuentaEntity destino)
     {
         destino.Nombre = origen.Nombre;

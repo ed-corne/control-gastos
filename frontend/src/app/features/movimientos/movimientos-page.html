@@ -1,0 +1,84 @@
+<section class="movimientos">
+  <header class="cabecera">
+    <h2>Movimientos</h2>
+    <button type="button" (click)="alternarFiltros()">{{ filtrosVisibles() ? 'Ocultar filtros' : 'Filtros' }}</button>
+  </header>
+
+  @if (filtrosVisibles()) {
+    <form class="filtros" [formGroup]="filtros" (ngSubmit)="aplicar()">
+      <label>Desde <input type="date" formControlName="desde" /></label>
+      <label>Hasta <input type="date" formControlName="hasta" /></label>
+      <label>
+        Tipo
+        <select formControlName="tipo">
+          <option value="">Todos</option>
+          <option value="Gasto">Gasto</option>
+          <option value="Ingreso">Ingreso</option>
+          <option value="Transferencia">Transferencia</option>
+        </select>
+      </label>
+      <label>
+        Cuenta
+        <select formControlName="cuentaId">
+          <option value="">Todas</option>
+          @for (c of cuentas(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Categoría
+        <select formControlName="categoriaId">
+          <option value="">Todas</option>
+          @for (c of categorias(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
+          }
+        </select>
+      </label>
+      <label>Monto mín. <input type="number" step="0.01" formControlName="montoMin" /></label>
+      <label>Monto máx. <input type="number" step="0.01" formControlName="montoMax" /></label>
+      <label class="ancho">Buscar en descripción <input type="text" formControlName="texto" /></label>
+      <div class="acciones">
+        <button type="button" (click)="limpiar()">Limpiar</button>
+        <button type="submit" class="primario">Aplicar</button>
+      </div>
+    </form>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (!cargando() && items().length === 0) {
+    <p class="vacio">No hay movimientos. Usa el botón “+” para registrar el primero.</p>
+  }
+
+  @for (g of grupos(); track g.fecha) {
+    <h3 class="dia">{{ g.etiqueta }}</h3>
+    <ul class="lista">
+      @for (m of g.items; track m.id) {
+        <li class="fila">
+          <span class="emoji">{{ emoji(m) }}</span>
+          <div class="datos">
+            <strong>{{ titulo(m) }}</strong>
+            <small>{{ subtitulo(m) }}</small>
+          </div>
+          <span class="monto" [class.gasto]="m.tipo === 'Gasto'" [class.ingreso]="m.tipo === 'Ingreso'">
+            {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | currency: 'MXN' : 'symbol-narrow' }}
+          </span>
+          <div class="botones">
+            <button type="button" (click)="estado.editar(m)">Editar</button>
+            <button type="button" (click)="estado.duplicar(m)">Duplicar</button>
+            <button type="button" (click)="eliminar(m)">Eliminar</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (hayMas()) {
+    <div class="mas">
+      <button type="button" (click)="cargarMas()" [disabled]="cargando()">Cargar más</button>
+    </div>
+  }
+</section>

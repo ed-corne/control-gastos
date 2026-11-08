@@ -26,6 +26,10 @@ export class CuentasService {
     return this.http.put<Cuenta>(`${this.url}/${id}`, cuenta);
   }
 
+  eliminar(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
   archivar(id: string): Observable<Cuenta> {
     return this.http.patch<Cuenta>(`${this.url}/${id}/archivar`, {});
   }

@@ -1,7 +1,9 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Cuenta, ICONOS_CUENTA, ResumenCuentas, TIPOS_CUENTA } from './cuenta.model';
+import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { CuentasService } from './cuentas.service';
 
 @Component({
@@ -12,6 +14,7 @@ import { CuentasService } from './cuentas.service';
 })
 export class CuentasPage {
   private readonly api = inject(CuentasService);
+  private readonly movimientos = inject(MovimientosEstado);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly tipos = TIPOS_CUENTA;
@@ -35,7 +38,11 @@ export class CuentasPage {
   });
 
   constructor() {
-    this.cargar();
+    // Los saldos cambian al registrar movimientos desde cualquier pantalla.
+    effect(() => {
+      this.movimientos.cambios();
+      untracked(() => this.cargar());
+    });
   }
 
   protected emoji(clave: string): string {
@@ -96,6 +103,19 @@ export class CuentasPage {
     accion.subscribe({
       next: () => this.cargar(),
       error: () => this.error.set('No se pudo actualizar la cuenta.'),
+    });
+  }
+
+  protected eliminar(c: Cuenta): void {
+    if (!confirm(`¿Eliminar la cuenta "${c.nombre}"? Esta acción no se puede deshacer.`)) return;
+    this.api.eliminar(c.id).subscribe({
+      next: () => this.cargar(),
+      error: (e) =>
+        this.error.set(
+          e instanceof HttpErrorResponse && e.status === 409 && e.error?.detail
+            ? e.error.detail
+            : 'No se pudo eliminar la cuenta.',
+        ),
     });
   }
 

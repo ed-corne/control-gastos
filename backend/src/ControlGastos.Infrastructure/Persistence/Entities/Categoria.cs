@@ -18,4 +18,6 @@ public partial class Categoria
     public bool Archivada { get; set; }
 
     public DateTime FechaCreacion { get; set; }
+
+    public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
 }

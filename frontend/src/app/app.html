@@ -1,6 +1,7 @@
 <header class="barra">
   <strong>Control de Gastos</strong>
   <nav>
+    <a routerLink="/movimientos" routerLinkActive="activo">Movimientos</a>
     <a routerLink="/cuentas" routerLinkActive="activo">Cuentas</a>
     <a routerLink="/categorias" routerLinkActive="activo">Categorías</a>
   </nav>
@@ -9,3 +10,7 @@
   </span>
 </header>
 <router-outlet />
+
+<!-- RF-MOV-02: botón flotante disponible en cualquier pantalla -->
+<button type="button" class="fab" aria-label="Registrar movimiento" (click)="estado.nuevo()">+</button>
+<app-movimiento-form />
