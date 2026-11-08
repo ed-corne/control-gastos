@@ -14,6 +14,10 @@ public interface IMovimientoRepository
     Task<IReadOnlyDictionary<Guid, decimal>> TotalesPorCategoriaAsync(
         TipoMovimiento tipo, DateOnly desde, DateOnly hasta, CancellationToken ct);
 
+    /// <summary>Total por mes (año, mes) de ingresos o gastos, opcionalmente de una sola categoría.</summary>
+    Task<IReadOnlyDictionary<(int Anio, int Mes), decimal>> TotalesPorMesAsync(
+        TipoMovimiento tipo, DateOnly desde, DateOnly hasta, Guid? categoriaId, CancellationToken ct);
+
     Task<Guid?> UltimaCuentaUsadaAsync(CancellationToken ct);
     Task<IReadOnlyList<Guid>> CategoriasFrecuentesAsync(TipoMovimiento tipo, int cantidad, CancellationToken ct);
 }

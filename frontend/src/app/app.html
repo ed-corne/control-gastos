@@ -1,10 +1,12 @@
 <header class="barra">
   <strong>Control de Gastos</strong>
   <nav>
+    <a routerLink="/resumen" routerLinkActive="activo">Resumen</a>
     <a routerLink="/movimientos" routerLinkActive="activo">Movimientos</a>
     <a routerLink="/presupuestos" routerLinkActive="activo">Presupuestos</a>
     <a routerLink="/metas" routerLinkActive="activo">Metas</a>
     <a routerLink="/cuentas" routerLinkActive="activo">Cuentas</a>
+    <a routerLink="/reportes" routerLinkActive="activo">Reportes</a>
     <a routerLink="/categorias" routerLinkActive="activo">Categorías</a>
   </nav>
   <span class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">

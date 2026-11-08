@@ -74,6 +74,23 @@ public class MovimientoRepository(AppDbContext db) : IMovimientoRepository
             .ToDictionaryAsync(x => x.Key, x => x.Total, ct);
     }
 
+    public async Task<IReadOnlyDictionary<(int Anio, int Mes), decimal>> TotalesPorMesAsync(
+        TipoMovimiento tipo, DateOnly desde, DateOnly hasta, Guid? categoriaId, CancellationToken ct)
+    {
+        var texto = tipo.ToString();
+        var consulta = db.Movimientos.AsNoTracking()
+            .Where(m => m.Tipo == texto && m.Fecha >= desde && m.Fecha <= hasta);
+
+        if (categoriaId is { } id) consulta = consulta.Where(m => m.CategoriaId == id);
+
+        var filas = await consulta
+            .GroupBy(m => new { m.Fecha.Year, m.Fecha.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(m => m.Monto) })
+            .ToListAsync(ct);
+
+        return filas.ToDictionary(f => (f.Year, f.Month), f => f.Total);
+    }
+
     public Task<Guid?> UltimaCuentaUsadaAsync(CancellationToken ct) =>
         db.Movimientos.AsNoTracking()
             .OrderByDescending(m => m.FechaCreacion)

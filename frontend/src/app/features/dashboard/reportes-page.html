@@ -1,0 +1,161 @@
+<section class="reportes">
+  <h2>Reportes</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <!-- RF-REP-01 -->
+  <div class="panel">
+    <header class="panel-cab">
+      <h3>Ingresos contra gastos · últimos 12 meses</h3>
+      <button type="button" (click)="verTablaBarras.set(!verTablaBarras())">
+        {{ verTablaBarras() ? 'Ver gráfico' : 'Ver tabla' }}
+      </button>
+    </header>
+
+    <ul class="leyenda">
+      <li><span class="muestra" [style.background]="colorIngresos"></span> Ingresos</li>
+      <li><span class="muestra" [style.background]="colorGastos"></span> Gastos</li>
+    </ul>
+
+    @if (verTablaBarras()) {
+      <table class="tabla">
+        <thead><tr><th>Mes</th><th>Ingresos</th><th>Gastos</th></tr></thead>
+        <tbody>
+          @for (m of meses(); track m.mes + '-' + m.anio) {
+            <tr>
+              <td>{{ etiquetaMesTabla(m.anio, m.mes) }}</td>
+              <td>{{ m.ingresos | currency: 'MXN' : 'symbol-narrow' }}</td>
+              <td>{{ m.gastos | currency: 'MXN' : 'symbol-narrow' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="grafico" role="img"
+           aria-label="Barras de ingresos y gastos de los últimos 12 meses">
+        @for (t of ticksBarras(); track t.y) {
+          <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="rejilla" />
+          <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="eje">{{ t.etiqueta }}</text>
+        }
+        @for (b of barras(); track b.x) {
+          @if (b.alto > 0) {
+            <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.ancho" [attr.height]="b.alto" rx="3" [attr.fill]="b.color">
+              <title>{{ b.titulo }}</title>
+            </rect>
+          }
+        }
+        @for (m of marcasX(); track m.x) {
+          <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="eje">{{ m.etiqueta }}</text>
+        }
+      </svg>
+    }
+  </div>
+
+  <!-- RF-REP-02 -->
+  <div class="panel">
+    <header class="panel-cab">
+      <h3>Evolución de una categoría</h3>
+      <select [value]="categoriaId()" (change)="elegirCategoria($any($event.target).value)" aria-label="Categoría">
+        @for (c of categorias(); track c.id) {
+          <option [value]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
+        }
+      </select>
+      <button type="button" (click)="verTablaLinea.set(!verTablaLinea())">
+        {{ verTablaLinea() ? 'Ver gráfico' : 'Ver tabla' }}
+      </button>
+    </header>
+
+    @if (serie(); as s) {
+      @if (verTablaLinea()) {
+        <table class="tabla">
+          <thead><tr><th>Mes</th><th>{{ s.nombre }}</th></tr></thead>
+          <tbody>
+            @for (p of s.serie; track p.mes + '-' + p.anio) {
+              <tr>
+                <td>{{ etiquetaMesTabla(p.anio, p.mes) }}</td>
+                <td>{{ p.total | currency: 'MXN' : 'symbol-narrow' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="grafico" role="img"
+             [attr.aria-label]="'Evolución mensual de ' + s.nombre">
+          @for (t of ticksLinea(); track t.y) {
+            <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="rejilla" />
+            <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="eje">{{ t.etiqueta }}</text>
+          }
+          <path [attr.d]="trazo()" fill="none" [attr.stroke]="s.color" stroke-width="2" stroke-linejoin="round" />
+          @for (p of puntos(); track p.x) {
+            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4.5" [attr.fill]="s.color" class="punto">
+              <title>{{ p.titulo }}</title>
+            </circle>
+          }
+          @for (m of marcasLinea(); track m.x) {
+            <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="eje">{{ m.etiqueta }}</text>
+          }
+        </svg>
+      }
+    } @else {
+      <p class="vacio">No hay categorías para graficar.</p>
+    }
+  </div>
+
+  <!-- RF-REP-03 -->
+  <div class="panel">
+    <header class="panel-cab">
+      <h3>Gasto del mes contra el mes anterior</h3>
+      <div class="selector-mes">
+        <button type="button" (click)="mesAnterior()" aria-label="Mes anterior">‹</button>
+        <strong>{{ etiquetaMes() }}</strong>
+        <button type="button" (click)="mesSiguiente()" aria-label="Mes siguiente">›</button>
+      </div>
+    </header>
+
+    @if (comparativo(); as c) {
+      @if (c.categorias.length === 0) {
+        <p class="vacio">No hay gastos en este mes ni en el anterior.</p>
+      } @else {
+        <table class="tabla">
+          <thead>
+            <tr><th>Categoría</th><th>Este mes</th><th>Mes anterior</th><th>Diferencia</th><th>Cambio</th></tr>
+          </thead>
+          <tbody>
+            @for (f of c.categorias; track f.categoriaId) {
+              <tr>
+                <td><span class="punto-cat" [style.background]="f.color"></span> {{ f.nombre }}</td>
+                <td>{{ f.actual | currency: 'MXN' : 'symbol-narrow' }}</td>
+                <td>{{ f.anterior | currency: 'MXN' : 'symbol-narrow' }}</td>
+                <td>{{ f.diferencia | currency: 'MXN' : 'symbol-narrow' }}</td>
+                <td [class]="claseVariacion(f.variacionPorcentaje)">
+                  @if (f.variacionPorcentaje === null) {
+                    Nuevo
+                  } @else {
+                    {{ flecha(f.variacionPorcentaje) }} {{ abs(f.variacionPorcentaje) }}%
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td>{{ c.totalActual | currency: 'MXN' : 'symbol-narrow' }}</td>
+              <td>{{ c.totalAnterior | currency: 'MXN' : 'symbol-narrow' }}</td>
+              <td>{{ c.totalActual - c.totalAnterior | currency: 'MXN' : 'symbol-narrow' }}</td>
+              <td [class]="claseVariacion(c.variacionPorcentaje)">
+                @if (c.variacionPorcentaje === null) {
+                  —
+                } @else {
+                  {{ flecha(c.variacionPorcentaje) }} {{ abs(c.variacionPorcentaje) }}%
+                }
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      }
+    }
+  </div>
+</section>

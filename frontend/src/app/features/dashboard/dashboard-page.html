@@ -1,0 +1,129 @@
+<section class="dashboard">
+  <header class="cabecera">
+    <h2>Resumen</h2>
+    <div class="periodos" role="group" aria-label="Periodo">
+      <button type="button" [class.activo]="periodo() === 'actual'" (click)="cambiarPeriodo('actual')">Mes actual</button>
+      <button type="button" [class.activo]="periodo() === 'anterior'" (click)="cambiarPeriodo('anterior')">Mes anterior</button>
+      <button type="button" [class.activo]="periodo() === 'rango'" (click)="cambiarPeriodo('rango')">Rango</button>
+    </div>
+  </header>
+
+  @if (periodo() === 'rango') {
+    <div class="rango">
+      <label>Desde <input type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" /></label>
+      <label>Hasta <input type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" /></label>
+      <button type="button" class="primario" (click)="aplicarRango()">Aplicar</button>
+    </div>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (datos(); as d) {
+    <p class="periodo-texto">{{ d.desde | date: 'dd/MM/yyyy' }} – {{ d.hasta | date: 'dd/MM/yyyy' }}</p>
+
+    <!-- RF-DSH-01 -->
+    <div class="tarjetas">
+      <div class="tarjeta">
+        <span>Saldo total</span>
+        <strong>{{ d.saldoTotal | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      </div>
+      <div class="tarjeta">
+        <span>Ingresos</span>
+        <strong class="ingreso">{{ d.ingresos | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      </div>
+      <div class="tarjeta">
+        <span>Gastos</span>
+        <strong class="gasto">{{ d.gastos | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      </div>
+      <div class="tarjeta">
+        <span>Balance</span>
+        <strong [class.gasto]="d.balance < 0" [class.ingreso]="d.balance > 0">
+          {{ d.balance | currency: 'MXN' : 'symbol-narrow' }}
+        </strong>
+      </div>
+    </div>
+
+    <!-- RF-DSH-02 -->
+    <div class="panel">
+      <h3>Gastos por categoría</h3>
+      @if (segmentos().length === 0) {
+        <p class="vacio">No hay gastos en este periodo.</p>
+      } @else {
+        <div class="dona-contenedor">
+          <svg viewBox="0 0 200 200" class="dona" role="img"
+               [attr.aria-label]="'Gastos por categoría, total ' + d.gastos">
+            <g transform="rotate(-90 100 100)">
+              @for (s of segmentos(); track s.nombre) {
+                <circle cx="100" cy="100" [attr.r]="radio" fill="none" stroke-width="26"
+                        [attr.stroke]="s.color" [attr.stroke-dasharray]="s.dash"
+                        [attr.stroke-dashoffset]="s.offset">
+                  <title>{{ s.nombre }}: {{ s.total | currency: 'MXN' : 'symbol-narrow' }} ({{ s.porcentaje }}%)</title>
+                </circle>
+              }
+            </g>
+            <text x="100" y="96" text-anchor="middle" class="dona-etiqueta">Gastos</text>
+            <text x="100" y="118" text-anchor="middle" class="dona-total">{{ d.gastos | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</text>
+          </svg>
+
+          <ul class="leyenda">
+            @for (s of segmentos(); track s.nombre) {
+              <li>
+                <span class="punto" [style.background]="s.color"></span>
+                <span class="nombre">{{ s.nombre }}</span>
+                <span class="monto">{{ s.total | currency: 'MXN' : 'symbol-narrow' }}</span>
+                <span class="pct">{{ s.porcentaje }}%</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
+    <!-- RF-DSH-03 -->
+    <div class="dos-columnas">
+      <div class="panel">
+        <h3>Últimos movimientos</h3>
+        @if (d.ultimosMovimientos.length === 0) {
+          <p class="vacio">Todavía no hay movimientos.</p>
+        }
+        <ul class="movs">
+          @for (m of d.ultimosMovimientos; track m.id) {
+            <li>
+              <span class="emoji">{{ emoji(m) }}</span>
+              <span class="dato">
+                <strong>{{ titulo(m) }}</strong>
+                <small>{{ m.fecha | date: 'dd/MM' }} · {{ m.cuentaNombre }}</small>
+              </span>
+              <b [class.gasto]="m.tipo === 'Gasto'" [class.ingreso]="m.tipo === 'Ingreso'">
+                {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | currency: 'MXN' : 'symbol-narrow' }}
+              </b>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Presupuestos en riesgo</h3>
+        @if (d.presupuestosEnRiesgo.length === 0) {
+          <p class="vacio">Ningún presupuesto pasa del 75 %.</p>
+        }
+        <ul class="riesgo">
+          @for (p of d.presupuestosEnRiesgo; track p.id) {
+            <li>
+              <div class="fila">
+                <strong>{{ p.categoriaNombre }}</strong>
+                <span class="pct" [attr.data-estado]="p.estado">
+                  {{ p.estado === 'Rojo' ? '⚠ ' : '' }}{{ p.porcentaje }}%
+                </span>
+              </div>
+              <div class="barra"><div class="relleno" [attr.data-estado]="p.estado" [style.width.%]="anchoPresupuesto(p.porcentaje)"></div></div>
+              <small>{{ p.gastado | currency: 'MXN' : 'symbol-narrow' }} de {{ p.asignado | currency: 'MXN' : 'symbol-narrow' }}</small>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+</section>
