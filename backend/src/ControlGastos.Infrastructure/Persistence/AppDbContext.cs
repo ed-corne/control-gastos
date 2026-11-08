@@ -1,24 +1,57 @@
-using ControlGastos.Domain.Cuentas;
+﻿using System;
+using System.Collections.Generic;
+using ControlGastos.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ControlGastos.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public partial class AppDbContext : DbContext
 {
-    public DbSet<Cuenta> Cuentas => Set<Cuenta>();
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Cuenta> Cuentas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Cuenta>(e =>
+        modelBuilder.Entity<Cuenta>(entity =>
         {
-            e.ToTable("cuentas");
-            e.HasKey(c => c.Id);
-            e.Property(c => c.Nombre).HasMaxLength(100).IsRequired();
-            e.Property(c => c.Tipo).HasConversion<string>().HasMaxLength(20);
-            e.Property(c => c.SaldoInicial).HasPrecision(18, 2);
-            e.Property(c => c.Color).HasMaxLength(7).IsRequired();
-            e.Property(c => c.Icono).HasMaxLength(50).IsRequired();
-            e.HasIndex(c => c.Archivada);
+            entity.HasKey(e => e.Id).HasName("pk_cuentas");
+
+            entity.ToTable("cuentas");
+
+            entity.HasIndex(e => e.Archivada, "ix_cuentas_archivada");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.Archivada).HasColumnName("archivada");
+            entity.Property(e => e.Color)
+                .HasMaxLength(7)
+                .HasDefaultValueSql("'#4f46e5'::character varying")
+                .HasColumnName("color");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.Icono)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'wallet'::character varying")
+                .HasColumnName("icono");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+            entity.Property(e => e.SaldoInicial)
+                .HasPrecision(18, 2)
+                .HasColumnName("saldo_inicial");
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(20)
+                .HasColumnName("tipo");
         });
+
+        OnModelCreatingPartial(modelBuilder);
     }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

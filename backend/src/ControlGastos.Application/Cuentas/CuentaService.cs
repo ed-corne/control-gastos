@@ -21,7 +21,6 @@ public class CuentaService(ICuentaRepository repositorio)
         var cuenta = new Cuenta();
         Aplicar(cuenta, request);
         await repositorio.AgregarAsync(cuenta, ct);
-        await repositorio.GuardarCambiosAsync(ct);
         return ToDto(cuenta);
     }
 
@@ -31,7 +30,7 @@ public class CuentaService(ICuentaRepository repositorio)
         if (cuenta is null) return null;
 
         Aplicar(cuenta, request);
-        await repositorio.GuardarCambiosAsync(ct);
+        await repositorio.ActualizarAsync(cuenta, ct);
         return ToDto(cuenta);
     }
 
@@ -42,7 +41,7 @@ public class CuentaService(ICuentaRepository repositorio)
         if (cuenta is null) return null;
 
         cuenta.Archivada = archivada;
-        await repositorio.GuardarCambiosAsync(ct);
+        await repositorio.ActualizarAsync(cuenta, ct);
         return ToDto(cuenta);
     }
 

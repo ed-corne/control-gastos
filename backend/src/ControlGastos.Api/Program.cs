@@ -1,8 +1,6 @@
 using System.Text.Json.Serialization;
 using ControlGastos.Application;
 using ControlGastos.Infrastructure;
-using ControlGastos.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,10 +27,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-
-    // En desarrollo la base se actualiza sola al arrancar.
-    using var scope = app.Services.CreateScope();
-    scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
 }
 
 app.UseHttpsRedirection();

@@ -7,5 +7,5 @@ public interface ICuentaRepository
     Task<IReadOnlyList<Cuenta>> ListarAsync(bool incluirArchivadas, CancellationToken ct);
     Task<Cuenta?> ObtenerAsync(Guid id, CancellationToken ct);
     Task AgregarAsync(Cuenta cuenta, CancellationToken ct);
-    Task GuardarCambiosAsync(CancellationToken ct);
+    Task ActualizarAsync(Cuenta cuenta, CancellationToken ct);
 }
