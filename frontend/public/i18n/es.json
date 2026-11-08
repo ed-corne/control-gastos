@@ -1,0 +1,12 @@
+{
+  "app.hola": "Hola, {{nombre}}",
+  "presupuesto.gastado_de": "{{gastado}} de {{asignado}}",
+  "importar.maximo": "Máximo {{n}} filas por archivo",
+  "importar.resultado": "Se importaron {{importadas}} movimientos. {{duplicadas}} duplicados y {{conError}} filas con error no se importaron.",
+  "form.llevas": "Llevas {{p}}% de la meta",
+  "icono.sin_resultados": "Ningún ícono coincide con “{{q}}”.",
+  "confirm.presupuesto": "¿Eliminar el presupuesto \"{{nombre}}\"?",
+  "confirm.cuenta": "¿Eliminar la cuenta \"{{nombre}}\"? Esta acción no se puede deshacer.",
+  "confirm.movimiento": "¿Eliminar \"{{titulo}}\" por {{monto}}? Esta acción no se puede deshacer.",
+  "presupuestos.copiados": "Se copiaron {{n}} presupuesto(s) del mes anterior."
+}

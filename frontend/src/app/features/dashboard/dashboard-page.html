@@ -1,28 +1,28 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Resumen</h1>
-    <div class="tabs" role="tablist" aria-label="Periodo">
+    <h1 class="page-title">{{ 'Resumen' | translate }}</h1>
+    <div class="tabs" role="tablist" [attr.aria-label]="'Periodo' | translate">
       <button type="button" role="tab" class="tab" [class.tab-active]="periodo() === 'actual'"
-              [attr.aria-selected]="periodo() === 'actual'" (click)="cambiarPeriodo('actual')">Mes actual</button>
+              [attr.aria-selected]="periodo() === 'actual'" (click)="cambiarPeriodo('actual')">{{ 'Mes actual' | translate }}</button>
       <button type="button" role="tab" class="tab" [class.tab-active]="periodo() === 'anterior'"
-              [attr.aria-selected]="periodo() === 'anterior'" (click)="cambiarPeriodo('anterior')">Mes anterior</button>
+              [attr.aria-selected]="periodo() === 'anterior'" (click)="cambiarPeriodo('anterior')">{{ 'Mes anterior' | translate }}</button>
       <button type="button" role="tab" class="tab" [class.tab-active]="periodo() === 'rango'"
-              [attr.aria-selected]="periodo() === 'rango'" (click)="cambiarPeriodo('rango')">Rango</button>
+              [attr.aria-selected]="periodo() === 'rango'" (click)="cambiarPeriodo('rango')">{{ 'Rango' | translate }}</button>
     </div>
   </header>
 
   @if (periodo() === 'rango') {
     <div class="mb-5 flex flex-wrap items-end gap-3">
-      <label class="field"><span class="field-label">Desde</span>
+      <label class="field"><span class="field-label">{{ 'Desde' | translate }}</span>
         <input class="input" type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" /></label>
-      <label class="field"><span class="field-label">Hasta</span>
+      <label class="field"><span class="field-label">{{ 'Hasta' | translate }}</span>
         <input class="input" type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" /></label>
-      <button type="button" class="btn btn-primary" (click)="aplicarRango()">Aplicar</button>
+      <button type="button" class="btn btn-primary" (click)="aplicarRango()">{{ 'Aplicar' | translate }}</button>
     </div>
   }
 
   @if (error()) {
-    <p class="alert-error mb-4">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() | translate }}</p>
   }
 
   @if (datos(); as d) {
@@ -31,19 +31,19 @@
     <!-- RF-DSH-01 -->
     <div class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
       <div class="card col-span-2 border-transparent bg-hero !text-on-hero lg:col-span-1">
-        <p class="text-xs opacity-80">Saldo total</p>
+        <p class="text-xs opacity-80">{{ 'Saldo total' | translate }}</p>
         <p class="num mt-1 text-2xl font-semibold">{{ d.saldoTotal | dinero }}</p>
       </div>
       <div class="card">
-        <p class="flex items-center gap-1.5 text-xs text-muted"><app-icon name="sube" [size]="14" /> Ingresos</p>
+        <p class="flex items-center gap-1.5 text-xs text-muted"><app-icon name="sube" [size]="14" /> {{ 'Ingresos' | translate }}</p>
         <p class="num mt-1 text-xl font-semibold text-success">{{ d.ingresos | dinero }}</p>
       </div>
       <div class="card">
-        <p class="flex items-center gap-1.5 text-xs text-muted"><app-icon name="baja" [size]="14" /> Gastos</p>
+        <p class="flex items-center gap-1.5 text-xs text-muted"><app-icon name="baja" [size]="14" /> {{ 'Gastos' | translate }}</p>
         <p class="num mt-1 text-xl font-semibold text-danger">{{ d.gastos | dinero }}</p>
       </div>
       <div class="card col-span-2 lg:col-span-1">
-        <p class="text-xs text-muted">Balance</p>
+        <p class="text-xs text-muted">{{ 'Balance' | translate }}</p>
         <p class="num mt-1 text-xl font-semibold"
            [class.text-danger]="d.balance < 0" [class.text-success]="d.balance > 0" [class.text-ink]="d.balance === 0">
           {{ d.balance | dinero }}
@@ -53,9 +53,9 @@
 
     <!-- RF-DSH-02 -->
     <div class="card mb-5">
-      <h2 class="section-title">Gastos por categoría</h2>
+      <h2 class="section-title">{{ 'Gastos por categoría' | translate }}</h2>
       @if (segmentos().length === 0) {
-        <p class="empty !py-4">No hay gastos en este periodo.</p>
+        <p class="empty !py-4">{{ 'No hay gastos en este periodo.' | translate }}</p>
       } @else {
         <div class="flex flex-col items-center gap-6 md:flex-row">
           <svg viewBox="0 0 200 200" class="w-56 max-w-full shrink-0" role="img"
@@ -68,7 +68,7 @@
                 </circle>
               }
             </g>
-            <text x="100" y="96" text-anchor="middle" class="fill-muted" font-size="11">Gastos</text>
+            <text x="100" y="96" text-anchor="middle" class="fill-muted" font-size="11">{{ 'Gastos' | translate }}</text>
             <text x="100" y="118" text-anchor="middle" class="fill-ink" font-size="16" font-weight="700">{{ d.gastos | dinero: 0 }}</text>
           </svg>
 
@@ -89,9 +89,9 @@
     <!-- RF-DSH-03 -->
     <div class="grid gap-5 lg:grid-cols-2">
       <div class="card">
-        <h2 class="section-title">Últimos movimientos</h2>
+        <h2 class="section-title">{{ 'Últimos movimientos' | translate }}</h2>
         @if (d.ultimosMovimientos.length === 0) {
-          <p class="empty !py-4">Todavía no hay movimientos.</p>
+          <p class="empty !py-4">{{ 'Todavía no hay movimientos.' | translate }}</p>
         }
         <ul class="grid gap-3">
           @for (m of d.ultimosMovimientos; track m.id) {
@@ -113,9 +113,9 @@
       </div>
 
       <div class="card">
-        <h2 class="section-title">Presupuestos en riesgo</h2>
+        <h2 class="section-title">{{ 'Presupuestos en riesgo' | translate }}</h2>
         @if (d.presupuestosEnRiesgo.length === 0) {
-          <p class="empty !py-4">Ningún presupuesto pasa del 75 %.</p>
+          <p class="empty !py-4">{{ 'Ningún presupuesto pasa del 75 %.' | translate }}</p>
         }
         <ul class="grid gap-4">
           @for (p of d.presupuestosEnRiesgo; track p.id) {
@@ -132,7 +132,7 @@
                 <div class="h-full rounded-full" [class.bg-warning]="p.estado === 'Amarillo'" [class.bg-danger]="p.estado === 'Rojo'"
                      [style.width.%]="anchoPresupuesto(p.porcentaje)"></div>
               </div>
-              <small class="num text-xs text-muted">{{ p.gastado | dinero }} de {{ p.asignado | dinero }}</small>
+              <small class="num text-xs text-muted">{{ 'presupuesto.gastado_de' | translate: { gastado: (p.gastado | dinero), asignado: (p.asignado | dinero) } }}</small>
             </li>
           }
         </ul>

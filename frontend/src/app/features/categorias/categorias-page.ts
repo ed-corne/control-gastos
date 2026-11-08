@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IconComponent } from '../../core/icon.component';
 import { IconPickerComponent } from '../../shared/icon-picker.component';
@@ -9,7 +10,7 @@ import { CategoriasService } from './categorias.service';
 
 @Component({
   selector: 'app-categorias-page',
-  imports: [ReactiveFormsModule, IconComponent, IconPickerComponent, ModalComponent],
+  imports: [TranslatePipe, ReactiveFormsModule, IconComponent, IconPickerComponent, ModalComponent],
   templateUrl: './categorias-page.html',
 })
 export class CategoriasPage {
@@ -26,7 +27,7 @@ export class CategoriasPage {
   protected readonly editandoId = signal<string | null>(null);
 
   protected readonly titulo = computed(() =>
-    this.editandoId() ? 'Editar categoría' : `Nueva categoría de ${this.tipoActivo().toLowerCase()}`,
+    this.editandoId() ? 'Editar categoría' : this.tipoActivo() === 'Gasto' ? 'Nueva categoría de gasto' : 'Nueva categoría de ingreso',
   );
 
   protected readonly form = this.fb.group({

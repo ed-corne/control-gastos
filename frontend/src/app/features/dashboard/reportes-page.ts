@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { forkJoin } from 'rxjs';
 import { Categoria } from '../categorias/categoria.model';
@@ -8,6 +9,8 @@ import { IconComponent } from '../../core/icon.component';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { ComparativoMensual, IngresosGastosMes, RankingMes, SerieCategoria } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
+import { IdiomaService } from '../../core/idioma.service';
+import { TranslateService } from '@ngx-translate/core';
 
 // Geometría compartida por los gráficos
 const W = 720;
@@ -52,7 +55,7 @@ interface Punto {
 
 @Component({
   selector: 'app-reportes-page',
-  imports: [DineroPipe, IconComponent],
+  imports: [TranslatePipe, DineroPipe, IconComponent],
   templateUrl: './reportes-page.html',
 })
 export class ReportesPage {
@@ -68,6 +71,8 @@ export class ReportesPage {
   private readonly categoriasApi = inject(CategoriasService);
   private readonly movimientos = inject(MovimientosEstado);
   private readonly config = inject(ConfiguracionStore);
+  private readonly idioma = inject(IdiomaService);
+  private readonly t = inject(TranslateService);
 
   protected readonly w = W;
   protected readonly h = H;
@@ -114,7 +119,7 @@ export class ReportesPage {
         anio: r.anio, mes: r.mes,
         x: MARGEN.izq + slot * (i + 0.5) - ancho / 2, y: base - alto, alto, ancho,
         color: top?.color ?? 'transparent',
-        titulo: top ? `${etiqueta} · ${top.nombre}: ${this.moneda(top.total)} (${top.porcentaje}% del mes)` : `${etiqueta} · Sin gastos`,
+        titulo: top ? `${etiqueta} · ${top.nombre}: ${this.moneda(top.total)} (${top.porcentaje}% ${this.t.instant('del mes')})` : `${etiqueta} · ${this.t.instant('Sin gastos')}`,
       };
     });
   });
@@ -143,7 +148,7 @@ export class ReportesPage {
   protected readonly comparativo = signal<ComparativoMensual | null>(null);
 
   protected readonly etiquetaMes = computed(() =>
-    new Date(this.anio(), this.mes() - 1, 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }),
+    new Date(this.anio(), this.mes() - 1, 1).toLocaleDateString(this.idioma.locale(), { month: 'long', year: 'numeric' }),
   );
 
   // ----- RF-REP-01: barras de ingresos contra gastos -----
@@ -174,11 +179,11 @@ export class ReportesPage {
       return [
         {
           x: centro - ancho - 1, y: base - alto(m.ingresos), alto: alto(m.ingresos), ancho,
-          color: COLOR_INGRESOS, titulo: `${etiqueta} · Ingresos: ${this.moneda(m.ingresos)}`,
+          color: COLOR_INGRESOS, titulo: `${etiqueta} · ${this.t.instant('Ingresos')}: ${this.moneda(m.ingresos)}`,
         },
         {
           x: centro + 1, y: base - alto(m.gastos), alto: alto(m.gastos), ancho,
-          color: COLOR_GASTOS, titulo: `${etiqueta} · Gastos: ${this.moneda(m.gastos)}`,
+          color: COLOR_GASTOS, titulo: `${etiqueta} · ${this.t.instant('Gastos')}: ${this.moneda(m.gastos)}`,
         },
       ];
     });
@@ -318,14 +323,14 @@ export class ReportesPage {
   }
 
   private moneda(n: number): string {
-    return n.toLocaleString('es-MX', { style: 'currency', currency: this.config.moneda() });
+    return n.toLocaleString(this.idioma.locale(), { style: 'currency', currency: this.config.moneda() });
   }
 
   private etiquetaCorta(anio: number, mes: number): string {
-    return new Date(anio, mes - 1, 1).toLocaleDateString('es-MX', { month: 'short' }).replace('.', '');
+    return new Date(anio, mes - 1, 1).toLocaleDateString(this.idioma.locale(), { month: 'short' }).replace('.', '');
   }
 
   protected etiquetaMesTabla(anio: number, mes: number): string {
-    return new Date(anio, mes - 1, 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+    return new Date(anio, mes - 1, 1).toLocaleDateString(this.idioma.locale(), { month: 'long', year: 'numeric' });
   }
 }

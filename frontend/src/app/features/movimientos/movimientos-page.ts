@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DineroPipe } from '../../core/dinero.pipe';
@@ -11,6 +12,8 @@ import { CuentasService } from '../cuentas/cuentas.service';
 import { FiltroMovimientos, Movimiento, hoyIso } from './movimiento.model';
 import { MovimientosEstado } from './movimientos-estado';
 import { MovimientosService } from './movimientos.service';
+import { IdiomaService } from '../../core/idioma.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface GrupoDia {
   fecha: string;
@@ -20,7 +23,7 @@ interface GrupoDia {
 
 @Component({
   selector: 'app-movimientos-page',
-  imports: [ReactiveFormsModule, DineroPipe, RouterLink, IconComponent],
+  imports: [TranslatePipe, ReactiveFormsModule, DineroPipe, RouterLink, IconComponent],
   templateUrl: './movimientos-page.html',
 })
 export class MovimientosPage {
@@ -28,6 +31,8 @@ export class MovimientosPage {
   private readonly api = inject(MovimientosService);
   private readonly cuentasApi = inject(CuentasService);
   private readonly categoriasApi = inject(CategoriasService);
+  private readonly idioma = inject(IdiomaService);
+  private readonly t = inject(TranslateService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly cuentas = signal<Cuenta[]>([]);
@@ -85,7 +90,7 @@ export class MovimientosPage {
   }
 
   protected titulo(m: Movimiento): string {
-    return m.descripcion || (m.tipo === 'Transferencia' ? 'Transferencia' : (m.categoriaNombre ?? ''));
+    return m.descripcion || (m.tipo === 'Transferencia' ? this.t.instant('Transferencia') : (m.categoriaNombre ?? ''));
   }
 
   protected subtitulo(m: Movimiento): string {
@@ -128,7 +133,7 @@ export class MovimientosPage {
   }
 
   protected eliminar(m: Movimiento): void {
-    if (!confirm(`¿Eliminar "${this.titulo(m)}" por ${m.monto}? Esta acción no se puede deshacer.`)) return;
+    if (!confirm(this.t.instant('confirm.movimiento', { titulo: this.titulo(m), monto: m.monto }))) return;
     this.api.eliminar(m.id).subscribe({
       next: () => this.estado.notificarCambio(),
       error: () => this.error.set('No se pudo eliminar el movimiento.'),
@@ -168,7 +173,7 @@ export class MovimientosPage {
   }
 
   private etiquetaDia(fecha: string): string {
-    return new Date(`${fecha}T00:00:00`).toLocaleDateString('es-MX', {
+    return new Date(`${fecha}T00:00:00`).toLocaleDateString(this.idioma.locale(), {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

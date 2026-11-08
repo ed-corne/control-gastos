@@ -1,18 +1,21 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, effect, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfiguracionStore } from '../../core/configuracion.store';
 import { IconComponent } from '../../core/icon.component';
 import { Tema, ThemeService } from '../../core/theme.service';
+import { IdiomaService } from '../../core/idioma.service';
 
 @Component({
   selector: 'app-configuracion-page',
-  imports: [ReactiveFormsModule, IconComponent],
+  imports: [TranslatePipe, ReactiveFormsModule, IconComponent],
   templateUrl: './configuracion-page.html',
 })
 export class ConfiguracionPage {
   private readonly store = inject(ConfiguracionStore);
   protected readonly tema = inject(ThemeService);
+  protected readonly idioma = inject(IdiomaService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly guardado = signal(false);

@@ -1,22 +1,21 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Importar movimientos</h1>
+    <h1 class="page-title">{{ 'Importar movimientos' | translate }}</h1>
   </header>
 
   <p class="mb-5 text-sm text-muted">
-    Sube un archivo <b class="text-ink">CSV</b> (por ejemplo, tu hoja de cálculo anterior guardada como CSV). La primera fila debe ser el
-    encabezado. Antes de guardar podrás revisar el resultado.
+    {{ 'Sube un archivo' | translate }} <b class="text-ink">{{ 'CSV' | translate }}</b> {{ '(por ejemplo, tu hoja de cálculo anterior guardada como CSV). La primera fila debe ser el encabezado. Antes de guardar podrás revisar el resultado.' | translate }}
   </p>
 
   @if (error()) {
-    <p class="alert-error mb-4" role="alert">{{ error() }}</p>
+    <p class="alert-error mb-4" role="alert">{{ error() | translate }}</p>
   }
 
   @if (!nombreArchivo()) {
     <label class="card flex cursor-pointer flex-col items-center gap-2 border-2 border-dashed py-10 text-center hover:bg-surface-2">
       <span class="icon-chip"><app-icon name="importar" /></span>
-      <span class="font-medium text-ink">Elegir archivo CSV</span>
-      <span class="text-xs text-muted">Máximo {{ maxFilas }} filas por archivo</span>
+      <span class="font-medium text-ink">{{ 'Elegir archivo CSV' | translate }}</span>
+      <span class="text-xs text-muted">{{ 'importar.maximo' | translate: { n: maxFilas } }}</span>
       <input class="sr-only" type="file" accept=".csv,text/csv,text/plain" (change)="elegirArchivo($event)" />
     </label>
   } @else {
@@ -24,23 +23,23 @@
       <span class="icon-chip"><app-icon name="archivo" /></span>
       <p class="min-w-0 flex-1 text-sm">
         <b class="block truncate text-ink">{{ nombreArchivo() }}</b>
-        <span class="text-muted">{{ datos().length }} filas</span>
+        <span class="text-muted">{{ datos().length }} {{ 'filas' | translate }}</span>
       </p>
-      <button type="button" class="btn btn-sm" (click)="reiniciar()">Cambiar archivo</button>
+      <button type="button" class="btn btn-sm" (click)="reiniciar()">{{ 'Cambiar archivo' | translate }}</button>
     </div>
 
     @if (yaImportado()) {
       @if (resultado(); as r) {
         <div class="card grid gap-3 border-success/40 bg-primary-soft">
-          <p class="flex items-center gap-2 font-semibold text-success"><app-icon name="exito" /> Importación terminada</p>
+          <p class="flex items-center gap-2 font-semibold text-success"><app-icon name="exito" /> {{ 'Importación terminada' | translate }}</p>
           <p class="text-sm text-ink">
-            Se importaron {{ r.importadas }} movimientos. {{ r.duplicadas }} duplicados y {{ r.conError }} filas con error no se importaron.
+            {{ 'importar.resultado' | translate: { importadas: r.importadas, duplicadas: r.duplicadas, conError: r.conError } }}
           </p>
-          <div><button type="button" class="btn btn-primary" (click)="reiniciar()">Importar otro archivo</button></div>
+          <div><button type="button" class="btn btn-primary" (click)="reiniciar()">{{ 'Importar otro archivo' | translate }}</button></div>
         </div>
       }
     } @else {
-      <h2 class="section-title">Vista previa</h2>
+      <h2 class="section-title">{{ 'Vista previa' | translate }}</h2>
       <div class="table-wrap mb-6">
         <table class="table">
           <thead>
@@ -62,36 +61,36 @@
         </table>
       </div>
 
-      <h2 class="section-title">Relaciona las columnas</h2>
+      <h2 class="section-title">{{ 'Relaciona las columnas' | translate }}</h2>
       <div class="mb-6 grid gap-3 sm:grid-cols-2">
         @for (campo of campos; track campo.clave) {
           <label class="field">
-            <span class="field-label">{{ campo.etiqueta }}@if (campo.obligatorio) { <span class="text-danger"> *</span> }</span>
+            <span class="field-label">{{ campo.etiqueta | translate }}@if (campo.obligatorio) { <span class="text-danger"> *</span> }</span>
             <select class="input" [value]="mapeo()[campo.clave]" (change)="cambiarMapeo(campo.clave, $any($event.target).value)">
-              <option value="-1">{{ campo.obligatorio ? 'Selecciona una columna…' : '(no importar)' }}</option>
+              <option value="-1">{{ (campo.obligatorio ? 'Selecciona una columna…' : '(no importar)') | translate }}</option>
               @for (h of encabezados(); track $index) {
-                <option [value]="$index">{{ h || 'Columna ' + ($index + 1) }}</option>
+                <option [value]="$index">{{ h || (('Columna' | translate) + ' ' + ($index + 1)) }}</option>
               }
             </select>
           </label>
         }
       </div>
 
-      <h2 class="section-title">Opciones</h2>
+      <h2 class="section-title">{{ 'Opciones' | translate }}</h2>
       <div class="mb-6 grid gap-3 sm:grid-cols-2">
         <label class="field">
-          <span class="field-label">Formato de las fechas del archivo</span>
+          <span class="field-label">{{ 'Formato de las fechas del archivo' | translate }}</span>
           <select class="input" [ngModel]="formatoFecha()" (ngModelChange)="formatoFecha.set($event)">
-            <option value="dd/MM/yyyy">día/mes/año (31/12/2026)</option>
-            <option value="MM/dd/yyyy">mes/día/año (12/31/2026)</option>
-            <option value="yyyy-MM-dd">año-mes-día (2026-12-31)</option>
+            <option value="dd/MM/yyyy">{{ 'día/mes/año (31/12/2026)' | translate }}</option>
+            <option value="MM/dd/yyyy">{{ 'mes/día/año (12/31/2026)' | translate }}</option>
+            <option value="yyyy-MM-dd">{{ 'año-mes-día (2026-12-31)' | translate }}</option>
           </select>
         </label>
 
         <label class="field">
-          <span class="field-label">Cuenta cuando la fila no trae una válida</span>
+          <span class="field-label">{{ 'Cuenta cuando la fila no trae una válida' | translate }}</span>
           <select class="input" [ngModel]="cuentaPredeterminadaId()" (ngModelChange)="cuentaPredeterminadaId.set($event)">
-            <option value="">(ninguna: esas filas darán error)</option>
+            <option value="">{{ '(ninguna: esas filas darán error)' | translate }}</option>
             @for (c of cuentas(); track c.id) {
               <option [value]="c.id">{{ c.nombre }}</option>
             }
@@ -101,43 +100,43 @@
         @if (mapeo().tipo < 0) {
           <label class="flex items-center gap-2.5 text-sm text-ink sm:col-span-2">
             <input type="checkbox" class="size-4 accent-[var(--primary)]" [ngModel]="positivosSonGastos()" (ngModelChange)="positivosSonGastos.set($event)" />
-            Los montos positivos son gastos (los negativos serán ingresos)
+            {{ 'Los montos positivos son gastos (los negativos serán ingresos)' | translate }}
           </label>
         }
 
         <label class="flex items-center gap-2.5 text-sm text-ink sm:col-span-2">
           <input type="checkbox" class="size-4 accent-[var(--primary)]" [ngModel]="omitirDuplicados()" (ngModelChange)="omitirDuplicados.set($event)" />
-          Omitir posibles duplicados (misma fecha, monto y cuenta)
+          {{ 'Omitir posibles duplicados (misma fecha, monto y cuenta)' | translate }}
         </label>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="btn" (click)="revisar()" [disabled]="!listo() || trabajando()">Revisar</button>
-        <button type="button" class="btn btn-primary" (click)="importar()" [disabled]="!listo() || trabajando() || !resultado()">Importar</button>
+        <button type="button" class="btn" (click)="revisar()" [disabled]="!listo() || trabajando()">{{ 'Revisar' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="importar()" [disabled]="!listo() || trabajando() || !resultado()">{{ 'Importar' | translate }}</button>
         @if (!resultado()) {
-          <span class="text-xs text-muted">Pulsa “Revisar” para ver qué se importaría antes de guardar.</span>
+          <span class="text-xs text-muted">{{ 'Pulsa “Revisar” para ver qué se importaría antes de guardar.' | translate }}</span>
         }
       </div>
 
       @if (resultado(); as r) {
         <div class="card mt-5 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink">
-          <span><b class="num">{{ r.validas }}</b> listas</span>
-          <span><b class="num">{{ r.duplicadas }}</b> posibles duplicados</span>
-          <span><b class="num text-danger">{{ r.conError }}</b> con error</span>
-          <span class="text-muted">{{ r.total }} en total</span>
+          <span><b class="num">{{ r.validas }}</b> {{ 'listas' | translate }}</span>
+          <span><b class="num">{{ r.duplicadas }}</b> {{ 'posibles duplicados' | translate }}</span>
+          <span><b class="num text-danger">{{ r.conError }}</b> {{ 'con error' | translate }}</span>
+          <span class="text-muted">{{ r.total }} {{ 'en total' | translate }}</span>
         </div>
 
         @if (filasConProblema().length > 0) {
-          <h2 class="section-title mt-6">Filas que requieren atención</h2>
+          <h2 class="section-title mt-6">{{ 'Filas que requieren atención' | translate }}</h2>
           <ul class="grid gap-1.5 text-sm">
             @for (f of filasConProblema(); track f.numero) {
               <li class="flex flex-wrap items-start gap-x-3 gap-y-0.5 rounded-xl px-3 py-2"
                   [class.bg-danger-soft]="f.estado === 'Error'" [class.bg-surface-2]="f.estado !== 'Error'">
-                <span class="w-16 shrink-0 font-semibold text-ink">Fila {{ f.numero }}</span>
+                <span class="w-16 shrink-0 font-semibold text-ink">{{ 'Fila' | translate }} {{ f.numero }}</span>
                 <span class="flex w-28 shrink-0 items-center gap-1.5"
                       [class.text-danger]="f.estado === 'Error'" [class.text-warning]="f.estado === 'Duplicada'" [class.text-accent]="f.estado === 'Valida'">
                   <app-icon [name]="f.estado === 'Error' ? 'bloqueo' : f.estado === 'Duplicada' ? 'alerta' : 'info'" [size]="16" />
-                  {{ f.estado === 'Error' ? 'Error' : f.estado === 'Duplicada' ? 'Duplicada' : 'Aviso' }}
+                  {{ (f.estado === 'Error' ? 'Error' : f.estado === 'Duplicada' ? 'Duplicada' : 'Aviso') | translate }}
                 </span>
                 <span class="min-w-0 flex-1 text-ink">{{ f.mensaje }}</span>
               </li>

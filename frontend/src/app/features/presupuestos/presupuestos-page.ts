@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { IconComponent } from '../../core/icon.component';
@@ -9,16 +10,20 @@ import { CategoriasService } from '../categorias/categorias.service';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { Presupuesto } from './presupuesto.model';
 import { PresupuestosService } from './presupuestos.service';
+import { IdiomaService } from '../../core/idioma.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-presupuestos-page',
-  imports: [ReactiveFormsModule, DineroPipe, IconComponent, ModalComponent],
+  imports: [TranslatePipe, ReactiveFormsModule, DineroPipe, IconComponent, ModalComponent],
   templateUrl: './presupuestos-page.html',
 })
 export class PresupuestosPage {
   private readonly api = inject(PresupuestosService);
   private readonly categoriasApi = inject(CategoriasService);
   private readonly movimientos = inject(MovimientosEstado);
+  private readonly idioma = inject(IdiomaService);
+  private readonly t = inject(TranslateService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   private readonly ahora = new Date();
@@ -33,7 +38,7 @@ export class PresupuestosPage {
   protected readonly editandoId = signal<string | null>(null);
 
   protected readonly etiquetaMes = computed(() =>
-    new Date(this.anio(), this.mes() - 1, 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }),
+    new Date(this.anio(), this.mes() - 1, 1).toLocaleDateString(this.idioma.locale(), { month: 'long', year: 'numeric' }),
   );
 
   /** Categorías de gasto que todavía no tienen presupuesto este mes. */
@@ -112,7 +117,7 @@ export class PresupuestosPage {
   }
 
   protected eliminar(p: Presupuesto): void {
-    if (!confirm(`¿Eliminar el presupuesto "${p.categoriaNombre}"?`)) return;
+    if (!confirm(this.t.instant('confirm.presupuesto', { nombre: p.categoriaNombre }))) return;
     this.api.eliminar(p.id).subscribe({
       next: () => this.cargar(),
       error: () => this.error.set('No se pudo eliminar el presupuesto.'),
@@ -126,7 +131,7 @@ export class PresupuestosPage {
       next: (r) => {
         this.aviso.set(
           r.copiados > 0
-            ? `Se copiaron ${r.copiados} presupuesto(s) del mes anterior.`
+            ? this.t.instant('presupuestos.copiados', { n: r.copiados })
             : 'Ya tenías todos los presupuestos del mes anterior.',
         );
         this.cargar();

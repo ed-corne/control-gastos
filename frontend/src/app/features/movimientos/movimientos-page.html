@@ -1,69 +1,69 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Movimientos</h1>
+    <h1 class="page-title">{{ 'Movimientos' | translate }}</h1>
     <div class="flex flex-wrap gap-2">
       <button type="button" class="btn" (click)="alternarFiltros()" [attr.aria-expanded]="filtrosVisibles()">
-        <app-icon name="filtro" [size]="16" /> {{ filtrosVisibles() ? 'Ocultar filtros' : 'Filtros' }}
+        <app-icon name="filtro" [size]="16" /> {{ (filtrosVisibles() ? 'Ocultar filtros' : 'Filtros') | translate }}
       </button>
-      <button type="button" class="btn" (click)="exportar()" title="Descarga los movimientos con los filtros aplicados">
-        <app-icon name="exportar" [size]="16" /> Exportar CSV
+      <button type="button" class="btn" (click)="exportar()" [title]="'Descarga los movimientos con los filtros aplicados' | translate">
+        <app-icon name="exportar" [size]="16" /> {{ 'Exportar CSV' | translate }}
       </button>
-      <a routerLink="/importar" class="btn"><app-icon name="importar" [size]="16" /> Importar</a>
+      <a routerLink="/importar" class="btn"><app-icon name="importar" [size]="16" /> {{ 'Importar' | translate }}</a>
     </div>
   </header>
 
   @if (filtrosVisibles()) {
     <form class="card mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" [formGroup]="filtros" (ngSubmit)="aplicar()">
-      <label class="field"><span class="field-label">Desde</span><input class="input" type="date" formControlName="desde" /></label>
-      <label class="field"><span class="field-label">Hasta</span><input class="input" type="date" formControlName="hasta" /></label>
+      <label class="field"><span class="field-label">{{ 'Desde' | translate }}</span><input class="input" type="date" formControlName="desde" /></label>
+      <label class="field"><span class="field-label">{{ 'Hasta' | translate }}</span><input class="input" type="date" formControlName="hasta" /></label>
       <label class="field">
-        <span class="field-label">Tipo</span>
+        <span class="field-label">{{ 'Tipo' | translate }}</span>
         <select class="input" formControlName="tipo">
-          <option value="">Todos</option>
-          <option value="Gasto">Gasto</option>
-          <option value="Ingreso">Ingreso</option>
-          <option value="Transferencia">Transferencia</option>
+          <option value="">{{ 'Todos' | translate }}</option>
+          <option value="Gasto">{{ 'Gasto' | translate }}</option>
+          <option value="Ingreso">{{ 'Ingreso' | translate }}</option>
+          <option value="Transferencia">{{ 'Transferencia' | translate }}</option>
         </select>
       </label>
       <label class="field">
-        <span class="field-label">Cuenta</span>
+        <span class="field-label">{{ 'Cuenta' | translate }}</span>
         <select class="input" formControlName="cuentaId">
-          <option value="">Todas</option>
+          <option value="">{{ 'Todas' | translate }}</option>
           @for (c of cuentas(); track c.id) {
             <option [value]="c.id">{{ c.nombre }}</option>
           }
         </select>
       </label>
       <label class="field">
-        <span class="field-label">Categoría</span>
+        <span class="field-label">{{ 'Categoría' | translate }}</span>
         <select class="input" formControlName="categoriaId">
-          <option value="">Todas</option>
+          <option value="">{{ 'Todas' | translate }}</option>
           @for (c of categorias(); track c.id) {
-            <option [value]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
+            <option [value]="c.id">{{ c.nombre }} ({{ c.tipo | translate }})</option>
           }
         </select>
       </label>
-      <label class="field"><span class="field-label">Monto mínimo</span><input class="input" type="number" inputmode="decimal" step="0.01" formControlName="montoMin" /></label>
-      <label class="field"><span class="field-label">Monto máximo</span><input class="input" type="number" inputmode="decimal" step="0.01" formControlName="montoMax" /></label>
+      <label class="field"><span class="field-label">{{ 'Monto mínimo' | translate }}</span><input class="input" type="number" inputmode="decimal" step="0.01" formControlName="montoMin" /></label>
+      <label class="field"><span class="field-label">{{ 'Monto máximo' | translate }}</span><input class="input" type="number" inputmode="decimal" step="0.01" formControlName="montoMax" /></label>
       <label class="field sm:col-span-2">
-        <span class="field-label">Buscar en la descripción</span>
-        <input class="input" type="search" formControlName="texto" placeholder="Ej. tacos" />
+        <span class="field-label">{{ 'Buscar en la descripción' | translate }}</span>
+        <input class="input" type="search" formControlName="texto" [placeholder]="'Ej. tacos' | translate" />
       </label>
       <div class="flex justify-end gap-2 sm:col-span-2 lg:col-span-3">
-        <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
-        <button type="submit" class="btn btn-primary">Aplicar</button>
+        <button type="button" class="btn" (click)="limpiar()">{{ 'Limpiar' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'Aplicar' | translate }}</button>
       </div>
     </form>
   }
 
   @if (error()) {
-    <p class="alert-error mb-4">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() | translate }}</p>
   }
 
   @if (!cargando() && items().length === 0) {
     <div class="empty grid justify-items-center gap-3">
       <img src="icono-256.png" alt="" class="size-24 opacity-90" />
-      <p>No hay movimientos. Usa el botón “+” para registrar el primero.</p>
+      <p>{{ 'No hay movimientos. Usa el botón “+” para registrar el primero.' | translate }}</p>
     </div>
   }
 
@@ -88,13 +88,13 @@
             {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | dinero }}
           </p>
           <div class="flex w-full justify-end gap-1 sm:w-auto">
-            <button type="button" class="btn btn-sm" (click)="estado.editar(m)" aria-label="Editar movimiento">
+            <button type="button" class="btn btn-sm" (click)="estado.editar(m)" [attr.aria-label]="'Editar movimiento' | translate">
               <app-icon name="editar" [size]="14" />
             </button>
-            <button type="button" class="btn btn-sm" (click)="estado.duplicar(m)" aria-label="Duplicar movimiento">
+            <button type="button" class="btn btn-sm" (click)="estado.duplicar(m)" [attr.aria-label]="'Duplicar movimiento' | translate">
               <app-icon name="duplicar" [size]="14" />
             </button>
-            <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(m)" aria-label="Eliminar movimiento">
+            <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(m)" [attr.aria-label]="'Eliminar movimiento' | translate">
               <app-icon name="eliminar" [size]="14" />
             </button>
           </div>
@@ -105,7 +105,7 @@
 
   @if (hayMas()) {
     <div class="mt-6 text-center">
-      <button type="button" class="btn" (click)="cargarMas()" [disabled]="cargando()">Cargar más</button>
+      <button type="button" class="btn" (click)="cargarMas()" [disabled]="cargando()">{{ 'Cargar más' | translate }}</button>
     </div>
   }
 </section>

@@ -1,16 +1,16 @@
 @if (estado.formularioAbierto()) {
-  <div class="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" [attr.aria-label]="titulo()">
-    <button type="button" class="absolute inset-0 bg-black/50" (click)="cerrar()" aria-label="Cerrar formulario"></button>
+  <div class="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" [attr.aria-label]="titulo() | translate">
+    <button type="button" class="absolute inset-0 bg-black/50" (click)="cerrar()" [attr.aria-label]="'Cerrar formulario' | translate"></button>
 
     <form class="relative grid max-h-[92dvh] w-full max-w-lg gap-4 overflow-y-auto rounded-t-3xl border border-line bg-surface p-4 shadow-2xl sm:rounded-3xl sm:p-6"
           [formGroup]="form" (ngSubmit)="guardar()">
       <header class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-ink">{{ titulo() }}</h2>
-        <button type="button" class="btn-icon" (click)="cerrar()" aria-label="Cerrar"><app-icon name="cerrar" /></button>
+        <h2 class="text-lg font-semibold text-ink">{{ titulo() | translate }}</h2>
+        <button type="button" class="btn-icon" (click)="cerrar()" [attr.aria-label]="'Cerrar' | translate"><app-icon name="cerrar" /></button>
       </header>
 
       <!-- Tipo -->
-      <div class="grid gap-1 rounded-xl border border-line bg-bg p-1" [class.grid-cols-3]="estado.modo() === 'editar'" [class.grid-cols-4]="estado.modo() !== 'editar'" role="group" aria-label="Tipo de movimiento">
+      <div class="grid gap-1 rounded-xl border border-line bg-bg p-1" [class.grid-cols-3]="estado.modo() === 'editar'" [class.grid-cols-4]="estado.modo() !== 'editar'" role="group" [attr.aria-label]="'Tipo de movimiento' | translate">
         @for (t of tipos; track t) {
           <button type="button" (click)="cambiarTipo(t)" [attr.aria-pressed]="tipo() === t && !aporteMeta()"
                   class="min-h-10 rounded-lg px-2 text-sm font-medium transition-colors"
@@ -20,31 +20,31 @@
                   [class.text-bg]="tipo() === t && !aporteMeta() && t !== 'Transferencia'"
                   [class.text-on-primary]="tipo() === t && !aporteMeta() && t === 'Transferencia'"
                   [class.text-muted]="tipo() !== t || aporteMeta()">
-            {{ t }}
+            {{ t | translate }}
           </button>
         }
         @if (estado.modo() !== 'editar') {
           <button type="button" (click)="elegirMeta()" [attr.aria-pressed]="aporteMeta()"
                   class="min-h-10 rounded-lg px-1 text-sm font-medium transition-colors"
                   [class.bg-primary]="aporteMeta()" [class.text-on-primary]="aporteMeta()" [class.text-muted]="!aporteMeta()">
-            Meta
+            {{ 'Meta' | translate }}
           </button>
         }
       </div>
 
       <label class="field">
-        <span class="field-label">Monto</span>
+        <span class="field-label">{{ 'Monto' | translate }}</span>
         <input class="input !text-2xl !font-semibold" type="number" inputmode="decimal" step="0.01" min="0.01"
                formControlName="monto" placeholder="0.00" autofocus />
       </label>
 
       @if (aporteMeta()) {
         <div class="field">
-          <span class="field-label">Meta de ahorro</span>
+          <span class="field-label">{{ 'Meta de ahorro' | translate }}</span>
           @if (metas().length === 0) {
-            <p class="text-sm text-muted">No tienes metas activas. Crea una en “Metas de ahorro”.</p>
+            <p class="text-sm text-muted">{{ 'No tienes metas activas. Crea una en “Metas de ahorro”.' | translate }}</p>
           } @else {
-            <div class="grid max-h-52 gap-1.5 overflow-y-auto" role="radiogroup" aria-label="Meta de ahorro">
+            <div class="grid max-h-52 gap-1.5 overflow-y-auto" role="radiogroup" [attr.aria-label]="'Meta de ahorro' | translate">
               @for (m of metas(); track m.id) {
                 <button type="button" role="radio" [attr.aria-checked]="form.controls.metaId.value === m.id"
                         (click)="form.controls.metaId.setValue(m.id)"
@@ -56,7 +56,7 @@
                   </span>
                   <span class="min-w-0 flex-1">
                     <span class="block truncate font-medium">{{ m.nombre }}</span>
-                    <span class="block text-xs text-muted">Llevas {{ m.porcentaje }}% de la meta</span>
+                    <span class="block text-xs text-muted">{{ 'form.llevas' | translate: { p: m.porcentaje } }}</span>
                   </span>
                 </button>
               }
@@ -67,8 +67,8 @@
 
       @if (tipo() !== 'Transferencia' && !aporteMeta()) {
         <div class="field">
-          <span class="field-label">Categoría</span>
-          <div class="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto p-0.5 sm:grid-cols-4" role="radiogroup" aria-label="Categoría">
+          <span class="field-label">{{ 'Categoría' | translate }}</span>
+          <div class="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto p-0.5 sm:grid-cols-4" role="radiogroup" [attr.aria-label]="'Categoría' | translate">
             @for (c of categoriasOrdenadas(); track c.id) {
               <button type="button" role="radio" [attr.aria-checked]="form.controls.categoriaId.value === c.id"
                       (click)="elegirCategoria(c.id)"
@@ -88,8 +88,8 @@
 
       @if (!aporteMeta()) {
         <div class="field">
-          <span class="field-label">{{ tipo() === 'Transferencia' ? 'Cuenta de origen' : 'Cuenta' }}</span>
-          <div class="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Cuenta">
+          <span class="field-label">{{ (tipo() === 'Transferencia' ? 'Cuenta de origen' : 'Cuenta') | translate }}</span>
+          <div class="grid gap-2 sm:grid-cols-2" role="radiogroup" [attr.aria-label]="'Cuenta' | translate">
             @for (c of cuentas(); track c.id) {
               <button type="button" role="radio" [attr.aria-checked]="form.controls.cuentaId.value === c.id"
                       (click)="form.controls.cuentaId.setValue(c.id)"
@@ -109,8 +109,8 @@
 
       @if (tipo() === 'Transferencia' && !aporteMeta()) {
         <div class="field">
-          <span class="field-label">Cuenta destino</span>
-          <div class="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Cuenta destino">
+          <span class="field-label">{{ 'Cuenta destino' | translate }}</span>
+          <div class="grid gap-2 sm:grid-cols-2" role="radiogroup" [attr.aria-label]="'Cuenta destino' | translate">
             @for (c of cuentas(); track c.id) {
               @if (c.id !== form.controls.cuentaId.value) {
                 <button type="button" role="radio" [attr.aria-checked]="form.controls.cuentaDestinoId.value === c.id"
@@ -132,22 +132,22 @@
 
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="field">
-          <span class="field-label">Fecha</span>
+          <span class="field-label">{{ 'Fecha' | translate }}</span>
           <input class="input" type="date" formControlName="fecha" [max]="hoy" />
         </label>
         <label class="field">
-          <span class="field-label">{{ aporteMeta() ? 'Nota (opcional)' : 'Descripción (opcional)' }}</span>
+          <span class="field-label">{{ (aporteMeta() ? 'Nota (opcional)' : 'Descripción (opcional)') | translate }}</span>
           <input class="input" type="text" formControlName="descripcion" maxlength="500" />
         </label>
       </div>
 
       @if (error()) {
-        <p class="alert-error" role="alert">{{ error() }}</p>
+        <p class="alert-error" role="alert">{{ error() | translate }}</p>
       }
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn" (click)="cerrar()">Cancelar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="guardando()">Guardar</button>
+        <button type="button" class="btn" (click)="cerrar()">{{ 'Cancelar' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="guardando()">{{ 'Guardar' | translate }}</button>
       </div>
     </form>
   </div>

@@ -1,36 +1,50 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Ajustes</h1>
+    <h1 class="page-title">{{ 'Ajustes' | translate }}</h1>
   </header>
 
   <!-- Apariencia: modo claro u oscuro -->
   <div class="card mb-5 grid gap-3">
-    <h2 class="section-title mb-0">Apariencia</h2>
-    <div class="grid grid-cols-2 gap-2 sm:max-w-sm" role="group" aria-label="Tema">
+    <h2 class="section-title mb-0">{{ 'Apariencia' | translate }}</h2>
+    <div class="grid grid-cols-2 gap-2 sm:max-w-sm" role="group" [attr.aria-label]="'Tema' | translate">
       <button type="button" class="btn !min-h-12 justify-start" (click)="elegirTema('claro')"
               [attr.aria-pressed]="tema.tema() === 'claro'"
               [class.!border-primary]="tema.tema() === 'claro'" [class.!bg-primary-soft]="tema.tema() === 'claro'">
-        <app-icon name="sol" /> Claro
+        <app-icon name="sol" /> {{ 'Claro' | translate }}
       </button>
       <button type="button" class="btn !min-h-12 justify-start" (click)="elegirTema('oscuro')"
               [attr.aria-pressed]="tema.tema() === 'oscuro'"
               [class.!border-primary]="tema.tema() === 'oscuro'" [class.!bg-primary-soft]="tema.tema() === 'oscuro'">
-        <app-icon name="luna" /> Oscuro
+        <app-icon name="luna" /> {{ 'Oscuro' | translate }}
       </button>
     </div>
   </div>
 
+  <!-- Idioma -->
+  <div class="card mb-5 grid gap-3">
+    <h2 class="section-title mb-0">{{ 'Idioma' | translate }}</h2>
+    <div class="grid grid-cols-2 gap-2 sm:max-w-sm" role="group" [attr.aria-label]="'Idioma' | translate">
+      @for (i of idioma.disponibles; track i.codigo) {
+        <button type="button" class="btn !min-h-12 justify-start" (click)="idioma.elegir(i.codigo)"
+                [attr.aria-pressed]="idioma.lang() === i.codigo"
+                [class.!border-primary]="idioma.lang() === i.codigo" [class.!bg-primary-soft]="idioma.lang() === i.codigo">
+          <app-icon name="idioma" /> {{ i.nombre }}
+        </button>
+      }
+    </div>
+  </div>
+
   <form class="card grid gap-5" [formGroup]="form" (ngSubmit)="guardar()">
-    <h2 class="section-title mb-0">Preferencias</h2>
+    <h2 class="section-title mb-0">{{ 'Preferencias' | translate }}</h2>
 
     <label class="field">
-      <span class="field-label">Tu nombre</span>
+      <span class="field-label">{{ 'Tu nombre' | translate }}</span>
       <input class="input" type="text" formControlName="nombre" maxlength="100" />
     </label>
 
     <div class="grid gap-5 sm:grid-cols-2">
       <label class="field">
-        <span class="field-label">Moneda principal</span>
+        <span class="field-label">{{ 'Moneda principal' | translate }}</span>
         <select class="input" formControlName="moneda">
           @for (m of monedas; track m) {
             <option [value]="m">{{ m }}</option>
@@ -39,7 +53,7 @@
       </label>
 
       <label class="field">
-        <span class="field-label">Zona horaria</span>
+        <span class="field-label">{{ 'Zona horaria' | translate }}</span>
         <select class="input" formControlName="zonaHoraria">
           @for (z of zonas; track z) {
             <option [value]="z">{{ z }}</option>
@@ -49,42 +63,41 @@
     </div>
 
     <label class="field">
-      <span class="field-label">Día de inicio del mes financiero</span>
+      <span class="field-label">{{ 'Día de inicio del mes financiero' | translate }}</span>
       <select class="input sm:max-w-40" formControlName="diaInicioMes">
         @for (d of dias; track d) {
           <option [ngValue]="d">{{ d }}</option>
         }
       </select>
       <span class="field-hint">
-        Por ejemplo, tu día de pago. Los presupuestos y el resumen del “mes actual” empiezan ese día.
-        Con 1 equivale al mes calendario.
+        {{ 'Por ejemplo, tu día de pago. Los presupuestos y el resumen del “mes actual” empiezan ese día. Con 1 equivale al mes calendario.' | translate }}
       </span>
     </label>
 
     <fieldset class="grid gap-3 rounded-xl border border-line p-4">
-      <legend class="px-1 text-sm font-medium text-ink">Recordatorio diario</legend>
+      <legend class="px-1 text-sm font-medium text-ink">{{ 'Recordatorio diario' | translate }}</legend>
       <label class="flex items-center gap-2.5 text-sm text-ink">
         <input type="checkbox" class="size-4 accent-[var(--primary)]" formControlName="recordatorioActivo" />
-        Recordarme registrar mis gastos
+        {{ 'Recordarme registrar mis gastos' | translate }}
       </label>
       @if (form.controls.recordatorioActivo.value) {
         <label class="field">
-          <span class="field-label">A partir de las</span>
+          <span class="field-label">{{ 'A partir de las' | translate }}</span>
           <input class="input sm:max-w-40" type="time" formControlName="recordatorioHora" />
         </label>
-        <span class="field-hint">El aviso aparece en la campana si todavía no registraste movimientos hoy.</span>
+        <span class="field-hint">{{ 'El aviso aparece en la campana si todavía no registraste movimientos hoy.' | translate }}</span>
       }
     </fieldset>
 
     @if (error()) {
-      <p class="alert-error" role="alert">{{ error() }}</p>
+      <p class="alert-error" role="alert">{{ error() | translate }}</p>
     }
     @if (guardado()) {
-      <p class="alert-success" role="status">Configuración guardada.</p>
+      <p class="alert-success" role="status">{{ 'Configuración guardada.' | translate }}</p>
     }
 
     <div class="flex justify-end">
-      <button type="submit" class="btn btn-primary">Guardar</button>
+      <button type="submit" class="btn btn-primary">{{ 'Guardar' | translate }}</button>
     </div>
   </form>
 </section>

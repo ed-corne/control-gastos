@@ -1,59 +1,59 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Metas de ahorro</h1>
+    <h1 class="page-title">{{ 'Metas de ahorro' | translate }}</h1>
     <button type="button" class="btn btn-primary" (click)="nueva()">
-      <app-icon name="agregar" [size]="18" /> Nueva meta
+      <app-icon name="agregar" [size]="18" /> {{ 'Nueva meta' | translate }}
     </button>
   </header>
 
   <div class="tabs mb-5" role="tablist">
     <button type="button" role="tab" class="tab" [class.tab-active]="!verCumplidas()"
-            [attr.aria-selected]="!verCumplidas()" (click)="alternarHistorialMetas(false)">Activas</button>
+            [attr.aria-selected]="!verCumplidas()" (click)="alternarHistorialMetas(false)">{{ 'Activas' | translate }}</button>
     <button type="button" role="tab" class="tab" [class.tab-active]="verCumplidas()"
-            [attr.aria-selected]="verCumplidas()" (click)="alternarHistorialMetas(true)">Cumplidas</button>
+            [attr.aria-selected]="verCumplidas()" (click)="alternarHistorialMetas(true)">{{ 'Cumplidas' | translate }}</button>
   </div>
 
   @if (error() && !formularioAbierto() && !operandoId()) {
-    <p class="alert-error mb-4">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() | translate }}</p>
   }
 
   @if (formularioAbierto()) {
-    <app-modal [titulo]="titulo()" (cerrar)="cancelar()">
+    <app-modal [titulo]="titulo() | translate" (cerrar)="cancelar()">
     <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
       @if (error()) {
-        <p class="alert-error" role="alert">{{ error() }}</p>
+        <p class="alert-error" role="alert">{{ error() | translate }}</p>
       }
 
       <label class="field">
-        <span class="field-label">Nombre</span>
+        <span class="field-label">{{ 'Nombre' | translate }}</span>
         <input class="input" type="text" formControlName="nombre" maxlength="100" />
         @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-          <span class="text-xs text-danger">El nombre es obligatorio.</span>
+          <span class="text-xs text-danger">{{ 'El nombre es obligatorio.' | translate }}</span>
         }
       </label>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="field">
-          <span class="field-label">Monto objetivo</span>
+          <span class="field-label">{{ 'Monto objetivo' | translate }}</span>
           <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="montoObjetivo" />
           @if (form.controls.montoObjetivo.touched && form.controls.montoObjetivo.invalid) {
-            <span class="text-xs text-danger">Indica un monto mayor a 0.</span>
+            <span class="text-xs text-danger">{{ 'Indica un monto mayor a 0.' | translate }}</span>
           }
         </label>
 
         <label class="field">
-          <span class="field-label">Fecha límite (opcional)</span>
+          <span class="field-label">{{ 'Fecha límite (opcional)' | translate }}</span>
           <input class="input" type="date" formControlName="fechaLimite" [min]="hoy" />
         </label>
       </div>
 
       <label class="field w-fit">
-        <span class="field-label">Color</span>
+        <span class="field-label">{{ 'Color' | translate }}</span>
         <input type="color" formControlName="color" class="h-10 w-20 cursor-pointer rounded-lg border border-line bg-bg p-1" />
       </label>
 
       <fieldset class="field">
-        <legend class="field-label mb-1.5">Ícono</legend>
+        <legend class="field-label mb-1.5">{{ 'Ícono' | translate }}</legend>
         <div class="flex flex-wrap gap-2">
           @for (i of iconos; track i) {
             <label class="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border-2 bg-surface-2 text-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
@@ -67,8 +67,8 @@
       </fieldset>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn" (click)="cancelar()">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn" (click)="cancelar()">{{ 'Cancelar' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'Guardar' | translate }}</button>
       </div>
     </form>
     </app-modal>
@@ -76,7 +76,7 @@
 
   @if (metas().length === 0) {
     <p class="empty">
-      {{ verCumplidas() ? 'Todavía no has cumplido ninguna meta.' : 'No tienes metas activas. Crea la primera con “Nueva meta”.' }}
+      {{ (verCumplidas() ? 'Todavía no has cumplido ninguna meta.' : 'No tienes metas activas. Crea la primera con “Nueva meta”.') | translate }}
     </p>
   }
 
@@ -97,14 +97,14 @@
         </div>
 
         <dl class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
-          <div>Ahorrado <dd class="inline font-semibold text-ink num">{{ m.ahorrado | dinero }}</dd></div>
-          <div>Falta <dd class="inline font-semibold text-ink num">{{ m.falta | dinero }}</dd></div>
-          <div>Meta <dd class="inline font-semibold text-ink num">{{ m.montoObjetivo | dinero }}</dd></div>
+          <div>{{ 'Ahorrado' | translate }} <dd class="inline font-semibold text-ink num">{{ m.ahorrado | dinero }}</dd></div>
+          <div>{{ 'Falta' | translate }} <dd class="inline font-semibold text-ink num">{{ m.falta | dinero }}</dd></div>
+          <div>{{ 'Meta' | translate }} <dd class="inline font-semibold text-ink num">{{ m.montoObjetivo | dinero }}</dd></div>
         </dl>
 
         @if (m.cumplida) {
           <p class="flex items-center gap-2 text-sm font-medium text-success">
-            <app-icon name="exito" [size]="18" /> Cumplida el {{ m.fechaCumplida | date: 'dd/MM/yyyy' }}
+            <app-icon name="exito" [size]="18" /> {{ 'Cumplida el' | translate }} {{ m.fechaCumplida | date: 'dd/MM/yyyy' }}
           </p>
         } @else if (m.fechaLimite) {
           <p class="flex items-start gap-2 text-sm" [class.text-danger]="m.vencida" [class.text-muted]="!m.vencida">
@@ -112,9 +112,9 @@
               <app-icon name="alerta" [size]="16" />
             }
             <span>
-              {{ m.vencida ? 'Venció el' : 'Fecha límite:' }} {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
+              {{ (m.vencida ? 'Venció el' : 'Fecha límite:') | translate }} {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
               @if (m.ahorroSemanalSugerido !== null) {
-                Ahorra <b class="text-ink num">{{ m.ahorroSemanalSugerido | dinero }}</b> por semana para llegar a tiempo.
+                {{ 'Ahorra' | translate }} <b class="text-ink num">{{ m.ahorroSemanalSugerido | dinero }}</b> {{ 'por semana para llegar a tiempo.' | translate }}
               }
             </span>
           </p>
@@ -122,13 +122,13 @@
 
         <div class="flex flex-wrap justify-end gap-1.5">
           <button type="button" class="btn btn-sm" (click)="abrirOperacion(m, 'Aportacion')">
-            <app-icon name="agregar" [size]="14" /> Aportar
+            <app-icon name="agregar" [size]="14" /> {{ 'Aportar' | translate }}
           </button>
-          <button type="button" class="btn btn-sm" (click)="abrirOperacion(m, 'Retiro')">Retirar</button>
+          <button type="button" class="btn btn-sm" (click)="abrirOperacion(m, 'Retiro')">{{ 'Retirar' | translate }}</button>
           <button type="button" class="btn btn-sm" (click)="alternarHistorial(m)">
-            {{ historialId() === m.id ? 'Ocultar historial' : 'Historial' }}
+            {{ (historialId() === m.id ? 'Ocultar historial' : 'Historial') | translate }}
           </button>
-          <button type="button" class="btn btn-sm" (click)="editar(m)" aria-label="Editar meta">
+          <button type="button" class="btn btn-sm" (click)="editar(m)" [attr.aria-label]="'Editar meta' | translate">
             <app-icon name="editar" [size]="14" />
           </button>
         </div>
@@ -138,13 +138,13 @@
             @for (o of historial(); track o.id) {
               <li class="flex gap-3">
                 <span class="text-muted">{{ o.fecha | date: 'dd/MM/yyyy' }}</span>
-                <span class="flex-1 text-ink">{{ o.nota || (o.tipo === 'Aportacion' ? 'Aportación' : 'Retiro') }}</span>
+                <span class="flex-1 text-ink">{{ o.nota || ((o.tipo === 'Aportacion' ? 'Aportación' : 'Retiro') | translate) }}</span>
                 <b class="num" [class.text-success]="o.tipo === 'Aportacion'" [class.text-danger]="o.tipo === 'Retiro'">
                   {{ o.tipo === 'Aportacion' ? '+' : '−' }}{{ o.monto | dinero }}
                 </b>
               </li>
             } @empty {
-              <li class="text-muted">Sin operaciones todavía.</li>
+              <li class="text-muted">{{ 'Sin operaciones todavía.' | translate }}</li>
             }
           </ul>
         }
@@ -153,31 +153,31 @@
   </ul>
 
   @if (operandoId()) {
-    <app-modal [titulo]="(tipoOperacion() === 'Aportacion' ? 'Aportar a ' : 'Retirar de ') + nombreOperando()" (cerrar)="cerrarOperacion()">
+    <app-modal [titulo]="((tipoOperacion() === 'Aportacion' ? 'Aportar a' : 'Retirar de') | translate) + ' ' + nombreOperando()" (cerrar)="cerrarOperacion()">
       <form class="grid gap-4" [formGroup]="formOperacion" (ngSubmit)="registrarOperacion()">
         @if (error()) {
-          <p class="alert-error" role="alert">{{ error() }}</p>
+          <p class="alert-error" role="alert">{{ error() | translate }}</p>
         }
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="field">
-            <span class="field-label">Monto</span>
+            <span class="field-label">{{ 'Monto' | translate }}</span>
             <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto" />
             @if (formOperacion.controls.monto.touched && formOperacion.controls.monto.invalid) {
-              <span class="text-xs text-danger">Indica un monto mayor a 0.</span>
+              <span class="text-xs text-danger">{{ 'Indica un monto mayor a 0.' | translate }}</span>
             }
           </label>
           <label class="field">
-            <span class="field-label">Fecha</span>
+            <span class="field-label">{{ 'Fecha' | translate }}</span>
             <input class="input" type="date" formControlName="fecha" [max]="hoy" />
           </label>
         </div>
         <label class="field">
-          <span class="field-label">Nota (opcional)</span>
+          <span class="field-label">{{ 'Nota (opcional)' | translate }}</span>
           <input class="input" type="text" formControlName="nota" maxlength="200" />
         </label>
         <div class="flex justify-end gap-2">
-          <button type="button" class="btn" (click)="cerrarOperacion()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn" (click)="cerrarOperacion()">{{ 'Cancelar' | translate }}</button>
+          <button type="submit" class="btn btn-primary">{{ 'Guardar' | translate }}</button>
         </div>
       </form>
     </app-modal>

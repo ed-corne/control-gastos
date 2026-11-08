@@ -1,44 +1,44 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Presupuestos</h1>
+    <h1 class="page-title">{{ 'Presupuestos' | translate }}</h1>
     <button type="button" class="btn btn-primary" (click)="nuevo()">
-      <app-icon name="agregar" [size]="18" /> Nuevo
+      <app-icon name="agregar" [size]="18" /> {{ 'Nuevo' | translate }}
     </button>
   </header>
 
   <div class="mb-5 flex flex-wrap items-center gap-2">
     <div class="inline-flex items-center rounded-xl border border-line bg-surface">
-      <button type="button" class="btn-icon" (click)="mesAnterior()" aria-label="Mes anterior">
+      <button type="button" class="btn-icon" (click)="mesAnterior()" [attr.aria-label]="'Mes anterior' | translate">
         <app-icon name="atras" />
       </button>
       <strong class="min-w-36 text-center text-sm text-ink first-letter:uppercase">{{ etiquetaMes() }}</strong>
-      <button type="button" class="btn-icon" (click)="mesSiguiente()" aria-label="Mes siguiente">
+      <button type="button" class="btn-icon" (click)="mesSiguiente()" [attr.aria-label]="'Mes siguiente' | translate">
         <app-icon name="adelante" />
       </button>
     </div>
     <button type="button" class="btn sm:ml-auto" (click)="copiarMesAnterior()">
-      <app-icon name="duplicar" [size]="16" /> Copiar del mes anterior
+      <app-icon name="duplicar" [size]="16" /> {{ 'Copiar del mes anterior' | translate }}
     </button>
   </div>
 
   @if (error() && !formularioAbierto()) {
-    <p class="alert-error mb-4">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() | translate }}</p>
   }
   @if (aviso()) {
-    <p class="alert-success mb-4">{{ aviso() }}</p>
+    <p class="alert-success mb-4">{{ aviso() | translate }}</p>
   }
 
   @if (formularioAbierto()) {
-    <app-modal [titulo]="editandoId() ? 'Editar monto' : 'Nuevo presupuesto'" (cerrar)="cancelar()">
+    <app-modal [titulo]="(editandoId() ? 'Editar monto' : 'Nuevo presupuesto') | translate" (cerrar)="cancelar()">
     <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
       @if (error()) {
-        <p class="alert-error" role="alert">{{ error() }}</p>
+        <p class="alert-error" role="alert">{{ error() | translate }}</p>
       }
 
       @if (!editandoId()) {
         <div class="field">
-          <span class="field-label">Categoría</span>
-          <div class="grid max-h-60 gap-1.5 overflow-y-auto rounded-xl border border-line bg-bg p-1.5" role="radiogroup" aria-label="Categoría">
+          <span class="field-label">{{ 'Categoría' | translate }}</span>
+          <div class="grid max-h-60 gap-1.5 overflow-y-auto rounded-xl border border-line bg-bg p-1.5" role="radiogroup" [attr.aria-label]="'Categoría' | translate">
             @if (!hayGlobal()) {
               <button type="button" role="radio" [attr.aria-checked]="!form.controls.categoriaId.value"
                       (click)="form.controls.categoriaId.setValue('')"
@@ -46,7 +46,7 @@
                       [class.border-primary]="!form.controls.categoriaId.value" [class.bg-primary-soft]="!form.controls.categoriaId.value"
                       [class.border-transparent]="!!form.controls.categoriaId.value">
                 <span class="icon-chip !size-8"><app-icon name="target" [size]="16" /></span>
-                Presupuesto global (todo el mes)
+                {{ 'Presupuesto global (todo el mes)' | translate }}
               </button>
             }
             @for (c of disponibles(); track c.id) {
@@ -69,23 +69,23 @@
       }
 
       <label class="field">
-        <span class="field-label">Monto mensual</span>
+        <span class="field-label">{{ 'Monto mensual' | translate }}</span>
         <input class="input" type="number" inputmode="decimal" step="0.01" min="0.01" formControlName="monto" />
         @if (form.controls.monto.touched && form.controls.monto.invalid) {
-          <span class="text-xs text-danger">Indica un monto mayor a 0.</span>
+          <span class="text-xs text-danger">{{ 'Indica un monto mayor a 0.' | translate }}</span>
         }
       </label>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn" (click)="cancelar()">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn" (click)="cancelar()">{{ 'Cancelar' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'Guardar' | translate }}</button>
       </div>
     </form>
     </app-modal>
   }
 
   @if (presupuestos().length === 0) {
-    <p class="empty">No hay presupuestos para este mes. Crea uno o cópialo del mes anterior.</p>
+    <p class="empty">{{ 'No hay presupuestos para este mes. Crea uno o cópialo del mes anterior.' | translate }}</p>
   }
 
   <ul class="grid gap-3 lg:grid-cols-2">
@@ -97,7 +97,7 @@
             <app-icon [name]="p.categoriaIcono ?? 'target'" />
           </span>
           <div class="min-w-0 flex-1">
-            <h2 class="font-semibold text-ink">{{ p.categoriaNombre }}</h2>
+            <h2 class="font-semibold text-ink">{{ p.categoriaId ? p.categoriaNombre : ('Presupuesto global' | translate) }}</h2>
             @if (p.categoriaComentario) {
               <p class="text-xs text-muted">{{ p.categoriaComentario }}</p>
             }
@@ -122,17 +122,17 @@
         </div>
 
         <dl class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
-          <div>Asignado <dd class="inline font-semibold text-ink num">{{ p.asignado | dinero }}</dd></div>
-          <div>Gastado <dd class="inline font-semibold text-ink num">{{ p.gastado | dinero }}</dd></div>
+          <div>{{ 'Asignado' | translate }} <dd class="inline font-semibold text-ink num">{{ p.asignado | dinero }}</dd></div>
+          <div>{{ 'Gastado' | translate }} <dd class="inline font-semibold text-ink num">{{ p.gastado | dinero }}</dd></div>
           <div [class.text-danger]="p.restante < 0">
-            {{ p.restante < 0 ? 'Excedido' : 'Queda' }}
+            {{ (p.restante < 0 ? 'Excedido' : 'Queda') | translate }}
             <dd class="inline font-semibold num" [class.text-ink]="p.restante >= 0">{{ (p.restante < 0 ? -p.restante : p.restante) | dinero }}</dd>
           </div>
         </dl>
 
         <div class="flex justify-end gap-1.5">
-          <button type="button" class="btn btn-sm" (click)="editar(p)"><app-icon name="editar" [size]="14" /> Editar</button>
-          <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(p)" aria-label="Eliminar presupuesto">
+          <button type="button" class="btn btn-sm" (click)="editar(p)"><app-icon name="editar" [size]="14" /> {{ 'Editar' | translate }}</button>
+          <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(p)" [attr.aria-label]="'Eliminar presupuesto' | translate">
             <app-icon name="eliminar" [size]="14" />
           </button>
         </div>

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { IconComponent, ICONOS_CUENTA_CLAVES } from '../../core/icon.component';
@@ -7,15 +8,17 @@ import { ModalComponent } from '../../shared/modal.component';
 import { Cuenta, ResumenCuentas, TIPOS_CUENTA } from './cuenta.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { CuentasService } from './cuentas.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-cuentas-page',
-  imports: [ReactiveFormsModule, DineroPipe, IconComponent, ModalComponent],
+  imports: [TranslatePipe, ReactiveFormsModule, DineroPipe, IconComponent, ModalComponent],
   templateUrl: './cuentas-page.html',
 })
 export class CuentasPage {
   private readonly api = inject(CuentasService);
   private readonly movimientos = inject(MovimientosEstado);
+  private readonly t = inject(TranslateService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly tipos = TIPOS_CUENTA;
@@ -107,7 +110,7 @@ export class CuentasPage {
   }
 
   protected eliminar(c: Cuenta): void {
-    if (!confirm(`¿Eliminar la cuenta "${c.nombre}"? Esta acción no se puede deshacer.`)) return;
+    if (!confirm(this.t.instant('confirm.cuenta', { nombre: c.nombre }))) return;
     this.api.eliminar(c.id).subscribe({
       next: () => this.cargar(),
       error: (e) => this.error.set(this.mensaje(e, 'No se pudo eliminar la cuenta.')),

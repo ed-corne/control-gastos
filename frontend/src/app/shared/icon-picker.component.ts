@@ -1,17 +1,18 @@
 import { Component, computed, model, signal } from '@angular/core';
 import { CATALOGO_ICONOS, IconComponent } from '../core/icon.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 const sinAcentos = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Selector de ícono con buscador. Uso: <app-icon-picker [(valor)]="icono" /> */
 @Component({
   selector: 'app-icon-picker',
-  imports: [IconComponent],
+  imports: [IconComponent, TranslatePipe],
   template: `
     <div class="grid gap-2">
-      <input class="input" type="search" placeholder="Buscar ícono (ej. gasolina, mascota, café)…"
-             aria-label="Buscar ícono" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
-      <div class="flex max-h-44 flex-wrap gap-2 overflow-y-auto p-0.5" role="radiogroup" aria-label="Ícono">
+      <input class="input" type="search" [placeholder]="'Buscar ícono (ej. gasolina, mascota, café)…' | translate"
+             [attr.aria-label]="'Buscar ícono' | translate" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+      <div class="flex max-h-44 flex-wrap gap-2 overflow-y-auto p-0.5" role="radiogroup" [attr.aria-label]="'Ícono' | translate">
         @for (i of filtrados(); track i.clave) {
           <button type="button" role="radio" [attr.aria-checked]="valor() === i.clave" [attr.aria-label]="i.texto.split(' ')[0]"
                   [title]="i.texto.split(' ')[0]" (click)="valor.set(i.clave)"
@@ -20,7 +21,7 @@ const sinAcentos = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toL
             <app-icon [name]="i.clave" />
           </button>
         } @empty {
-          <p class="py-3 text-sm text-muted">Ningún ícono coincide con “{{ busqueda() }}”.</p>
+          <p class="py-3 text-sm text-muted">{{ 'icono.sin_resultados' | translate: { q: busqueda() } }}</p>
         }
       </div>
     </div>

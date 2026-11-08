@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { ConfiguracionStore } from './core/configuracion.store';
@@ -9,6 +10,7 @@ import { NotificacionesService } from './core/notificaciones.service';
 import { ThemeService } from './core/theme.service';
 import { MovimientoForm } from './features/movimientos/movimiento-form';
 import { MovimientosEstado } from './features/movimientos/movimientos-estado';
+import { IdiomaService } from './core/idioma.service';
 
 interface ItemMenu {
   ruta: string;
@@ -18,7 +20,7 @@ interface ItemMenu {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, MovimientoForm, IconComponent],
+  imports: [TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, MovimientoForm, IconComponent],
   templateUrl: './app.html',
 })
 export class App {
@@ -30,6 +32,7 @@ export class App {
   protected readonly config = inject(ConfiguracionStore);
   protected readonly notificaciones = inject(NotificacionesService);
   protected readonly tema = inject(ThemeService);
+  protected readonly idioma = inject(IdiomaService);
 
   protected readonly apiStatus = signal<'cargando' | 'conectada' | 'sin conexión'>('cargando');
   protected readonly panelAbierto = signal(false);

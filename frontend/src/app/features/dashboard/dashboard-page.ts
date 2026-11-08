@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { IconComponent } from '../../core/icon.component';
@@ -7,6 +8,7 @@ import { Movimiento } from '../movimientos/movimiento.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { Dashboard } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
+import { TranslateService } from '@ngx-translate/core';
 
 type Periodo = 'actual' | 'anterior' | 'rango';
 
@@ -24,11 +26,12 @@ const CIRCUNFERENCIA = 2 * Math.PI * RADIO;
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [DineroPipe, DatePipe, FormsModule, IconComponent],
+  imports: [TranslatePipe, DineroPipe, DatePipe, FormsModule, IconComponent],
   templateUrl: './dashboard-page.html',
 })
 export class DashboardPage {
   private readonly api = inject(DashboardService);
+  private readonly t = inject(TranslateService);
   private readonly movimientos = inject(MovimientosEstado);
 
   protected readonly periodo = signal<Periodo>('actual');
@@ -80,7 +83,7 @@ export class DashboardPage {
   }
 
   protected titulo(m: Movimiento): string {
-    return m.descripcion || (m.tipo === 'Transferencia' ? 'Transferencia' : (m.categoriaNombre ?? ''));
+    return m.descripcion || (m.tipo === 'Transferencia' ? this.t.instant('Transferencia') : (m.categoriaNombre ?? ''));
   }
 
   protected anchoPresupuesto(p: number): number {

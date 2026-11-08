@@ -1,70 +1,70 @@
 <section class="page">
   <header class="page-header">
-    <h1 class="page-title">Cuentas</h1>
+    <h1 class="page-title">{{ 'Cuentas' | translate }}</h1>
     <button type="button" class="btn btn-primary" (click)="nueva()">
-      <app-icon name="agregar" [size]="18" /> Nueva cuenta
+      <app-icon name="agregar" [size]="18" /> {{ 'Nueva cuenta' | translate }}
     </button>
   </header>
 
   @if (resumen(); as r) {
     <div class="mb-5 grid gap-3 sm:grid-cols-3">
       <div class="card">
-        <p class="text-xs text-muted">Saldo total</p>
+        <p class="text-xs text-muted">{{ 'Saldo total' | translate }}</p>
         <p class="num text-2xl font-semibold text-ink">{{ r.saldoTotal | dinero }}</p>
       </div>
       <div class="card">
-        <p class="text-xs text-muted">Activos</p>
+        <p class="text-xs text-muted">{{ 'Activos' | translate }}</p>
         <p class="num text-2xl font-semibold text-ink">{{ r.totalActivos | dinero }}</p>
       </div>
       <div class="card">
-        <p class="text-xs text-muted">Deuda en tarjetas</p>
+        <p class="text-xs text-muted">{{ 'Deuda en tarjetas' | translate }}</p>
         <p class="num text-2xl font-semibold text-danger">{{ r.totalDeudaTarjetas | dinero }}</p>
       </div>
     </div>
   }
 
   @if (error() && !formularioAbierto()) {
-    <p class="alert-error mb-4">{{ error() }}</p>
+    <p class="alert-error mb-4">{{ error() | translate }}</p>
   }
 
   @if (formularioAbierto()) {
-    <app-modal [titulo]="titulo()" (cerrar)="cancelar()">
+    <app-modal [titulo]="titulo() | translate" (cerrar)="cancelar()">
     <form class="grid gap-4" [formGroup]="form" (ngSubmit)="guardar()">
       @if (error()) {
-        <p class="alert-error" role="alert">{{ error() }}</p>
+        <p class="alert-error" role="alert">{{ error() | translate }}</p>
       }
 
       <label class="field">
-        <span class="field-label">Nombre</span>
+        <span class="field-label">{{ 'Nombre' | translate }}</span>
         <input class="input" type="text" formControlName="nombre" maxlength="100" />
         @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-          <span class="text-xs text-danger">El nombre es obligatorio.</span>
+          <span class="text-xs text-danger">{{ 'El nombre es obligatorio.' | translate }}</span>
         }
       </label>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="field">
-          <span class="field-label">Tipo</span>
+          <span class="field-label">{{ 'Tipo' | translate }}</span>
           <select class="input" formControlName="tipo">
             @for (t of tipos; track t.valor) {
-              <option [value]="t.valor">{{ t.etiqueta }}</option>
+              <option [value]="t.valor">{{ t.etiqueta | translate }}</option>
             }
           </select>
         </label>
 
         <label class="field">
-          <span class="field-label">{{ form.controls.tipo.value === 'Credito' ? 'Deuda inicial' : 'Saldo inicial' }}</span>
+          <span class="field-label">{{ (form.controls.tipo.value === 'Credito' ? 'Deuda inicial' : 'Saldo inicial') | translate }}</span>
           <input class="input" type="number" inputmode="decimal" step="0.01" formControlName="saldoInicial" />
         </label>
       </div>
 
       <label class="field w-fit">
-        <span class="field-label">Color</span>
+        <span class="field-label">{{ 'Color' | translate }}</span>
         <input type="color" formControlName="color" class="h-10 w-20 cursor-pointer rounded-lg border border-line bg-bg p-1" />
       </label>
 
       <fieldset class="field">
-        <legend class="field-label mb-1.5">Ícono</legend>
+        <legend class="field-label mb-1.5">{{ 'Ícono' | translate }}</legend>
         <div class="flex flex-wrap gap-2">
           @for (i of iconos; track i) {
             <label class="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border-2 bg-surface-2 text-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
@@ -78,8 +78,8 @@
       </fieldset>
 
       <div class="flex justify-end gap-2">
-        <button type="button" class="btn" (click)="cancelar()">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn" (click)="cancelar()">{{ 'Cancelar' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'Guardar' | translate }}</button>
       </div>
     </form>
     </app-modal>
@@ -88,11 +88,11 @@
   <label class="switch mb-4">
     <input type="checkbox" role="switch" class="peer sr-only" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
     <span class="switch-track"></span>
-    Mostrar archivadas
+    {{ 'Mostrar archivadas' | translate }}
   </label>
 
   @if (cuentas().length === 0) {
-    <p class="empty">Todavía no tienes cuentas. Crea la primera con “Nueva cuenta”.</p>
+    <p class="empty">{{ 'Todavía no tienes cuentas. Crea la primera con “Nueva cuenta”.' | translate }}</p>
   }
 
   <ul class="grid gap-3">
@@ -103,18 +103,18 @@
         </span>
         <div class="min-w-32 flex-1">
           <p class="font-semibold text-ink">{{ c.nombre }}</p>
-          <p class="text-xs text-muted">{{ etiquetaTipo(c.tipo) }}@if (c.archivada) { · Archivada }</p>
+          <p class="text-xs text-muted">{{ etiquetaTipo(c.tipo) | translate }}@if (c.archivada) { · {{ 'Archivada' | translate }} }</p>
         </div>
         <p class="num text-lg font-semibold" [class.text-danger]="c.tipo === 'Credito'" [class.text-ink]="c.tipo !== 'Credito'">
           {{ c.saldoActual | dinero }}
         </p>
         <div class="flex w-full justify-end gap-1.5 sm:w-auto">
-          <button type="button" class="btn btn-sm" (click)="editar(c)"><app-icon name="editar" [size]="14" /> Editar</button>
+          <button type="button" class="btn btn-sm" (click)="editar(c)"><app-icon name="editar" [size]="14" /> {{ 'Editar' | translate }}</button>
           <button type="button" class="btn btn-sm" (click)="alternarArchivo(c)">
             <app-icon [name]="c.archivada ? 'restaurar' : 'archivar'" [size]="14" />
-            {{ c.archivada ? 'Restaurar' : 'Archivar' }}
+            {{ (c.archivada ? 'Restaurar' : 'Archivar') | translate }}
           </button>
-          <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(c)" aria-label="Eliminar cuenta">
+          <button type="button" class="btn btn-sm btn-danger" (click)="eliminar(c)" [attr.aria-label]="'Eliminar cuenta' | translate">
             <app-icon name="eliminar" [size]="14" />
           </button>
         </div>

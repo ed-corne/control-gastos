@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../core/icon.component';
 import { Cuenta } from '../cuentas/cuenta.model';
@@ -23,7 +24,7 @@ const CAMPOS: { clave: Campo; etiqueta: string; obligatorio: boolean; pistas: st
 
 @Component({
   selector: 'app-importar-page',
-  imports: [FormsModule, IconComponent],
+  imports: [TranslatePipe, FormsModule, IconComponent],
   templateUrl: './importar-page.html',
 })
 export class ImportarPage {

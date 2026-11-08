@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { IconComponent } from '../../core/icon.component';
@@ -15,7 +16,7 @@ import { MovimientosService } from './movimientos.service';
 
 @Component({
   selector: 'app-movimiento-form',
-  imports: [ReactiveFormsModule, IconComponent],
+  imports: [TranslatePipe, ReactiveFormsModule, IconComponent],
   templateUrl: './movimiento-form.html',
 })
 export class MovimientoForm {
