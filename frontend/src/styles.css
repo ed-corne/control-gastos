@@ -25,6 +25,12 @@
   --accent: #1f5fa6; /* azul */
   --accent-soft: #d9e6f5;
 
+  /* Elementos de énfasis: ítem activo del menú, pestaña activa y tarjeta principal */
+  --nav-active-bg: #1d4a37;
+  --nav-active-fg: #f6f0e1;
+  --hero-bg: #1d4a37;
+  --hero-fg: #f6f0e1;
+
   --success: #15663a;
   --danger: #b3261e;
   --danger-soft: #f8e1de;
@@ -39,20 +45,27 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #0e1913; /* verde casi negro */
-  --surface: #15241c;
-  --surface-2: #1e3226;
-  --line: #2b4436;
-  --ink: #f1ead8; /* crema */
-  --muted: #9fb3a6;
+  /* Neutros cálidos: el verde ya no tiñe los fondos */
+  --bg: #141414;
+  --surface: #1c1c1c;
+  --surface-2: #272727;
+  --line: #3a3a3a;
+  --ink: #efe9da; /* crema */
+  --muted: #a8a8a0;
 
-  --primary: #2f7a58; /* verde medio: botones sobre fondo oscuro */
-  --primary-hover: #3a8d68;
-  --on-primary: #f6f0e1;
-  --primary-soft: #1c3a2c;
+  /* Verde como acento: botones y detalles */
+  --primary: #5cc08f;
+  --primary-hover: #74cfa0;
+  --on-primary: #0f1f17;
+  --primary-soft: #1d2e25;
 
-  --accent: #7db4f2;
-  --accent-soft: #17304d;
+  --accent: #7db4f2; /* azul */
+  --accent-soft: #1a2a40;
+
+  --nav-active-bg: #21352a;
+  --nav-active-fg: #8fdcb0;
+  --hero-bg: #272727;
+  --hero-fg: #efe9da;
 
   --success: #6fcf97;
   --danger: #f2877e;
@@ -78,6 +91,10 @@
   --color-primary-soft: var(--primary-soft);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-nav-active: var(--nav-active-bg);
+  --color-on-nav-active: var(--nav-active-fg);
+  --color-hero: var(--hero-bg);
+  --color-on-hero: var(--hero-fg);
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
@@ -200,7 +217,7 @@
   }
 
   .tab-active {
-    @apply bg-primary text-on-primary hover:text-on-primary;
+    @apply bg-nav-active text-on-nav-active hover:text-on-nav-active;
   }
 
   .progress {

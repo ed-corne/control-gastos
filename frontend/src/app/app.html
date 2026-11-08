@@ -2,7 +2,7 @@
 <ng-template #navegacion>
   <nav class="flex flex-col gap-1" aria-label="Principal">
     @for (item of principal; track item.ruta) {
-      <a [routerLink]="item.ruta" routerLinkActive="bg-primary text-on-primary hover:bg-primary"
+      <a [routerLink]="item.ruta" routerLinkActive="bg-nav-active text-on-nav-active hover:bg-nav-active"
          class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-ink transition-colors hover:bg-surface-2">
         <app-icon [name]="item.icono" [size]="20" />
         {{ item.etiqueta }}
@@ -10,7 +10,7 @@
     }
     <p class="mt-4 mb-1 px-3 text-xs font-semibold tracking-wide text-muted uppercase">Administrar</p>
     @for (item of secundario; track item.ruta) {
-      <a [routerLink]="item.ruta" routerLinkActive="bg-primary text-on-primary hover:bg-primary"
+      <a [routerLink]="item.ruta" routerLinkActive="bg-nav-active text-on-nav-active hover:bg-nav-active"
          class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-ink transition-colors hover:bg-surface-2">
         <app-icon [name]="item.icono" [size]="20" />
         {{ item.etiqueta }}
