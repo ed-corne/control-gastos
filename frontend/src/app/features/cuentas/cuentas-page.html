@@ -1,0 +1,107 @@
+<section class="cuentas">
+  <header class="cabecera">
+    <h2>Cuentas</h2>
+    <button type="button" class="primario" (click)="nueva()">+ Nueva cuenta</button>
+  </header>
+
+  @if (resumen(); as r) {
+    <div class="resumen">
+      <div>
+        <span>Saldo total</span>
+        <strong>{{ r.saldoTotal | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      </div>
+      <div>
+        <span>Activos</span>
+        <strong>{{ r.totalActivos | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      </div>
+      <div>
+        <span>Deuda en tarjetas</span>
+        <strong class="deuda">{{ r.totalDeudaTarjetas | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      </div>
+    </div>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (formularioAbierto()) {
+    <form class="formulario" [formGroup]="form" (ngSubmit)="guardar()">
+      <h3>{{ titulo() }}</h3>
+
+      <label>
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="100" />
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small class="error">El nombre es obligatorio.</small>
+        }
+      </label>
+
+      <label>
+        Tipo
+        <select formControlName="tipo">
+          @for (t of tipos; track t.valor) {
+            <option [value]="t.valor">{{ t.etiqueta }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        {{ form.controls.tipo.value === 'Credito' ? 'Deuda inicial' : 'Saldo inicial' }}
+        <input type="number" step="0.01" formControlName="saldoInicial" />
+      </label>
+
+      <label>
+        Color
+        <input type="color" formControlName="color" />
+      </label>
+
+      <fieldset>
+        <legend>Ícono</legend>
+        <div class="iconos">
+          @for (i of iconos; track i.clave) {
+            <label class="icono" [class.activo]="form.controls.icono.value === i.clave">
+              <input type="radio" formControlName="icono" [value]="i.clave" />
+              {{ i.emoji }}
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <div class="acciones">
+        <button type="button" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="primario">Guardar</button>
+      </div>
+    </form>
+  }
+
+  <label class="filtro">
+    <input type="checkbox" [checked]="incluirArchivadas()" (change)="alternarArchivadas()" />
+    Mostrar archivadas
+  </label>
+
+  @if (cuentas().length === 0) {
+    <p class="vacio">Todavía no tienes cuentas. Crea la primera con “Nueva cuenta”.</p>
+  }
+
+  <ul class="lista">
+    @for (c of cuentas(); track c.id) {
+      <li class="tarjeta" [class.archivada]="c.archivada" [style.border-left-color]="c.color">
+        <span class="emoji">{{ emoji(c.icono) }}</span>
+        <div class="datos">
+          <strong>{{ c.nombre }}</strong>
+          <small>{{ etiquetaTipo(c.tipo) }}@if (c.archivada) { · Archivada }</small>
+        </div>
+        <span class="saldo" [class.deuda]="c.tipo === 'Credito'">
+          {{ c.saldoActual | currency: 'MXN' : 'symbol-narrow' }}
+        </span>
+        <div class="botones">
+          <button type="button" (click)="editar(c)">Editar</button>
+          <button type="button" (click)="alternarArchivo(c)">
+            {{ c.archivada ? 'Restaurar' : 'Archivar' }}
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</section>

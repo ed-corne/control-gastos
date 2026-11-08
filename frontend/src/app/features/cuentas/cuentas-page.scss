@@ -1,0 +1,121 @@
+.cuentas {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #c8c8d0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+
+  &.primario {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: #fff;
+  }
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+
+  div {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #f3f3f8;
+  }
+
+  span {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  strong {
+    font-size: 1.25rem;
+  }
+}
+
+.deuda { color: #cf222e; }
+
+.error { color: #cf222e; }
+
+.formulario {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  label { display: grid; gap: 0.25rem; }
+  input[type='text'], input[type='number'], select { padding: 0.45rem; }
+  fieldset { border: 0; padding: 0; }
+}
+
+.iconos {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icono {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.4rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: #f3f3f8;
+  cursor: pointer;
+
+  input { display: none; }
+  &.activo { border-color: #4f46e5; }
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.filtro { display: block; margin: 0.5rem 0; }
+
+.vacio { color: #666; text-align: center; margin: 2rem 0; }
+
+.lista {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e3e3ea;
+  border-left: 6px solid;
+  border-radius: 8px;
+  flex-wrap: wrap;
+
+  &.archivada { opacity: 0.55; }
+  .emoji { font-size: 1.5rem; }
+  .datos { display: grid; flex: 1; min-width: 120px; }
+  .datos small { color: #666; }
+  .saldo { font-weight: 600; }
+  .botones { display: flex; gap: 0.4rem; }
+}

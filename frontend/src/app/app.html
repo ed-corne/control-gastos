@@ -1,10 +1,10 @@
-<main class="home">
-  <h1>Control de Gastos</h1>
-  <p class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">
+<header class="barra">
+  <strong>Control de Gastos</strong>
+  <nav>
+    <a routerLink="/cuentas" routerLinkActive="activo">Cuentas</a>
+  </nav>
+  <span class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">
     API: {{ apiStatus() }}
-  </p>
-  @if (apiDetail()) {
-    <small>{{ apiDetail() }}</small>
-  }
-</main>
+  </span>
+</header>
 <router-outlet />
