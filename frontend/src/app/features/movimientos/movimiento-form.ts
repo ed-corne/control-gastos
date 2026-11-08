@@ -58,6 +58,13 @@ export class MovimientoForm {
     return ids.map((id) => todas.find((c) => c.id === id)).filter((c): c is Categoria => !!c);
   });
 
+  /** Las categorías más usadas van primero (RF-MOV-02); el resto sigue en orden alfabético. */
+  protected readonly categoriasOrdenadas = computed(() => {
+    const frecuentes = this.frecuentes();
+    const ids = new Set(frecuentes.map((c) => c.id));
+    return [...frecuentes, ...this.categorias().filter((c) => !ids.has(c.id))];
+  });
+
   protected readonly form = this.fb.group({
     monto: [null as number | null, [Validators.required, Validators.min(0.01)]],
     fecha: [hoyIso(), Validators.required],

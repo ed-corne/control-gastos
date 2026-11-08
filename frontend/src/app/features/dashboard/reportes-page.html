@@ -184,7 +184,39 @@
   <!-- Categoría con más gasto por mes -->
   @if (pestana() === 'ranking') {
     <div class="card mb-5">
-      <h2 class="section-title">Categoría con más gasto de cada mes</h2>
+      <div class="mb-3 flex flex-wrap items-center gap-3">
+        <h2 class="section-title mb-0 min-w-48 flex-1">Categoría con más gasto de cada mes</h2>
+        <button type="button" class="btn btn-sm" (click)="verGraficaRanking.set(!verGraficaRanking())">
+          {{ verGraficaRanking() ? 'Ver tabla' : 'Ver gráfica' }}
+        </button>
+      </div>
+
+      @if (verGraficaRanking()) {
+        <ul class="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
+          @for (l of leyendaRanking(); track l.nombre) {
+            <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm" [style.background-color]="l.color"></span> {{ l.nombre }}</li>
+          }
+        </ul>
+        <svg [attr.viewBox]="'0 0 ' + w + ' ' + h" class="h-auto w-full" role="img"
+             aria-label="Gasto de la categoría principal de cada mes, últimos 12 meses">
+          @for (t of ticksRanking(); track t.y) {
+            <line [attr.x1]="margen.izq" [attr.x2]="w - margen.der" [attr.y1]="t.y" [attr.y2]="t.y" class="stroke-line" stroke-width="1" />
+            <text [attr.x]="margen.izq - 8" [attr.y]="t.y + 4" text-anchor="end" class="fill-muted" font-size="11">{{ t.etiqueta }}</text>
+          }
+          @for (b of barrasRanking(); track b.x) {
+            @if (b.alto > 0) {
+              <rect class="cursor-pointer" [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.ancho" [attr.height]="b.alto" rx="3"
+                    [style.fill]="b.color" [attr.opacity]="esMesRanking(b.anio, b.mes) ? 1 : 0.55"
+                    (click)="elegirMesRanking(b.anio, b.mes)">
+                <title>{{ b.titulo }}</title>
+              </rect>
+            }
+          }
+          @for (m of marcasRanking(); track m.x) {
+            <text [attr.x]="m.x" [attr.y]="h - 8" text-anchor="middle" class="fill-muted" font-size="11">{{ m.etiqueta }}</text>
+          }
+        </svg>
+      } @else {
       <div class="table-wrap">
         <table class="table">
           <thead><tr><th>Mes</th><th>Categoría</th><th class="!text-right">Gastado</th><th class="!text-right">% del mes</th></tr></thead>
@@ -211,6 +243,7 @@
           </tbody>
         </table>
       </div>
+      }
       <p class="mt-2 text-xs text-muted">Toca un mes para ver todas sus categorías.</p>
     </div>
 

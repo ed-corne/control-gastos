@@ -68,53 +68,66 @@
       @if (tipo() !== 'Transferencia' && !aporteMeta()) {
         <div class="field">
           <span class="field-label">Categoría</span>
-          @if (frecuentes().length) {
-            <div class="flex flex-wrap gap-2">
-              @for (c of frecuentes(); track c.id) {
-                <button type="button" (click)="elegirCategoria(c.id)" [attr.aria-pressed]="form.controls.categoriaId.value === c.id"
-                        class="inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm text-ink transition-colors"
-                        [class.border-primary]="form.controls.categoriaId.value === c.id"
-                        [class.bg-primary-soft]="form.controls.categoriaId.value === c.id"
-                        [class.border-line]="form.controls.categoriaId.value !== c.id">
-                  <app-icon [name]="c.icono" [size]="16" /> {{ c.nombre }}
-                </button>
-              }
-            </div>
-          }
-          <select class="input" formControlName="categoriaId" aria-label="Categoría">
-            <option value="">Selecciona…</option>
-            @for (c of categorias(); track c.id) {
-              <option [value]="c.id">{{ c.nombre }}</option>
+          <div class="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto p-0.5 sm:grid-cols-4" role="radiogroup" aria-label="Categoría">
+            @for (c of categoriasOrdenadas(); track c.id) {
+              <button type="button" role="radio" [attr.aria-checked]="form.controls.categoriaId.value === c.id"
+                      (click)="elegirCategoria(c.id)"
+                      class="flex flex-col items-center gap-1 rounded-xl border-2 px-1 py-2 text-center text-xs text-ink transition-colors"
+                      [class.border-primary]="form.controls.categoriaId.value === c.id"
+                      [class.bg-primary-soft]="form.controls.categoriaId.value === c.id"
+                      [class.border-line]="form.controls.categoriaId.value !== c.id">
+                <span class="icon-chip !size-9" [style.background-color]="c.color + '26'" [style.color]="c.color">
+                  <app-icon [name]="c.icono" [size]="18" />
+                </span>
+                <span class="w-full truncate">{{ c.nombre }}</span>
+              </button>
             }
-          </select>
+          </div>
         </div>
       }
 
       @if (!aporteMeta()) {
-      <label class="field">
-        <span class="field-label">{{ tipo() === 'Transferencia' ? 'Cuenta de origen' : 'Cuenta' }}</span>
-        <select class="input" formControlName="cuentaId">
-          <option value="">Selecciona…</option>
-          @for (c of cuentas(); track c.id) {
-            <option [value]="c.id">{{ c.nombre }}</option>
-          }
-        </select>
-      </label>
-
+        <div class="field">
+          <span class="field-label">{{ tipo() === 'Transferencia' ? 'Cuenta de origen' : 'Cuenta' }}</span>
+          <div class="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Cuenta">
+            @for (c of cuentas(); track c.id) {
+              <button type="button" role="radio" [attr.aria-checked]="form.controls.cuentaId.value === c.id"
+                      (click)="form.controls.cuentaId.setValue(c.id)"
+                      class="flex min-h-12 items-center gap-3 rounded-xl border-2 px-2 text-left text-sm text-ink transition-colors"
+                      [class.border-primary]="form.controls.cuentaId.value === c.id"
+                      [class.bg-primary-soft]="form.controls.cuentaId.value === c.id"
+                      [class.border-line]="form.controls.cuentaId.value !== c.id">
+                <span class="icon-chip !size-8" [style.background-color]="c.color + '26'" [style.color]="c.color">
+                  <app-icon [name]="c.icono" [size]="16" />
+                </span>
+                <span class="min-w-0 flex-1 truncate font-medium">{{ c.nombre }}</span>
+              </button>
+            }
+          </div>
+        </div>
       }
 
       @if (tipo() === 'Transferencia' && !aporteMeta()) {
-        <label class="field">
+        <div class="field">
           <span class="field-label">Cuenta destino</span>
-          <select class="input" formControlName="cuentaDestinoId">
-            <option value="">Selecciona…</option>
+          <div class="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Cuenta destino">
             @for (c of cuentas(); track c.id) {
               @if (c.id !== form.controls.cuentaId.value) {
-                <option [value]="c.id">{{ c.nombre }}</option>
+                <button type="button" role="radio" [attr.aria-checked]="form.controls.cuentaDestinoId.value === c.id"
+                        (click)="form.controls.cuentaDestinoId.setValue(c.id)"
+                        class="flex min-h-12 items-center gap-3 rounded-xl border-2 px-2 text-left text-sm text-ink transition-colors"
+                        [class.border-primary]="form.controls.cuentaDestinoId.value === c.id"
+                        [class.bg-primary-soft]="form.controls.cuentaDestinoId.value === c.id"
+                        [class.border-line]="form.controls.cuentaDestinoId.value !== c.id">
+                  <span class="icon-chip !size-8" [style.background-color]="c.color + '26'" [style.color]="c.color">
+                    <app-icon [name]="c.icono" [size]="16" />
+                  </span>
+                  <span class="min-w-0 flex-1 truncate font-medium">{{ c.nombre }}</span>
+                </button>
               }
             }
-          </select>
-        </label>
+          </div>
+        </div>
       }
 
       <div class="grid gap-4 sm:grid-cols-2">

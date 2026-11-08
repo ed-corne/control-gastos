@@ -29,6 +29,11 @@ interface Barra {
   titulo: string;
 }
 
+interface BarraRanking extends Barra {
+  anio: number;
+  mes: number;
+}
+
 interface Marca {
   x: number;
   etiqueta: string;
@@ -80,6 +85,50 @@ export class ReportesPage {
     const lista = this.ranking();
     return lista[this.rankingSel() ?? lista.length - 1] ?? null;
   });
+  protected readonly verGraficaRanking = signal(true);
+
+  protected readonly escalaRanking = computed(() =>
+    this.escalaNice(Math.max(0, ...this.ranking().map((r) => r.categorias[0]?.total ?? 0))),
+  );
+  protected readonly ticksRanking = computed(() => this.ticks(this.escalaRanking()));
+
+  protected readonly marcasRanking = computed<Marca[]>(() => {
+    const lista = this.ranking();
+    const slot = ANCHO / Math.max(1, lista.length);
+    return lista.map((r, i) => ({ x: MARGEN.izq + slot * (i + 0.5), etiqueta: this.etiquetaCorta(r.anio, r.mes) }));
+  });
+
+  /** Una barra por mes: alto = lo gastado en su categoría principal, color = el de esa categoría. */
+  protected readonly barrasRanking = computed<BarraRanking[]>(() => {
+    const lista = this.ranking();
+    const max = this.escalaRanking();
+    const slot = ANCHO / Math.max(1, lista.length);
+    const ancho = Math.min(28, slot - 8);
+    const base = MARGEN.arriba + ALTO;
+
+    return lista.map((r, i) => {
+      const top = r.total > 0 ? r.categorias[0] : null;
+      const alto = top ? (top.total / max) * ALTO : 0;
+      const etiqueta = this.etiquetaCorta(r.anio, r.mes);
+      return {
+        anio: r.anio, mes: r.mes,
+        x: MARGEN.izq + slot * (i + 0.5) - ancho / 2, y: base - alto, alto, ancho,
+        color: top?.color ?? 'transparent',
+        titulo: top ? `${etiqueta} · ${top.nombre}: ${this.moneda(top.total)} (${top.porcentaje}% del mes)` : `${etiqueta} · Sin gastos`,
+      };
+    });
+  });
+
+  /** Categorías que aparecen como la principal en algún mes, para la leyenda. */
+  protected readonly leyendaRanking = computed(() => {
+    const vistas = new Map<string, { nombre: string; color: string }>();
+    for (const r of this.ranking()) {
+      const top = r.total > 0 ? r.categorias[0] : null;
+      if (top && !vistas.has(top.categoriaId)) vistas.set(top.categoriaId, { nombre: top.nombre, color: top.color });
+    }
+    return [...vistas.values()];
+  });
+
   protected readonly maxRanking = computed(() => Math.max(1, ...(this.rankingMes()?.categorias.map((c) => c.total) ?? [])));
   protected readonly meses = signal<IngresosGastosMes[]>([]);
   protected readonly verTablaBarras = signal(false);
