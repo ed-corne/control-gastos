@@ -1,6 +1,7 @@
 using ControlGastos.Application.Categorias;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Application.Movimientos;
+using ControlGastos.Application.Presupuestos;
 using ControlGastos.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<ICuentaRepository, CuentaRepository>();
         services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         services.AddScoped<IMovimientoRepository, MovimientoRepository>();
+        services.AddScoped<IPresupuestoRepository, PresupuestoRepository>();
         return services;
     }
 }

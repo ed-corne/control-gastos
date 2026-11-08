@@ -10,6 +10,10 @@ public interface IMovimientoRepository
     Task ActualizarAsync(Movimiento movimiento, CancellationToken ct);
     Task<bool> EliminarAsync(Guid id, CancellationToken ct);
 
+    /// <summary>Total por categoría de los ingresos o gastos del periodo (las transferencias no cuentan).</summary>
+    Task<IReadOnlyDictionary<Guid, decimal>> TotalesPorCategoriaAsync(
+        TipoMovimiento tipo, DateOnly desde, DateOnly hasta, CancellationToken ct);
+
     Task<Guid?> UltimaCuentaUsadaAsync(CancellationToken ct);
     Task<IReadOnlyList<Guid>> CategoriasFrecuentesAsync(TipoMovimiento tipo, int cantidad, CancellationToken ct);
 }

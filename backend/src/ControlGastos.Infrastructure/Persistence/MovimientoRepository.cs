@@ -63,6 +63,17 @@ public class MovimientoRepository(AppDbContext db) : IMovimientoRepository
     public async Task<bool> EliminarAsync(Guid id, CancellationToken ct) =>
         await db.Movimientos.Where(m => m.Id == id).ExecuteDeleteAsync(ct) > 0;
 
+    public async Task<IReadOnlyDictionary<Guid, decimal>> TotalesPorCategoriaAsync(
+        TipoMovimiento tipo, DateOnly desde, DateOnly hasta, CancellationToken ct)
+    {
+        var texto = tipo.ToString();
+        return await db.Movimientos.AsNoTracking()
+            .Where(m => m.Tipo == texto && m.CategoriaId != null && m.Fecha >= desde && m.Fecha <= hasta)
+            .GroupBy(m => m.CategoriaId!.Value)
+            .Select(g => new { g.Key, Total = g.Sum(m => m.Monto) })
+            .ToDictionaryAsync(x => x.Key, x => x.Total, ct);
+    }
+
     public Task<Guid?> UltimaCuentaUsadaAsync(CancellationToken ct) =>
         db.Movimientos.AsNoTracking()
             .OrderByDescending(m => m.FechaCreacion)

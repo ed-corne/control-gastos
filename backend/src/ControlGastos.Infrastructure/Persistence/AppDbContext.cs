@@ -18,6 +18,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Movimiento> Movimientos { get; set; }
 
+    public virtual DbSet<Presupuesto> Presupuestos { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Categoria>(entity =>
@@ -131,6 +133,30 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.CuentaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_movimientos_cuenta");
+        });
+
+        modelBuilder.Entity<Presupuesto>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_presupuestos");
+
+            entity.ToTable("presupuestos");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.Anio).HasColumnName("anio");
+            entity.Property(e => e.CategoriaId).HasColumnName("categoria_id");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.Mes).HasColumnName("mes");
+            entity.Property(e => e.Monto)
+                .HasPrecision(18, 2)
+                .HasColumnName("monto");
+
+            entity.HasOne(d => d.Categoria).WithMany(p => p.Presupuestos)
+                .HasForeignKey(d => d.CategoriaId)
+                .HasConstraintName("fk_presupuestos_categoria");
         });
 
         OnModelCreatingPartial(modelBuilder);
