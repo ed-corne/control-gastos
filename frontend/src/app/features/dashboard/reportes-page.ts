@@ -6,7 +6,7 @@ import { CategoriasService } from '../categorias/categorias.service';
 import { ConfiguracionStore } from '../../core/configuracion.store';
 import { IconComponent } from '../../core/icon.component';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
-import { ComparativoMensual, IngresosGastosMes, SerieCategoria } from './dashboard.model';
+import { ComparativoMensual, IngresosGastosMes, RankingMes, SerieCategoria } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
 
 // Geometría compartida por los gráficos
@@ -51,11 +51,12 @@ interface Punto {
   templateUrl: './reportes-page.html',
 })
 export class ReportesPage {
-  protected readonly pestana = signal<'barras' | 'categoria' | 'comparativo'>('barras');
+  protected readonly pestana = signal<'barras' | 'categoria' | 'comparativo' | 'ranking'>('barras');
   protected readonly pestanas = [
     { id: 'barras', etiqueta: 'Ingresos y gastos' },
     { id: 'categoria', etiqueta: 'Por categoría' },
     { id: 'comparativo', etiqueta: 'Mes contra mes' },
+    { id: 'ranking', etiqueta: 'Categoría con más gasto' },
   ] as const;
 
   private readonly api = inject(DashboardService);
@@ -70,6 +71,16 @@ export class ReportesPage {
   protected readonly colorGastos = COLOR_GASTOS;
 
   protected readonly error = signal('');
+
+  // Categoría con más gasto de cada mes
+  protected readonly ranking = signal<RankingMes[]>([]);
+  protected readonly rankingSel = signal<number | null>(null); // índice; null = el mes más reciente
+  protected readonly rankingMesesDesc = computed(() => [...this.ranking()].reverse());
+  protected readonly rankingMes = computed(() => {
+    const lista = this.ranking();
+    return lista[this.rankingSel() ?? lista.length - 1] ?? null;
+  });
+  protected readonly maxRanking = computed(() => Math.max(1, ...(this.rankingMes()?.categorias.map((c) => c.total) ?? [])));
   protected readonly meses = signal<IngresosGastosMes[]>([]);
   protected readonly verTablaBarras = signal(false);
   protected readonly categorias = signal<Categoria[]>([]);
@@ -177,6 +188,15 @@ export class ReportesPage {
     });
   }
 
+  protected elegirMesRanking(anio: number, mes: number): void {
+    this.rankingSel.set(this.ranking().findIndex((r) => r.anio === anio && r.mes === mes));
+  }
+
+  protected esMesRanking(anio: number, mes: number): boolean {
+    const r = this.rankingMes();
+    return !!r && r.anio === anio && r.mes === mes;
+  }
+
   protected mesAnterior(): void {
     this.moverMes(-1);
   }
@@ -213,6 +233,10 @@ export class ReportesPage {
       error: () => this.error.set('No se pudieron cargar los reportes. ¿Está corriendo la API?'),
     });
     this.cargarComparativo();
+    this.api.rankingCategorias(12).subscribe({
+      next: (r) => this.ranking.set(r),
+      error: () => this.ranking.set([]),
+    });
     if (this.categoriaId()) this.elegirCategoria(this.categoriaId());
   }
 

@@ -62,3 +62,19 @@ export interface ComparativoMensual {
   variacionPorcentaje: number | null;
   categorias: ComparativoCategoria[];
 }
+
+export interface RankingCategoria {
+  categoriaId: string;
+  nombre: string;
+  color: string;
+  icono: string;
+  total: number;
+  porcentaje: number;
+}
+
+export interface RankingMes {
+  anio: number;
+  mes: number;
+  total: number;
+  categorias: RankingCategoria[];
+}

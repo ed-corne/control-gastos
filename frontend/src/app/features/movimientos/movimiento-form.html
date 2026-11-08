@@ -10,17 +10,24 @@
       </header>
 
       <!-- Tipo -->
-      <div class="grid grid-cols-3 gap-1 rounded-xl border border-line bg-bg p-1" role="group" aria-label="Tipo de movimiento">
+      <div class="grid gap-1 rounded-xl border border-line bg-bg p-1" [class.grid-cols-3]="estado.modo() === 'editar'" [class.grid-cols-4]="estado.modo() !== 'editar'" role="group" aria-label="Tipo de movimiento">
         @for (t of tipos; track t) {
-          <button type="button" (click)="cambiarTipo(t)" [attr.aria-pressed]="tipo() === t"
+          <button type="button" (click)="cambiarTipo(t)" [attr.aria-pressed]="tipo() === t && !aporteMeta()"
                   class="min-h-10 rounded-lg px-2 text-sm font-medium transition-colors"
-                  [class.bg-danger]="tipo() === t && t === 'Gasto'"
-                  [class.bg-success]="tipo() === t && t === 'Ingreso'"
-                  [class.bg-primary]="tipo() === t && t === 'Transferencia'"
-                  [class.text-bg]="tipo() === t && t !== 'Transferencia'"
-                  [class.text-on-primary]="tipo() === t && t === 'Transferencia'"
-                  [class.text-muted]="tipo() !== t">
+                  [class.bg-danger]="tipo() === t && !aporteMeta() && t === 'Gasto'"
+                  [class.bg-success]="tipo() === t && !aporteMeta() && t === 'Ingreso'"
+                  [class.bg-primary]="tipo() === t && !aporteMeta() && t === 'Transferencia'"
+                  [class.text-bg]="tipo() === t && !aporteMeta() && t !== 'Transferencia'"
+                  [class.text-on-primary]="tipo() === t && !aporteMeta() && t === 'Transferencia'"
+                  [class.text-muted]="tipo() !== t || aporteMeta()">
             {{ t }}
+          </button>
+        }
+        @if (estado.modo() !== 'editar') {
+          <button type="button" (click)="elegirMeta()" [attr.aria-pressed]="aporteMeta()"
+                  class="min-h-10 rounded-lg px-1 text-sm font-medium transition-colors"
+                  [class.bg-primary]="aporteMeta()" [class.text-on-primary]="aporteMeta()" [class.text-muted]="!aporteMeta()">
+            Meta
           </button>
         }
       </div>
@@ -31,7 +38,34 @@
                formControlName="monto" placeholder="0.00" autofocus />
       </label>
 
-      @if (tipo() !== 'Transferencia') {
+      @if (aporteMeta()) {
+        <div class="field">
+          <span class="field-label">Meta de ahorro</span>
+          @if (metas().length === 0) {
+            <p class="text-sm text-muted">No tienes metas activas. Crea una en “Metas de ahorro”.</p>
+          } @else {
+            <div class="grid max-h-52 gap-1.5 overflow-y-auto" role="radiogroup" aria-label="Meta de ahorro">
+              @for (m of metas(); track m.id) {
+                <button type="button" role="radio" [attr.aria-checked]="form.controls.metaId.value === m.id"
+                        (click)="form.controls.metaId.setValue(m.id)"
+                        class="flex min-h-12 items-center gap-3 rounded-xl border-2 px-2 text-left text-sm text-ink"
+                        [class.border-primary]="form.controls.metaId.value === m.id" [class.bg-primary-soft]="form.controls.metaId.value === m.id"
+                        [class.border-line]="form.controls.metaId.value !== m.id">
+                  <span class="icon-chip !size-8" [style.background-color]="m.color + '26'" [style.color]="m.color">
+                    <app-icon [name]="m.icono" [size]="16" />
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium">{{ m.nombre }}</span>
+                    <span class="block text-xs text-muted">Llevas {{ m.porcentaje }}% de la meta</span>
+                  </span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (tipo() !== 'Transferencia' && !aporteMeta()) {
         <div class="field">
           <span class="field-label">Categoría</span>
           @if (frecuentes().length) {
@@ -56,6 +90,7 @@
         </div>
       }
 
+      @if (!aporteMeta()) {
       <label class="field">
         <span class="field-label">{{ tipo() === 'Transferencia' ? 'Cuenta de origen' : 'Cuenta' }}</span>
         <select class="input" formControlName="cuentaId">
@@ -66,7 +101,9 @@
         </select>
       </label>
 
-      @if (tipo() === 'Transferencia') {
+      }
+
+      @if (tipo() === 'Transferencia' && !aporteMeta()) {
         <label class="field">
           <span class="field-label">Cuenta destino</span>
           <select class="input" formControlName="cuentaDestinoId">
@@ -86,7 +123,7 @@
           <input class="input" type="date" formControlName="fecha" [max]="hoy" />
         </label>
         <label class="field">
-          <span class="field-label">Descripción (opcional)</span>
+          <span class="field-label">{{ aporteMeta() ? 'Nota (opcional)' : 'Descripción (opcional)' }}</span>
           <input class="input" type="text" formControlName="descripcion" maxlength="500" />
         </label>
       </div>

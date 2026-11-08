@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ComparativoMensual, Dashboard, IngresosGastosMes, SerieCategoria } from './dashboard.model';
+import { ComparativoMensual, Dashboard, IngresosGastosMes, RankingMes, SerieCategoria } from './dashboard.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -25,6 +25,11 @@ export class DashboardService {
   serieCategoria(id: string, meses = 12): Observable<SerieCategoria> {
     const params = new HttpParams().set('meses', meses);
     return this.http.get<SerieCategoria>(`${this.api}/reportes/categoria/${id}`, { params });
+  }
+
+  rankingCategorias(meses = 12): Observable<RankingMes[]> {
+    const params = new HttpParams().set('meses', meses);
+    return this.http.get<RankingMes[]>(`${this.api}/reportes/ranking-categorias`, { params });
   }
 
   comparativo(anio: number, mes: number): Observable<ComparativoMensual> {

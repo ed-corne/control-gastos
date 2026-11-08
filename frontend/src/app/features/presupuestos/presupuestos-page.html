@@ -36,17 +36,36 @@
       }
 
       @if (!editandoId()) {
-        <label class="field">
+        <div class="field">
           <span class="field-label">Categoría</span>
-          <select class="input" formControlName="categoriaId">
+          <div class="grid max-h-60 gap-1.5 overflow-y-auto rounded-xl border border-line bg-bg p-1.5" role="radiogroup" aria-label="Categoría">
             @if (!hayGlobal()) {
-              <option value="">Presupuesto global (todo el mes)</option>
+              <button type="button" role="radio" [attr.aria-checked]="!form.controls.categoriaId.value"
+                      (click)="form.controls.categoriaId.setValue('')"
+                      class="flex min-h-11 items-center gap-3 rounded-lg border-2 px-2 text-left text-sm text-ink"
+                      [class.border-primary]="!form.controls.categoriaId.value" [class.bg-primary-soft]="!form.controls.categoriaId.value"
+                      [class.border-transparent]="!!form.controls.categoriaId.value">
+                <span class="icon-chip !size-8"><app-icon name="target" [size]="16" /></span>
+                Presupuesto global (todo el mes)
+              </button>
             }
             @for (c of disponibles(); track c.id) {
-              <option [value]="c.id">{{ c.nombre }}</option>
+              <button type="button" role="radio" [attr.aria-checked]="form.controls.categoriaId.value === c.id"
+                      (click)="form.controls.categoriaId.setValue(c.id)"
+                      class="flex min-h-11 items-center gap-3 rounded-lg border-2 px-2 text-left text-sm text-ink"
+                      [class.border-primary]="form.controls.categoriaId.value === c.id" [class.bg-primary-soft]="form.controls.categoriaId.value === c.id"
+                      [class.border-transparent]="form.controls.categoriaId.value !== c.id">
+                <span class="icon-chip !size-8" [style.background-color]="c.color + '26'" [style.color]="c.color">
+                  <app-icon [name]="c.icono" [size]="16" />
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate">{{ c.nombre }}</span>
+                  @if (c.comentario) { <span class="block truncate text-xs text-muted">{{ c.comentario }}</span> }
+                </span>
+              </button>
             }
-          </select>
-        </label>
+          </div>
+        </div>
       }
 
       <label class="field">

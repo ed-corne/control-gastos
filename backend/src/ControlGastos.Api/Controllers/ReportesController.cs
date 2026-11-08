@@ -20,6 +20,11 @@ public class ReportesController(ReporteService servicio) : ControllerBase
         return serie is null ? NotFound() : Ok(serie);
     }
 
+    [HttpGet("ranking-categorias")]
+    public async Task<ActionResult<IReadOnlyList<RankingMesDto>>> RankingCategorias(
+        [FromQuery] int meses = 12, CancellationToken ct = default) =>
+        Ok(await servicio.RankingCategoriasAsync(meses, ct));
+
     [HttpGet("comparativo")]
     public async Task<ActionResult<ComparativoMensualDto>> Comparativo(
         [FromQuery] int anio, [FromQuery] int mes, CancellationToken ct) =>

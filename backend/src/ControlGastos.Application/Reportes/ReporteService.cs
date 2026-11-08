@@ -77,6 +77,39 @@ public class ReporteService(IMovimientoRepository movimientos, ICategoriaReposit
         return new ComparativoMensualDto(anio, mes, totalActual, totalAnterior, Variacion(totalActual, totalAnterior), filas);
     }
 
+    /// <summary>
+    /// Por cada uno de los últimos N meses, todas las categorías de gasto ordenadas por lo gastado.
+    /// Las categorías archivadas solo aparecen si tuvieron gasto ese mes.
+    /// </summary>
+    public async Task<IReadOnlyList<RankingMesDto>> RankingCategoriasAsync(int meses, CancellationToken ct)
+    {
+        var (_, _, lista) = Rango(meses);
+        var todas = await categorias.ListarAsync(TipoCategoria.Gasto, true, ct);
+        var resultado = new List<RankingMesDto>();
+
+        foreach (var inicio in lista)
+        {
+            var totales = await movimientos.TotalesPorCategoriaAsync(
+                TipoMovimiento.Gasto, inicio, inicio.AddMonths(1).AddDays(-1), ct);
+            var total = totales.Values.Sum();
+
+            var filas = todas
+                .Where(c => !c.Archivada || totales.ContainsKey(c.Id))
+                .Select(c =>
+                {
+                    var t = totales.GetValueOrDefault(c.Id);
+                    return new RankingCategoriaDto(c.Id, c.Nombre, c.Color, c.Icono, t,
+                        total == 0 ? 0 : decimal.Round(t / total * 100, 1));
+                })
+                .OrderByDescending(f => f.Total).ThenBy(f => f.Nombre)
+                .ToList();
+
+            resultado.Add(new RankingMesDto(inicio.Year, inicio.Month, total, filas));
+        }
+
+        return resultado;
+    }
+
     private static decimal? Variacion(decimal actual, decimal anterior) =>
         anterior == 0 ? null : decimal.Round((actual - anterior) / anterior * 100, 1);
 

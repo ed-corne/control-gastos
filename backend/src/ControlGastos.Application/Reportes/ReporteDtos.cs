@@ -24,6 +24,12 @@ public sealed record ComparativoCategoriaDto(
     /// <summary>Null cuando el mes anterior fue 0 (no hay base para calcular el porcentaje).</summary>
     decimal? VariacionPorcentaje);
 
+public sealed record RankingCategoriaDto(
+    Guid CategoriaId, string Nombre, string Color, string Icono, decimal Total, decimal Porcentaje);
+
+/// <summary>Gasto de un mes por categoría, de mayor a menor; la primera es la que más gasto se llevó.</summary>
+public sealed record RankingMesDto(int Anio, int Mes, decimal Total, IReadOnlyList<RankingCategoriaDto> Categorias);
+
 public sealed record ComparativoMensualDto(
     int Anio,
     int Mes,

@@ -180,4 +180,71 @@
     }
   </div>
   }
+
+  <!-- Categoría con más gasto por mes -->
+  @if (pestana() === 'ranking') {
+    <div class="card mb-5">
+      <h2 class="section-title">Categoría con más gasto de cada mes</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Mes</th><th>Categoría</th><th class="!text-right">Gastado</th><th class="!text-right">% del mes</th></tr></thead>
+          <tbody>
+            @for (r of rankingMesesDesc(); track r.anio + '-' + r.mes) {
+              <tr class="cursor-pointer" [class.bg-surface-2]="esMesRanking(r.anio, r.mes)" (click)="elegirMesRanking(r.anio, r.mes)">
+                <td class="first-letter:uppercase">{{ etiquetaMesTabla(r.anio, r.mes) }}</td>
+                @if (r.total > 0) {
+                  <td>
+                    <span class="inline-flex items-center gap-2">
+                      <span class="icon-chip !size-7" [style.background-color]="r.categorias[0].color + '26'" [style.color]="r.categorias[0].color">
+                        <app-icon [name]="r.categorias[0].icono" [size]="14" />
+                      </span>
+                      {{ r.categorias[0].nombre }}
+                    </span>
+                  </td>
+                  <td class="num text-right">{{ r.categorias[0].total | dinero }}</td>
+                  <td class="num text-right">{{ r.categorias[0].porcentaje }}%</td>
+                } @else {
+                  <td class="text-muted" colspan="3">Sin gastos</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-2 text-xs text-muted">Toca un mes para ver todas sus categorías.</p>
+    </div>
+
+    @if (rankingMes(); as m) {
+      <div class="card">
+        <h2 class="section-title first-letter:uppercase">{{ etiquetaMesTabla(m.anio, m.mes) }} · todas las categorías</h2>
+        @if (m.total === 0) {
+          <p class="empty !py-4">No hay gastos en este mes.</p>
+        } @else {
+          <ol class="grid gap-3">
+            @for (c of m.categorias; track c.categoriaId; let i = $index) {
+              <li class="grid gap-1" [class.opacity-50]="c.total === 0">
+                <div class="flex items-center gap-3 text-sm">
+                  <span class="num w-5 text-right text-muted">{{ i + 1 }}</span>
+                  <span class="icon-chip !size-8" [style.background-color]="c.color + '26'" [style.color]="c.color">
+                    <app-icon [name]="c.icono" [size]="16" />
+                  </span>
+                  <span class="flex-1 font-medium text-ink">
+                    {{ c.nombre }}
+                    @if (i === 0 && c.total > 0) {
+                      <span class="ml-1 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning">Más gasto</span>
+                    }
+                  </span>
+                  <span class="num text-ink">{{ c.total | dinero }}</span>
+                  <span class="num w-12 text-right text-muted">{{ c.porcentaje }}%</span>
+                </div>
+                <div class="progress ml-8 !h-2">
+                  <div class="h-full rounded-full" [style.background-color]="c.color" [style.width.%]="(c.total / maxRanking()) * 100"></div>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    }
+  }
 </section>

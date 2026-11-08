@@ -1,12 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { hoyIso } from '../movimientos/movimiento.model';
 import { IconComponent, ICONOS_META_CLAVES } from '../../core/icon.component';
 import { ModalComponent } from '../../shared/modal.component';
 import { Meta, OperacionMeta, TipoOperacionMeta } from './meta.model';
+import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { MetasService } from './metas.service';
 
 @Component({
@@ -16,6 +17,7 @@ import { MetasService } from './metas.service';
 })
 export class MetasPage {
   private readonly api = inject(MetasService);
+  private readonly movimientos = inject(MovimientosEstado);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly iconos = ICONOS_META_CLAVES;
@@ -54,7 +56,11 @@ export class MetasPage {
   });
 
   constructor() {
-    this.cargar();
+    // Los aportes también se pueden registrar desde el formulario global de movimientos.
+    effect(() => {
+      this.movimientos.cambios();
+      untracked(() => this.cargar());
+    });
   }
 
   protected alternarHistorialMetas(cumplidas: boolean): void {

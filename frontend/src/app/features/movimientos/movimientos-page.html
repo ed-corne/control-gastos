@@ -61,7 +61,10 @@
   }
 
   @if (!cargando() && items().length === 0) {
-    <p class="empty">No hay movimientos. Usa el botón “+” para registrar el primero.</p>
+    <div class="empty grid justify-items-center gap-3">
+      <img src="icono-256.png" alt="" class="size-24 opacity-90" />
+      <p>No hay movimientos. Usa el botón “+” para registrar el primero.</p>
+    </div>
   }
 
   @for (g of grupos(); track g.fecha) {

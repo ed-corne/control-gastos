@@ -7,6 +7,8 @@ import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { Cuenta } from '../cuentas/cuenta.model';
 import { CuentasService } from '../cuentas/cuentas.service';
+import { Meta } from '../metas/meta.model';
+import { MetasService } from '../metas/metas.service';
 import { GuardarMovimiento, Sugerencias, TipoMovimiento, hoyIso } from './movimiento.model';
 import { MovimientosEstado } from './movimientos-estado';
 import { MovimientosService } from './movimientos.service';
@@ -20,6 +22,7 @@ export class MovimientoForm {
   protected readonly estado = inject(MovimientosEstado);
   private readonly api = inject(MovimientosService);
   private readonly cuentasApi = inject(CuentasService);
+  private readonly metasApi = inject(MetasService);
   private readonly categoriasApi = inject(CategoriasService);
   private readonly fb = inject(FormBuilder).nonNullable;
 
@@ -28,12 +31,16 @@ export class MovimientoForm {
   protected readonly cuentas = signal<Cuenta[]>([]);
   protected readonly categoriasGasto = signal<Categoria[]>([]);
   protected readonly categoriasIngreso = signal<Categoria[]>([]);
+  /** Pestaña “Meta”: en lugar de un movimiento, registra un aporte a una meta de ahorro. */
+  protected readonly aporteMeta = signal(false);
+  protected readonly metas = signal<Meta[]>([]);
   protected readonly sugerencias = signal<Sugerencias | null>(null);
   protected readonly error = signal('');
   protected readonly guardando = signal(false);
   protected readonly hoy = hoyIso();
 
   protected readonly titulo = computed(() => {
+    if (this.aporteMeta()) return 'Aportar a una meta';
     const modo = this.estado.modo();
     return modo === 'editar' ? 'Editar movimiento' : modo === 'duplicar' ? 'Duplicar movimiento' : 'Nuevo movimiento';
   });
@@ -58,6 +65,7 @@ export class MovimientoForm {
     cuentaId: ['', Validators.required],
     cuentaDestinoId: [''],
     categoriaId: [''],
+    metaId: [''],
   });
 
   constructor() {
@@ -66,7 +74,14 @@ export class MovimientoForm {
     });
   }
 
+  protected elegirMeta(): void {
+    this.aporteMeta.set(true);
+    this.error.set('');
+    if (!this.form.controls.metaId.value) this.form.controls.metaId.setValue(this.metas()[0]?.id ?? '');
+  }
+
   protected cambiarTipo(t: TipoMovimiento): void {
+    this.aporteMeta.set(false);
     this.tipo.set(t);
     this.form.controls.categoriaId.setValue('');
   }
@@ -81,6 +96,10 @@ export class MovimientoForm {
 
   protected guardar(): void {
     this.error.set('');
+    if (this.aporteMeta()) {
+      this.guardarAporte();
+      return;
+    }
     const v = this.form.getRawValue();
     const esTransferencia = this.tipo() === 'Transferencia';
 
@@ -120,19 +139,50 @@ export class MovimientoForm {
     });
   }
 
+  private guardarAporte(): void {
+    const v = this.form.getRawValue();
+    if (this.form.controls.monto.invalid || !v.metaId) {
+      this.form.markAllAsTouched();
+      this.error.set('Indica el monto y la meta a la que quieres aportar.');
+      return;
+    }
+    this.guardando.set(true);
+    this.metasApi
+      .registrarOperacion(v.metaId, {
+        tipo: 'Aportacion',
+        monto: Number(v.monto),
+        fecha: v.fecha,
+        nota: v.descripcion.trim() || null,
+      })
+      .subscribe({
+        next: () => {
+          this.guardando.set(false);
+          this.estado.cerrar();
+          this.estado.notificarCambio();
+        },
+        error: (e) => {
+          this.guardando.set(false);
+          this.error.set(this.mensaje(e));
+        },
+      });
+  }
+
   private iniciar(): void {
     this.error.set('');
+    this.aporteMeta.set(false);
     forkJoin({
       cuentas: this.cuentasApi.listar(false),
       gasto: this.categoriasApi.listar('Gasto', false),
       ingreso: this.categoriasApi.listar('Ingreso', false),
       sugerencias: this.api.sugerencias(),
+      metas: this.metasApi.listar(false),
     }).subscribe({
       next: (r) => {
         this.cuentas.set(r.cuentas);
         this.categoriasGasto.set(r.gasto);
         this.categoriasIngreso.set(r.ingreso);
         this.sugerencias.set(r.sugerencias);
+        this.metas.set(r.metas);
         this.llenarFormulario(r.cuentas, r.sugerencias);
       },
       error: () => this.error.set('No se pudieron cargar los datos. ¿Está corriendo la API?'),
@@ -152,6 +202,7 @@ export class MovimientoForm {
         cuentaId: base.cuentaId,
         cuentaDestinoId: base.cuentaDestinoId ?? '',
         categoriaId: base.categoriaId ?? '',
+        metaId: '',
       });
       return;
     }
@@ -166,6 +217,7 @@ export class MovimientoForm {
       cuentaId: cuentaInicial,
       cuentaDestinoId: '',
       categoriaId: '',
+      metaId: '',
     });
   }
 
@@ -177,6 +229,6 @@ export class MovimientoForm {
         if (primero) return primero;
       }
     }
-    return 'No se pudo guardar el movimiento.';
+    return this.aporteMeta() ? 'No se pudo registrar el aporte.' : 'No se pudo guardar el movimiento.';
   }
 }
