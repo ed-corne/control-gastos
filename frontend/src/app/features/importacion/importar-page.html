@@ -1,0 +1,138 @@
+<section class="importar">
+  <h2>Importar movimientos</h2>
+  <p class="ayuda">
+    Sube un archivo <b>CSV</b> (por ejemplo, tu hoja de cálculo anterior guardada como CSV). La primera fila debe ser el encabezado.
+    Antes de guardar podrás revisar el resultado.
+  </p>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (!nombreArchivo()) {
+    <label class="subir">
+      <input type="file" accept=".csv,text/csv,text/plain" (change)="elegirArchivo($event)" />
+    </label>
+  } @else {
+    <p class="archivo">
+      📄 <b>{{ nombreArchivo() }}</b> · {{ datos().length }} filas
+      <button type="button" (click)="reiniciar()">Cambiar archivo</button>
+    </p>
+
+    @if (yaImportado()) {
+      @if (resultado(); as r) {
+        <div class="exito">
+          <strong>Importación terminada</strong>
+          <p>Se importaron {{ r.importadas }} movimientos. {{ r.duplicadas }} duplicados y {{ r.conError }} filas con error no se importaron.</p>
+          <button type="button" class="primario" (click)="reiniciar()">Importar otro archivo</button>
+        </div>
+      }
+    } @else {
+      <!-- Vista previa -->
+      <h3>Vista previa</h3>
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              @for (h of encabezados(); track $index) {
+                <th>{{ h }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of vistaPrevia(); track $index) {
+              <tr>
+                @for (c of fila; track $index) {
+                  <td>{{ c }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Relacionar columnas con campos -->
+      <h3>Relaciona las columnas</h3>
+      <div class="mapeo">
+        @for (campo of campos; track campo.clave) {
+          <label>
+            {{ campo.etiqueta }}@if (campo.obligatorio) { <span class="req">*</span> }
+            <select [value]="mapeo()[campo.clave]" (change)="cambiarMapeo(campo.clave, $any($event.target).value)">
+              <option value="-1">{{ campo.obligatorio ? 'Selecciona una columna…' : '(no importar)' }}</option>
+              @for (h of encabezados(); track $index) {
+                <option [value]="$index">{{ h || 'Columna ' + ($index + 1) }}</option>
+              }
+            </select>
+          </label>
+        }
+      </div>
+
+      <h3>Opciones</h3>
+      <div class="opciones">
+        <label>
+          Formato de las fechas del archivo
+          <select [ngModel]="formatoFecha()" (ngModelChange)="formatoFecha.set($event)">
+            <option value="dd/MM/yyyy">día/mes/año (31/12/2026)</option>
+            <option value="MM/dd/yyyy">mes/día/año (12/31/2026)</option>
+            <option value="yyyy-MM-dd">año-mes-día (2026-12-31)</option>
+          </select>
+        </label>
+
+        <label>
+          Cuenta cuando la fila no trae una válida
+          <select [ngModel]="cuentaPredeterminadaId()" (ngModelChange)="cuentaPredeterminadaId.set($event)">
+            <option value="">(ninguna: esas filas darán error)</option>
+            @for (c of cuentas(); track c.id) {
+              <option [value]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </label>
+
+        @if (mapeo().tipo < 0) {
+          <label class="check">
+            <input type="checkbox" [ngModel]="positivosSonGastos()" (ngModelChange)="positivosSonGastos.set($event)" />
+            Los montos positivos son gastos (los negativos serán ingresos)
+          </label>
+        }
+
+        <label class="check">
+          <input type="checkbox" [ngModel]="omitirDuplicados()" (ngModelChange)="omitirDuplicados.set($event)" />
+          Omitir posibles duplicados (misma fecha, monto y cuenta)
+        </label>
+      </div>
+
+      <div class="acciones">
+        <button type="button" (click)="revisar()" [disabled]="!listo() || trabajando()">Revisar</button>
+        <button type="button" class="primario" (click)="importar()" [disabled]="!listo() || trabajando() || !resultado()">
+          Importar
+        </button>
+      </div>
+      @if (!resultado()) {
+        <small class="ayuda">Pulsa “Revisar” para ver qué se importaría antes de guardar.</small>
+      }
+
+      <!-- Resultado de la revisión -->
+      @if (resultado(); as r) {
+        <div class="resumen">
+          <div><b>{{ r.validas }}</b> listas</div>
+          <div><b>{{ r.duplicadas }}</b> posibles duplicados</div>
+          <div class="con-error"><b>{{ r.conError }}</b> con error</div>
+          <div>{{ r.total }} en total</div>
+        </div>
+
+        @if (filasConProblema().length > 0) {
+          <h3>Filas que requieren atención</h3>
+          <ul class="problemas">
+            @for (f of filasConProblema(); track f.numero) {
+              <li [attr.data-estado]="f.estado">
+                <span class="num">Fila {{ f.numero }}</span>
+                <span class="estado">{{ f.estado === 'Error' ? '⛔ Error' : f.estado === 'Duplicada' ? '⚠️ Duplicada' : 'ℹ️ Aviso' }}</span>
+                <span>{{ f.mensaje }}</span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  }
+</section>

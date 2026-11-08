@@ -91,6 +91,28 @@ public class MovimientoRepository(AppDbContext db) : IMovimientoRepository
         return filas.ToDictionary(f => (f.Year, f.Month), f => f.Total);
     }
 
+    public async Task AgregarVariosAsync(IReadOnlyList<Movimiento> lista, CancellationToken ct)
+    {
+        foreach (var m in lista)
+        {
+            var fila = new MovimientoEntity { Id = m.Id, FechaCreacion = m.FechaCreacion };
+            Copiar(m, fila);
+            db.Movimientos.Add(fila);
+        }
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<HashSet<(DateOnly Fecha, decimal Monto, Guid CuentaId)>> ObtenerClavesAsync(
+        DateOnly desde, DateOnly hasta, CancellationToken ct)
+    {
+        var filas = await db.Movimientos.AsNoTracking()
+            .Where(m => m.Tipo != "Transferencia" && m.Fecha >= desde && m.Fecha <= hasta)
+            .Select(m => new { m.Fecha, m.Monto, m.CuentaId })
+            .ToListAsync(ct);
+
+        return filas.Select(f => (f.Fecha, f.Monto, f.CuentaId)).ToHashSet();
+    }
+
     public Task<Guid?> UltimaCuentaUsadaAsync(CancellationToken ct) =>
         db.Movimientos.AsNoTracking()
             .OrderByDescending(m => m.FechaCreacion)

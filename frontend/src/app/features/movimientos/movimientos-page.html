@@ -1,7 +1,11 @@
 <section class="movimientos">
   <header class="cabecera">
     <h2>Movimientos</h2>
-    <button type="button" (click)="alternarFiltros()">{{ filtrosVisibles() ? 'Ocultar filtros' : 'Filtros' }}</button>
+    <div class="herramientas">
+      <button type="button" (click)="alternarFiltros()">{{ filtrosVisibles() ? 'Ocultar filtros' : 'Filtros' }}</button>
+      <button type="button" (click)="exportar()" title="Descarga los movimientos con los filtros aplicados">Exportar CSV</button>
+      <a routerLink="/importar" class="boton">Importar</a>
+    </div>
   </header>
 
   @if (filtrosVisibles()) {

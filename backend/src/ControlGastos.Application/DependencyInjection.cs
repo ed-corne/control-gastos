@@ -3,6 +3,7 @@ using ControlGastos.Application.Configuraciones;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Application.Dashboard;
 using ControlGastos.Application.Metas;
+using ControlGastos.Application.Importacion;
 using ControlGastos.Application.Movimientos;
 using ControlGastos.Application.Notificaciones;
 using ControlGastos.Application.Presupuestos;
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<MetaService>();
         services.AddScoped<ConfiguracionService>();
         services.AddScoped<RelojService>();
+        services.AddScoped<ImportacionService>();
         services.AddScoped<NotificacionService>();
         services.AddScoped<DashboardService>();
         services.AddScoped<ReporteService>();

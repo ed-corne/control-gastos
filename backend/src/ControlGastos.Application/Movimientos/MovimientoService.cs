@@ -3,6 +3,8 @@ using ControlGastos.Application.Common;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Domain.Categorias;
 using ControlGastos.Domain.Cuentas;
+using System.Globalization;
+using System.Text;
 using ControlGastos.Domain.Movimientos;
 
 namespace ControlGastos.Application.Movimientos;
@@ -54,6 +56,50 @@ public class MovimientoService(
     }
 
     public Task<bool> EliminarAsync(Guid id, CancellationToken ct) => movimientos.EliminarAsync(id, ct);
+
+    /// <summary>RF-IMP-01: exporta a CSV los movimientos que cumplen el filtro (sin paginar).</summary>
+    public async Task<string> ExportarCsvAsync(FiltroMovimientos filtro, CancellationToken ct)
+    {
+        const int Bloque = 5000;
+        var csv = new StringBuilder();
+        csv.Append("Fecha,Tipo,Monto,Categoria,Cuenta,CuentaDestino,Descripcion\r\n");
+
+        for (var pagina = 1; ; pagina++)
+        {
+            var (items, total) = await movimientos.ListarAsync(filtro with { Pagina = pagina, Tamano = Bloque }, ct);
+            foreach (var m in await AdtosAsync(items, ct))
+            {
+                csv.Append(string.Join(',',
+                    m.Fecha.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    m.Tipo,
+                    m.Monto.ToString("0.00", CultureInfo.InvariantCulture),
+                    Celda(m.CategoriaNombre),
+                    Celda(m.CuentaNombre),
+                    Celda(m.CuentaDestinoNombre),
+                    Celda(m.Descripcion))).Append("\r\n");
+            }
+
+            if (pagina * Bloque >= total) break;
+        }
+
+        return csv.ToString();
+    }
+
+    /// <summary>
+    /// Escapa una celda CSV. Si empieza con = + - @ se le antepone una comilla para que una hoja de cálculo
+    /// no la interprete como fórmula (inyección de fórmulas).
+    /// </summary>
+    private static string Celda(string? valor)
+    {
+        if (string.IsNullOrEmpty(valor)) return string.Empty;
+
+        if (valor[0] is '=' or '+' or '-' or '@' or '\t' or '\r')
+            valor = "'" + valor;
+
+        return valor.IndexOfAny([',', '"', '\n', '\r']) >= 0
+            ? "\"" + valor.Replace("\"", "\"\"") + "\""
+            : valor;
+    }
 
     /// <summary>RF-MOV-02: última cuenta usada y categorías más frecuentes para el registro rápido.</summary>
     public async Task<SugerenciasMovimientoDto> ObtenerSugerenciasAsync(CancellationToken ct)

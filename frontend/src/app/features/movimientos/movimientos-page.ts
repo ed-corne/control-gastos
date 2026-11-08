@@ -1,12 +1,13 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { DineroPipe } from '../../core/dinero.pipe';
 import { forkJoin } from 'rxjs';
 import { Categoria, ICONOS_CATEGORIA } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { Cuenta } from '../cuentas/cuenta.model';
 import { CuentasService } from '../cuentas/cuentas.service';
-import { FiltroMovimientos, Movimiento } from './movimiento.model';
+import { FiltroMovimientos, Movimiento, hoyIso } from './movimiento.model';
 import { MovimientosEstado } from './movimientos-estado';
 import { MovimientosService } from './movimientos.service';
 
@@ -18,7 +19,7 @@ interface GrupoDia {
 
 @Component({
   selector: 'app-movimientos-page',
-  imports: [ReactiveFormsModule, DineroPipe],
+  imports: [ReactiveFormsModule, DineroPipe, RouterLink],
   templateUrl: './movimientos-page.html',
   styleUrl: './movimientos-page.scss',
 })
@@ -110,6 +111,21 @@ export class MovimientosPage {
   protected cargarMas(): void {
     this.pagina.update((p) => p + 1);
     this.cargar(false);
+  }
+
+  protected exportar(): void {
+    this.error.set('');
+    this.api.exportar(this.filtroActual()).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = `movimientos-${hoyIso()}.csv`;
+        enlace.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.error.set('No se pudo exportar los movimientos.'),
+    });
   }
 
   protected eliminar(m: Movimiento): void {

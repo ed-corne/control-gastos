@@ -25,6 +25,17 @@ export class MovimientosService {
     return this.http.get<Pagina<Movimiento>>(this.url, { params });
   }
 
+  /** RF-IMP-01: descarga en CSV los movimientos que cumplen el filtro. */
+  exportar(filtro: FiltroMovimientos): Observable<Blob> {
+    let params = new HttpParams();
+    for (const [clave, valor] of Object.entries(filtro)) {
+      if (valor !== undefined && valor !== null && valor !== '') {
+        params = params.set(clave, String(valor));
+      }
+    }
+    return this.http.get(`${this.url}/exportar`, { params, responseType: 'blob' });
+  }
+
   sugerencias(): Observable<Sugerencias> {
     return this.http.get<Sugerencias>(`${this.url}/sugerencias`);
   }

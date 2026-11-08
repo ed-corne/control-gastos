@@ -14,6 +14,16 @@ public class MovimientosController(MovimientoService servicio) : ControllerBase
         [FromQuery] FiltroMovimientos filtro, CancellationToken ct) =>
         Ok(await servicio.ListarAsync(filtro, ct));
 
+    /// <summary>Descarga los movimientos filtrados en CSV (se abre directo en Excel).</summary>
+    [HttpGet("exportar")]
+    public async Task<IActionResult> Exportar([FromQuery] FiltroMovimientos filtro, CancellationToken ct)
+    {
+        var csv = await servicio.ExportarCsvAsync(filtro, ct);
+        // BOM UTF-8 para que Excel respete los acentos.
+        var bytes = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(csv)).ToArray();
+        return File(bytes, "text/csv; charset=utf-8", $"movimientos-{DateTime.Now:yyyyMMdd}.csv");
+    }
+
     [HttpGet("sugerencias")]
     public async Task<ActionResult<SugerenciasMovimientoDto>> Sugerencias(CancellationToken ct) =>
         Ok(await servicio.ObtenerSugerenciasAsync(ct));
