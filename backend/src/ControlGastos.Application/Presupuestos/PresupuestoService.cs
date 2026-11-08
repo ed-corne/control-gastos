@@ -1,5 +1,6 @@
 using ControlGastos.Application.Categorias;
 using ControlGastos.Application.Common;
+using ControlGastos.Application.Configuraciones;
 using ControlGastos.Application.Movimientos;
 using ControlGastos.Domain.Categorias;
 using ControlGastos.Domain.Movimientos;
@@ -10,7 +11,8 @@ namespace ControlGastos.Application.Presupuestos;
 public class PresupuestoService(
     IPresupuestoRepository presupuestos,
     IMovimientoRepository movimientos,
-    ICategoriaRepository categorias)
+    ICategoriaRepository categorias,
+    RelojService reloj)
 {
     /// <summary>RF-PRE-02: asignado, gastado, restante y porcentaje, calculados con los movimientos del mes.</summary>
     public async Task<IReadOnlyList<PresupuestoDto>> ListarAsync(int anio, int mes, CancellationToken ct)
@@ -20,7 +22,8 @@ public class PresupuestoService(
         var lista = await presupuestos.ListarAsync(anio, mes, ct);
         if (lista.Count == 0) return [];
 
-        var (desde, hasta) = Periodo(anio, mes);
+        // RF-PRE-04: el periodo empieza el día de inicio del mes financiero configurado.
+        var (desde, hasta) = await reloj.RangoAsync(anio, mes, ct);
         var gastosPorCategoria = await movimientos.TotalesPorCategoriaAsync(TipoMovimiento.Gasto, desde, hasta, ct);
         var totalGastos = gastosPorCategoria.Values.Sum();
         var porCategoria = (await categorias.ListarAsync(null, true, ct)).ToDictionary(c => c.Id);
@@ -79,7 +82,7 @@ public class PresupuestoService(
     {
         ValidarPeriodo(anio, mes);
 
-        var anterior = new DateOnly(anio, mes, 1).AddMonths(-1);
+        var anterior = new DateOnly(anio, mes, 1).AddMonths(-1); // mes calendario previo (solo año y mes)
         var origen = await presupuestos.ListarAsync(anterior.Year, anterior.Month, ct);
         if (origen.Count == 0)
             throw new ReglaNegocioException("El mes anterior no tiene presupuestos que copiar.");
@@ -98,7 +101,7 @@ public class PresupuestoService(
 
     private async Task<PresupuestoDto> ADtoAsync(Presupuesto p, CancellationToken ct)
     {
-        var (desde, hasta) = Periodo(p.Anio, p.Mes);
+        var (desde, hasta) = await reloj.RangoAsync(p.Anio, p.Mes, ct);
         var gastos = await movimientos.TotalesPorCategoriaAsync(TipoMovimiento.Gasto, desde, hasta, ct);
         var porCategoria = (await categorias.ListarAsync(null, true, ct)).ToDictionary(c => c.Id);
         return ToDto(p, porCategoria, gastos, gastos.Values.Sum());
@@ -120,12 +123,6 @@ public class PresupuestoService(
             categoria?.Color, categoria?.Icono,
             p.Anio, p.Mes, p.Monto, gastado, p.Monto - gastado, porcentaje,
             Presupuesto.CalcularEstado(porcentaje));
-    }
-
-    private static (DateOnly Desde, DateOnly Hasta) Periodo(int anio, int mes)
-    {
-        var desde = new DateOnly(anio, mes, 1);
-        return (desde, desde.AddMonths(1).AddDays(-1));
     }
 
     private static void ValidarPeriodo(int anio, int mes)

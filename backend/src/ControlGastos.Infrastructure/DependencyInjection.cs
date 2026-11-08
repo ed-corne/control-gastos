@@ -1,4 +1,5 @@
 using ControlGastos.Application.Categorias;
+using ControlGastos.Application.Configuraciones;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Application.Metas;
 using ControlGastos.Application.Movimientos;
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IMovimientoRepository, MovimientoRepository>();
         services.AddScoped<IPresupuestoRepository, PresupuestoRepository>();
         services.AddScoped<IMetaRepository, MetaRepository>();
+        services.AddScoped<IConfiguracionRepository, ConfiguracionRepository>();
         return services;
     }
 }

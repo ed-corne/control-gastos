@@ -1,14 +1,15 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DineroPipe } from '../../core/dinero.pipe';
 import { hoyIso } from '../movimientos/movimiento.model';
 import { ICONOS_META, Meta, OperacionMeta, TipoOperacionMeta } from './meta.model';
 import { MetasService } from './metas.service';
 
 @Component({
   selector: 'app-metas-page',
-  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe],
+  imports: [ReactiveFormsModule, DineroPipe, DatePipe],
   templateUrl: './metas-page.html',
   styleUrl: './metas-page.scss',
 })

@@ -1,5 +1,5 @@
 <header class="barra">
-  <strong>Control de Gastos</strong>
+  <strong>Control de Gastos@if (config.config().nombre) { · {{ config.config().nombre }}}</strong>
   <nav>
     <a routerLink="/resumen" routerLinkActive="activo">Resumen</a>
     <a routerLink="/movimientos" routerLinkActive="activo">Movimientos</a>
@@ -8,6 +8,7 @@
     <a routerLink="/cuentas" routerLinkActive="activo">Cuentas</a>
     <a routerLink="/reportes" routerLinkActive="activo">Reportes</a>
     <a routerLink="/categorias" routerLinkActive="activo">Categorías</a>
+    <a routerLink="/ajustes" routerLinkActive="activo">Ajustes</a>
   </nav>
   <span class="status" [class.ok]="apiStatus() === 'conectada'" [class.error]="apiStatus() === 'sin conexión'">
     API: {{ apiStatus() }}

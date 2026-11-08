@@ -1,8 +1,9 @@
-import { CurrencyPipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { DineroPipe } from '../../core/dinero.pipe';
 import { forkJoin } from 'rxjs';
 import { Categoria } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
+import { ConfiguracionStore } from '../../core/configuracion.store';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { ComparativoMensual, IngresosGastosMes, SerieCategoria } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
@@ -45,7 +46,7 @@ interface Punto {
 
 @Component({
   selector: 'app-reportes-page',
-  imports: [CurrencyPipe],
+  imports: [DineroPipe],
   templateUrl: './reportes-page.html',
   styleUrl: './reportes-page.scss',
 })
@@ -53,6 +54,7 @@ export class ReportesPage {
   private readonly api = inject(DashboardService);
   private readonly categoriasApi = inject(CategoriasService);
   private readonly movimientos = inject(MovimientosEstado);
+  private readonly config = inject(ConfiguracionStore);
 
   protected readonly w = W;
   protected readonly h = H;
@@ -236,7 +238,7 @@ export class ReportesPage {
   }
 
   private moneda(n: number): string {
-    return n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+    return n.toLocaleString('es-MX', { style: 'currency', currency: this.config.moneda() });
   }
 
   private etiquetaCorta(anio: number, mes: number): string {

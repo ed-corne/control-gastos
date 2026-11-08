@@ -69,11 +69,11 @@
         </div>
 
         <div class="cifras">
-          <span>Asignado <b>{{ p.asignado | currency: 'MXN' : 'symbol-narrow' }}</b></span>
-          <span>Gastado <b>{{ p.gastado | currency: 'MXN' : 'symbol-narrow' }}</b></span>
+          <span>Asignado <b>{{ p.asignado | dinero }}</b></span>
+          <span>Gastado <b>{{ p.gastado | dinero }}</b></span>
           <span [class.excedido]="p.restante < 0">
             {{ p.restante < 0 ? 'Excedido' : 'Queda' }}
-            <b>{{ (p.restante < 0 ? -p.restante : p.restante) | currency: 'MXN' : 'symbol-narrow' }}</b>
+            <b>{{ (p.restante < 0 ? -p.restante : p.restante) | dinero }}</b>
           </span>
         </div>
 

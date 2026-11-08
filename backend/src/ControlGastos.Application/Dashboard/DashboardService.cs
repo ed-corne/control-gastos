@@ -1,8 +1,10 @@
 using ControlGastos.Application.Categorias;
 using ControlGastos.Application.Common;
+using ControlGastos.Application.Configuraciones;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Application.Movimientos;
 using ControlGastos.Application.Presupuestos;
+using ControlGastos.Domain.Configuraciones;
 using ControlGastos.Domain.Movimientos;
 
 namespace ControlGastos.Application.Dashboard;
@@ -12,16 +14,24 @@ public class DashboardService(
     MovimientoService movimientosService,
     IMovimientoRepository movimientos,
     ICategoriaRepository categorias,
-    PresupuestoService presupuestos)
+    PresupuestoService presupuestos,
+    RelojService reloj)
 {
     /// <summary>
     /// RF-DSH-01 a 04: resumen del periodo (por defecto el mes actual).
     /// </summary>
-    public async Task<DashboardDto> ObtenerAsync(DateOnly? desde, DateOnly? hasta, CancellationToken ct)
+    public async Task<DashboardDto> ObtenerAsync(
+        DateOnly? desde, DateOnly? hasta, bool mesAnterior, CancellationToken ct)
     {
-        var hoy = DateOnly.FromDateTime(DateTime.Now);
-        var inicio = desde ?? new DateOnly(hoy.Year, hoy.Month, 1);
-        var fin = hasta ?? inicio.AddMonths(1).AddDays(-1);
+        var hoy = await reloj.HoyAsync(ct);
+        var dia = await reloj.DiaInicioMesAsync(ct);
+
+        // Sin fechas: el mes financiero actual (o el anterior), según el día de inicio configurado.
+        var (inicio, fin) = (desde, hasta) switch
+        {
+            (null, null) => PeriodoFinanciero(hoy, dia, mesAnterior),
+            _ => (desde ?? PeriodoFinanciero(hoy, dia, false).Desde, hasta ?? PeriodoFinanciero(hoy, dia, false).Hasta),
+        };
 
         if (inicio > fin)
             throw new ReglaNegocioException("La fecha inicial no puede ser posterior a la final.");
@@ -49,8 +59,8 @@ public class DashboardService(
 
         // RF-DSH-03: últimos 5 movimientos y presupuestos que pasan del 75 % (mes del final del periodo).
         var ultimos = await movimientosService.ListarAsync(new FiltroMovimientos { Pagina = 1, Tamano = 5 }, ct);
-        var mesPresupuesto = fin > hoy ? hoy : fin;
-        var enRiesgo = (await presupuestos.ListarAsync(mesPresupuesto.Year, mesPresupuesto.Month, ct))
+        var (anioPres, mesPres) = Configuracion.MesFinancieroDe(fin > hoy ? hoy : fin, dia);
+        var enRiesgo = (await presupuestos.ListarAsync(anioPres, mesPres, ct))
             .Where(p => p.Porcentaje >= 75)
             .OrderByDescending(p => p.Porcentaje)
             .ToList();
@@ -59,5 +69,16 @@ public class DashboardService(
             inicio, fin, resumen.SaldoTotal,
             totalIngresos, totalGastos, totalIngresos - totalGastos,
             gastosPorCategoria, ultimos.Items, enRiesgo);
+    }
+
+    private static (DateOnly Desde, DateOnly Hasta) PeriodoFinanciero(DateOnly hoy, int dia, bool anterior)
+    {
+        var (anio, mes) = Configuracion.MesFinancieroDe(hoy, dia);
+        if (anterior)
+        {
+            var previo = new DateOnly(anio, mes, 1).AddMonths(-1);
+            (anio, mes) = (previo.Year, previo.Month);
+        }
+        return Configuracion.Rango(anio, mes, dia);
     }
 }

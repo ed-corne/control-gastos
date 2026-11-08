@@ -1,0 +1,67 @@
+<section class="ajustes">
+  <h2>Configuración</h2>
+
+  <form class="formulario" [formGroup]="form" (ngSubmit)="guardar()">
+    <label>
+      Tu nombre
+      <input type="text" formControlName="nombre" maxlength="100" />
+    </label>
+
+    <label>
+      Moneda principal
+      <select formControlName="moneda">
+        @for (m of monedas; track m) {
+          <option [value]="m">{{ m }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Zona horaria
+      <select formControlName="zonaHoraria">
+        @for (z of zonas; track z) {
+          <option [value]="z">{{ z }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Día de inicio del mes financiero
+      <select formControlName="diaInicioMes">
+        @for (d of dias; track d) {
+          <option [ngValue]="d">{{ d }}</option>
+        }
+      </select>
+      <small>
+        Por ejemplo, tu día de pago. Los presupuestos y el resumen del “mes actual” empiezan ese día.
+        Con 1 equivale al mes calendario.
+      </small>
+    </label>
+
+    <fieldset>
+      <legend>Recordatorio diario</legend>
+      <label class="check">
+        <input type="checkbox" formControlName="recordatorioActivo" />
+        Recordarme registrar mis gastos
+      </label>
+      @if (form.controls.recordatorioActivo.value) {
+        <label>
+          A partir de las
+          <input type="time" formControlName="recordatorioHora" />
+        </label>
+        <small>El aviso aparece en la campana si todavía no registraste movimientos hoy.</small>
+      }
+    </fieldset>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+    @if (guardado()) {
+      <p class="exito">Configuración guardada.</p>
+    }
+
+    <div class="acciones">
+      <button type="submit" class="primario">Guardar</button>
+    </div>
+  </form>
+</section>

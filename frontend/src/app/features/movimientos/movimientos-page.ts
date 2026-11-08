@@ -1,6 +1,6 @@
-import { CurrencyPipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { DineroPipe } from '../../core/dinero.pipe';
 import { forkJoin } from 'rxjs';
 import { Categoria, ICONOS_CATEGORIA } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
@@ -18,7 +18,7 @@ interface GrupoDia {
 
 @Component({
   selector: 'app-movimientos-page',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, DineroPipe],
   templateUrl: './movimientos-page.html',
   styleUrl: './movimientos-page.scss',
 })

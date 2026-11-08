@@ -8,15 +8,15 @@
     <div class="resumen">
       <div>
         <span>Saldo total</span>
-        <strong>{{ r.saldoTotal | currency: 'MXN' : 'symbol-narrow' }}</strong>
+        <strong>{{ r.saldoTotal | dinero }}</strong>
       </div>
       <div>
         <span>Activos</span>
-        <strong>{{ r.totalActivos | currency: 'MXN' : 'symbol-narrow' }}</strong>
+        <strong>{{ r.totalActivos | dinero }}</strong>
       </div>
       <div>
         <span>Deuda en tarjetas</span>
-        <strong class="deuda">{{ r.totalDeudaTarjetas | currency: 'MXN' : 'symbol-narrow' }}</strong>
+        <strong class="deuda">{{ r.totalDeudaTarjetas | dinero }}</strong>
       </div>
     </div>
   }
@@ -93,7 +93,7 @@
           <small>{{ etiquetaTipo(c.tipo) }}@if (c.archivada) { · Archivada }</small>
         </div>
         <span class="saldo" [class.deuda]="c.tipo === 'Credito'">
-          {{ c.saldoActual | currency: 'MXN' : 'symbol-narrow' }}
+          {{ c.saldoActual | dinero }}
         </span>
         <div class="botones">
           <button type="button" (click)="editar(c)">Editar</button>

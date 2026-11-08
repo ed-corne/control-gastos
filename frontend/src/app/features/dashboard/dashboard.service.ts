@@ -9,8 +9,9 @@ export class DashboardService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiUrl;
 
-  dashboard(desde?: string, hasta?: string): Observable<Dashboard> {
+  dashboard(desde?: string, hasta?: string, mesAnterior = false): Observable<Dashboard> {
     let params = new HttpParams();
+    if (mesAnterior) params = params.set('mesAnterior', true);
     if (desde) params = params.set('desde', desde);
     if (hasta) params = params.set('hasta', hasta);
     return this.http.get<Dashboard>(`${this.api}/dashboard`, { params });

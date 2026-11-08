@@ -1,14 +1,14 @@
-import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DineroPipe } from '../../core/dinero.pipe';
 import { Cuenta, ICONOS_CUENTA, ResumenCuentas, TIPOS_CUENTA } from './cuenta.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
 import { CuentasService } from './cuentas.service';
 
 @Component({
   selector: 'app-cuentas-page',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, DineroPipe],
   templateUrl: './cuentas-page.html',
   styleUrl: './cuentas-page.scss',
 })

@@ -64,7 +64,7 @@
             <small>{{ subtitulo(m) }}</small>
           </div>
           <span class="monto" [class.gasto]="m.tipo === 'Gasto'" [class.ingreso]="m.tipo === 'Ingreso'">
-            {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | currency: 'MXN' : 'symbol-narrow' }}
+            {{ m.tipo === 'Gasto' ? '−' : m.tipo === 'Ingreso' ? '+' : '' }}{{ m.monto | dinero }}
           </span>
           <div class="botones">
             <button type="button" (click)="estado.editar(m)">Editar</button>

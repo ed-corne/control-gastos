@@ -1,7 +1,7 @@
-import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DineroPipe } from '../../core/dinero.pipe';
 import { Categoria, ICONOS_CATEGORIA } from '../categorias/categoria.model';
 import { CategoriasService } from '../categorias/categorias.service';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
@@ -10,7 +10,7 @@ import { PresupuestosService } from './presupuestos.service';
 
 @Component({
   selector: 'app-presupuestos-page',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, DineroPipe],
   templateUrl: './presupuestos-page.html',
   styleUrl: './presupuestos-page.scss',
 })

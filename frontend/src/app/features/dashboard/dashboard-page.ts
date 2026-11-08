@@ -1,6 +1,7 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DineroPipe } from '../../core/dinero.pipe';
 import { ICONOS_CATEGORIA } from '../categorias/categoria.model';
 import { Movimiento } from '../movimientos/movimiento.model';
 import { MovimientosEstado } from '../movimientos/movimientos-estado';
@@ -23,7 +24,7 @@ const CIRCUNFERENCIA = 2 * Math.PI * RADIO;
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [CurrencyPipe, DatePipe, FormsModule],
+  imports: [DineroPipe, DatePipe, FormsModule],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.scss',
 })
@@ -91,26 +92,14 @@ export class DashboardPage {
   private cargar(): void {
     this.error.set('');
     const { desde, hasta } = this.rango();
-    this.api.dashboard(desde, hasta).subscribe({
+    this.api.dashboard(desde, hasta, this.periodo() === 'anterior').subscribe({
       next: (d) => this.datos.set(d),
       error: () => this.error.set('No se pudo cargar el resumen. ¿Está corriendo la API?'),
     });
   }
 
   private rango(): { desde?: string; hasta?: string } {
-    const hoy = new Date();
-    if (this.periodo() === 'anterior') {
-      const inicio = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
-      const fin = new Date(hoy.getFullYear(), hoy.getMonth(), 0);
-      return { desde: this.iso(inicio), hasta: this.iso(fin) };
-    }
     if (this.periodo() === 'rango') return { desde: this.desde(), hasta: this.hasta() };
-    return {}; // mes actual: lo resuelve la API
-  }
-
-  private iso(d: Date): string {
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
-    const dia = String(d.getDate()).padStart(2, '0');
-    return `${d.getFullYear()}-${mes}-${dia}`;
+    return {}; // mes actual o anterior: lo resuelve la API según el mes financiero
   }
 }

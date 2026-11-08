@@ -1,4 +1,5 @@
 using ControlGastos.Application.Categorias;
+using ControlGastos.Application.Configuraciones;
 using ControlGastos.Application.Cuentas;
 using ControlGastos.Application.Dashboard;
 using ControlGastos.Application.Metas;
@@ -18,6 +19,8 @@ public static class DependencyInjection
         services.AddScoped<MovimientoService>();
         services.AddScoped<PresupuestoService>();
         services.AddScoped<MetaService>();
+        services.AddScoped<ConfiguracionService>();
+        services.AddScoped<RelojService>();
         services.AddScoped<DashboardService>();
         services.AddScoped<ReporteService>();
         return services;

@@ -82,9 +82,9 @@
         </div>
 
         <div class="cifras">
-          <span>Ahorrado <b>{{ m.ahorrado | currency: 'MXN' : 'symbol-narrow' }}</b></span>
-          <span>Falta <b>{{ m.falta | currency: 'MXN' : 'symbol-narrow' }}</b></span>
-          <span>Meta <b>{{ m.montoObjetivo | currency: 'MXN' : 'symbol-narrow' }}</b></span>
+          <span>Ahorrado <b>{{ m.ahorrado | dinero }}</b></span>
+          <span>Falta <b>{{ m.falta | dinero }}</b></span>
+          <span>Meta <b>{{ m.montoObjetivo | dinero }}</b></span>
         </div>
 
         @if (m.cumplida) {
@@ -97,7 +97,7 @@
               Fecha límite: {{ m.fechaLimite | date: 'dd/MM/yyyy' }}.
             }
             @if (m.ahorroMensualSugerido !== null) {
-              Ahorra <b>{{ m.ahorroMensualSugerido | currency: 'MXN' : 'symbol-narrow' }}</b> al mes para llegar a tiempo.
+              Ahorra <b>{{ m.ahorroMensualSugerido | dinero }}</b> al mes para llegar a tiempo.
             }
           </p>
         }
@@ -131,7 +131,7 @@
                 <span>{{ o.fecha | date: 'dd/MM/yyyy' }}</span>
                 <span class="nota">{{ o.nota || (o.tipo === 'Aportacion' ? 'Aportación' : 'Retiro') }}</span>
                 <b [class.retiro]="o.tipo === 'Retiro'">
-                  {{ o.tipo === 'Aportacion' ? '+' : '−' }}{{ o.monto | currency: 'MXN' : 'symbol-narrow' }}
+                  {{ o.tipo === 'Aportacion' ? '+' : '−' }}{{ o.monto | dinero }}
                 </b>
               </li>
             } @empty {

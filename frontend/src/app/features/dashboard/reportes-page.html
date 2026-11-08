@@ -26,8 +26,8 @@
           @for (m of meses(); track m.mes + '-' + m.anio) {
             <tr>
               <td>{{ etiquetaMesTabla(m.anio, m.mes) }}</td>
-              <td>{{ m.ingresos | currency: 'MXN' : 'symbol-narrow' }}</td>
-              <td>{{ m.gastos | currency: 'MXN' : 'symbol-narrow' }}</td>
+              <td>{{ m.ingresos | dinero }}</td>
+              <td>{{ m.gastos | dinero }}</td>
             </tr>
           }
         </tbody>
@@ -75,7 +75,7 @@
             @for (p of s.serie; track p.mes + '-' + p.anio) {
               <tr>
                 <td>{{ etiquetaMesTabla(p.anio, p.mes) }}</td>
-                <td>{{ p.total | currency: 'MXN' : 'symbol-narrow' }}</td>
+                <td>{{ p.total | dinero }}</td>
               </tr>
             }
           </tbody>
@@ -126,9 +126,9 @@
             @for (f of c.categorias; track f.categoriaId) {
               <tr>
                 <td><span class="punto-cat" [style.background]="f.color"></span> {{ f.nombre }}</td>
-                <td>{{ f.actual | currency: 'MXN' : 'symbol-narrow' }}</td>
-                <td>{{ f.anterior | currency: 'MXN' : 'symbol-narrow' }}</td>
-                <td>{{ f.diferencia | currency: 'MXN' : 'symbol-narrow' }}</td>
+                <td>{{ f.actual | dinero }}</td>
+                <td>{{ f.anterior | dinero }}</td>
+                <td>{{ f.diferencia | dinero }}</td>
                 <td [class]="claseVariacion(f.variacionPorcentaje)">
                   @if (f.variacionPorcentaje === null) {
                     Nuevo
@@ -142,9 +142,9 @@
           <tfoot>
             <tr>
               <td>Total</td>
-              <td>{{ c.totalActual | currency: 'MXN' : 'symbol-narrow' }}</td>
-              <td>{{ c.totalAnterior | currency: 'MXN' : 'symbol-narrow' }}</td>
-              <td>{{ c.totalActual - c.totalAnterior | currency: 'MXN' : 'symbol-narrow' }}</td>
+              <td>{{ c.totalActual | dinero }}</td>
+              <td>{{ c.totalAnterior | dinero }}</td>
+              <td>{{ c.totalActual - c.totalAnterior | dinero }}</td>
               <td [class]="claseVariacion(c.variacionPorcentaje)">
                 @if (c.variacionPorcentaje === null) {
                   —

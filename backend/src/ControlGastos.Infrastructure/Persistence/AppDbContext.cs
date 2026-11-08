@@ -14,6 +14,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Categoria> Categorias { get; set; }
 
+    public virtual DbSet<Configuracion> Configuracions { get; set; }
+
     public virtual DbSet<Cuenta> Cuentas { get; set; }
 
     public virtual DbSet<Meta> Metas { get; set; }
@@ -55,6 +57,36 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Tipo)
                 .HasMaxLength(10)
                 .HasColumnName("tipo");
+        });
+
+        modelBuilder.Entity<Configuracion>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_configuracion");
+
+            entity.ToTable("configuracion");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValue(1)
+                .HasColumnName("id");
+            entity.Property(e => e.DiaInicioMes)
+                .HasDefaultValue(1)
+                .HasColumnName("dia_inicio_mes");
+            entity.Property(e => e.Moneda)
+                .HasMaxLength(3)
+                .HasDefaultValueSql("'MXN'::character varying")
+                .HasColumnName("moneda");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasDefaultValueSql("''::character varying")
+                .HasColumnName("nombre");
+            entity.Property(e => e.RecordatorioActivo).HasColumnName("recordatorio_activo");
+            entity.Property(e => e.RecordatorioHora)
+                .HasDefaultValueSql("'20:00:00'::time without time zone")
+                .HasColumnName("recordatorio_hora");
+            entity.Property(e => e.ZonaHoraria)
+                .HasMaxLength(60)
+                .HasDefaultValueSql("'America/Mexico_City'::character varying")
+                .HasColumnName("zona_horaria");
         });
 
         modelBuilder.Entity<Cuenta>(entity =>
