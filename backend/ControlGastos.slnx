@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ControlGastos.Api/ControlGastos.Api.csproj" />
+    <Project Path="src/ControlGastos.Application/ControlGastos.Application.csproj" />
+    <Project Path="src/ControlGastos.Domain/ControlGastos.Domain.csproj" />
+    <Project Path="src/ControlGastos.Infrastructure/ControlGastos.Infrastructure.csproj" />
+  </Folder>
+</Solution>

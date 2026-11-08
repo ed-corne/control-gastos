@@ -1,0 +1,11 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+# Datos personales
+*.xlsx
+# Node
+node_modules/
+dist/
+.angular/
