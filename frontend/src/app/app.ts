@@ -10,6 +10,7 @@ import { NotificacionesService } from './core/notificaciones.service';
 import { ThemeService } from './core/theme.service';
 import { MovimientoForm } from './features/movimientos/movimiento-form';
 import { MovimientosEstado } from './features/movimientos/movimientos-estado';
+import { FlagComponent } from './core/flag.component';
 import { IdiomaService } from './core/idioma.service';
 
 interface ItemMenu {
@@ -20,7 +21,7 @@ interface ItemMenu {
 
 @Component({
   selector: 'app-root',
-  imports: [TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, MovimientoForm, IconComponent],
+  imports: [TranslatePipe, FlagComponent, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, MovimientoForm, IconComponent],
   templateUrl: './app.html',
 })
 export class App {

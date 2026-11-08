@@ -5,11 +5,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfiguracionStore } from '../../core/configuracion.store';
 import { IconComponent } from '../../core/icon.component';
 import { Tema, ThemeService } from '../../core/theme.service';
+import { FlagComponent } from '../../core/flag.component';
 import { IdiomaService } from '../../core/idioma.service';
 
 @Component({
   selector: 'app-configuracion-page',
-  imports: [TranslatePipe, ReactiveFormsModule, IconComponent],
+  imports: [TranslatePipe, FlagComponent, ReactiveFormsModule, IconComponent],
   templateUrl: './configuracion-page.html',
 })
 export class ConfiguracionPage {

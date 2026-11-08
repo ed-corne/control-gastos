@@ -28,7 +28,7 @@
         <button type="button" class="btn !min-h-12 justify-start" (click)="idioma.elegir(i.codigo)"
                 [attr.aria-pressed]="idioma.lang() === i.codigo"
                 [class.!border-primary]="idioma.lang() === i.codigo" [class.!bg-primary-soft]="idioma.lang() === i.codigo">
-          <app-icon name="idioma" /> {{ i.nombre }}
+          <app-flag [idioma]="i.codigo" /> {{ i.nombre }}
         </button>
       }
     </div>

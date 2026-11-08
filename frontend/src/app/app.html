@@ -56,15 +56,15 @@
       <span class="ml-1 text-base font-semibold text-ink lg:hidden">{{ 'Control de Gastos' | translate }}</span>
 
       <div class="ml-auto flex items-center gap-1">
-        <button type="button" class="btn-icon !w-auto gap-1 px-2 text-xs font-semibold" (click)="idioma.alternar()"
-                [attr.aria-label]="'Cambiar idioma' | translate" [attr.title]="'Cambiar idioma' | translate">
-          <app-icon name="idioma" [size]="18" /> {{ idioma.lang() === 'es' ? 'EN' : 'ES' }}
+        <button type="button" class="btn-icon" (click)="idioma.alternar()"
+                [attr.aria-label]="'Cambiar idioma' | translate" [attr.title]="(idioma.lang() === 'es' ? 'Español' : 'English') + ' · ' + ('Cambiar idioma' | translate)">
+          <app-flag [idioma]="idioma.lang()" [width]="24" />
         </button>
 
         <button type="button" class="btn-icon" (click)="tema.alternar()"
                 [attr.aria-label]="(tema.tema() === 'oscuro' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro') | translate"
-                [attr.title]="(tema.tema() === 'oscuro' ? 'Modo claro' : 'Modo oscuro') | translate">
-          <app-icon [name]="tema.tema() === 'oscuro' ? 'sol' : 'luna'" />
+                [attr.title]="(tema.tema() === 'oscuro' ? 'Modo oscuro' : 'Modo claro') | translate">
+          <app-icon [name]="tema.tema() === 'oscuro' ? 'luna' : 'sol'" />
         </button>
 
         <div class="relative">
